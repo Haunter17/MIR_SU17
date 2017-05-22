@@ -7,18 +7,23 @@ function createDatasetBatch(filelist, filename, outdir)
 fid = fopen(filelist);
 curfile = fgetl(fid);
 trainingSet = [];
-testingSet = [];
+testSet = [];
+label = 1;
 
 while ischar(curfile)
     [pathstr,name,ext] = fileparts(curfile);
     cqt_file = strcat(outdir,name,'.mat');
     Qfile = load(cqt_file); % loads Q (struct)
+    QMat = abs(Qfile.Q.c);
     
-    trainVec, testVec = createDataset(Qfile, outdir, name);
+    [trainVec, testVec] = createDataset(QMat, label);
     trainingSet = cat(1, trainingSet, trainVec);
-    testingSet = cat(1, testingSet, testVec);
+    testSet = cat(1, testSet, testVec);
     
     curfile = fgetl(fid);
+    label = label + 1;
 end
 
-save(filename, 'trainingSet', 'testingSet');
+trainingSet = trainingSet(randperm(size(trainingSet, 1)), :);
+testSet = testSet(randperm(size(testSet, 1)), :);
+save(filename, 'trainingSet', 'testSet');

@@ -11,4 +11,4 @@ computeQSpecBatch(filelist,outdir);
 param.precomputeCQT = 1;
 param.precomputeCQTdir = outdir;
 
-createDatasetBatch(filelist, strcat(outdir,'.mat'), outdir)
+createDatasetBatch(filelist, strcat(outdir,'data.mat'), outdir)
