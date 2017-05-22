@@ -26,4 +26,4 @@ end
 
 trainingSet = trainingSet(randperm(size(trainingSet, 1)), :);
 testSet = testSet(randperm(size(testSet, 1)), :);
-save(filename, 'trainingSet', 'testSet');
+save(filename, 'trainingSet', 'testSet', '-v7.3');
