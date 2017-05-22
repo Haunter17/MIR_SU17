@@ -1,11 +1,8 @@
-function createDatasetBatch(filelist, filename, outpath)
+function createDatasetBatch(filelist, filename, outdir)
 
 % Call pitchProfilePartial to compute energy of each pitch class for 
 % each track in filelist. This is for test files, because training is done
 % only on songs without pitch shifts.
-
-outdir = strcat(outpath);
-mkdir(outdir);
 
 fid = fopen(filelist);
 curfile = fgetl(fid);
@@ -14,7 +11,7 @@ testingSet = [];
 
 while ischar(curfile)
     [pathstr,name,ext] = fileparts(curfile);
-    cqt_file = strcat(out,name,'.mat');
+    cqt_file = strcat(outdir,name,'.mat');
     Qfile = load(cqt_file); % loads Q (struct)
     
     trainVec, testVec = createDataset(Qfile, outdir, name);
@@ -24,4 +21,4 @@ while ischar(curfile)
     curfile = fgetl(fid);
 end
 
-save(strcat(outpath,filename), 'trainingSet', 'testingSet');
+save(filename, 'trainingSet', 'testingSet');
