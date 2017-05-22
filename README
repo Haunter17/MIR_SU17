@@ -1,0 +1,42 @@
+-----------
+  Purpose
+-----------
+
+The purpose of this code release is to make it painless and easy for other researchers
+to do one of two things: (1) run the hashprint live song id system, or (2) compute
+audio hashprints.  (1) will be of interest to researchers who want to compare their
+own live song id approach with a baseline system.  (2) will be of interest to researchers
+who want to explore the use of hashprints on other tasks or in other contexts.  This
+code base has specifically been developed to make these tasks easy to do.
+
+Note that this code base is NOT the original code used to generate results in the paper 
+"Known-Artist Live Song Identification Using Audio Hashprints".  The original code base 
+is not portable or easy to use: the core functionality is buried under layers of code for
+running experiments, it uses tools that are specific to our institute, and it is highly 
+optimized for runtime performance (it is a hybrid of matlab, python, and cython).
+
+In contrast, this code release is optimized to minimize your headache.  I have stripped
+away all functionality except the most basic form of the system (e.g. no downsampling or
+rescoring).  This system is meant to be lightweight and easy to adapt to new setups.  It 
+should have near-duplicate performance to the HP(1) system shown in figure 3 of the above 
+referenced article.
+
+
+-------------------
+  Getting Started
+-------------------
+
+There are two steps to get started:
+
+1. Download CQT toolbox.  We use the matlab toolbox described in the following paper:  
+Schorkhuber, C., Klapuri, N. Holighaus, and M. Dofler, ``A Matlab Toolbox for Efficient
+Perfect Reconstruction Time-Frequency Transforms with Log-Frequency Resolution".
+It can be downloaded here: http://www.cs.tut.fi/sgn/arg/CQT/
+Add the folder to your matlab path.
+
+2. Look at template.  The file codeTemplate.m shows how to run the live song id system
+or to compute hashprints.  The template should be easy to modify to run on your dataset.
+
+
+TJ Tsai
+ttsai@g.hmc.edu
