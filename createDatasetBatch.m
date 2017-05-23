@@ -8,7 +8,7 @@ fid = fopen(filelist);
 curfile = fgetl(fid);
 trainingSet = [];
 testSet = [];
-label = 1;
+label = 0;
 
 while ischar(curfile)
 	disp(['-- Generating data matrix on file ', int2str(label)]);
