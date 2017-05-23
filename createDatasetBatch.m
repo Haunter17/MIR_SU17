@@ -1,4 +1,4 @@
-function createDatasetBatch(filelist, filename, outdir)
+function createDatasetBatch(filelist, filename, downsamplingRate, outdir)
 
 % Call pitchProfilePartial to compute energy of each pitch class for 
 % each track in filelist. This is for test files, because training is done
@@ -24,6 +24,12 @@ while ischar(curfile)
     curfile = fgetl(fid);
     label = label + 1;
 end
+
+% Note: Downsampling is done before shuffling data to ensure that we sample
+% from every track.
+disp(['==> Downsampling Data'])
+trainingSet = trainingSet(1:downsamplingRate:size(trainingSet,1),:);
+testSet = testSet(1:downsamplingRate:size(testSet,1),:);
 
 disp(['==> Shuffling data...'])
 trainingSet = trainingSet(randperm(size(trainingSet, 1)), :)';
