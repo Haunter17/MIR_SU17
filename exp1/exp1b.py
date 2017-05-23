@@ -71,7 +71,7 @@ sess.run(tf.global_variables_initializer())
 '''
 numTrainingVec = len(X_train)
 batchSize = 1000
-numEpochs = 20
+numEpochs = 300
 print_freq = 5
 
 for epoch in range(numEpochs):
