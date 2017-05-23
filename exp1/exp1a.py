@@ -35,22 +35,29 @@ def bias_variable(shape):
   initial = tf.constant(0.1, shape=shape, dtype=tf.float64)
   return tf.Variable(initial)
 
+'''
+	NN config parameters
+'''
+num_featuers = 121
+hidden_layer_size = 20
+num_classes = y_test.shape[1]
+
 # Set-up NN layers
-x = tf.placeholder(tf.float64, [None, 121])
-W1 = weight_variable([121, 20])
-b1 = bias_variable([20])
+x = tf.placeholder(tf.float64, [None, num_featuers])
+W1 = init_weight_variable([num_featuers, hidden_layer_size])
+b1 = init_bias_variable([hidden_layer_size])
 
 # Hidden layer activation function: ReLU
 h1 = tf.nn.relu(tf.matmul(x, W1) + b1)
 
-W2 = weight_variable([20, 10])
-b2 = bias_variable([10])
+W2 = init_weight_variable([hidden_layer_size, num_classes])
+b2 = init_bias_variable([num_classes])
 
 # Softmax layer (Output), dtype = float64
 y = tf.matmul(h1, W2) + b2
 
 # NN desired value (labels)
-y_ = tf.placeholder(tf.float64, [None, 10])
+y_ = tf.placeholder(tf.float64, [None, num_classes])
 
 # Loss function
 cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
