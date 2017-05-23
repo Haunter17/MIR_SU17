@@ -10,5 +10,6 @@ computeQSpecBatch(filelist,outdir);
 %% Load data into a huge cell array
 param.precomputeCQT = 1;
 param.precomputeCQTdir = outdir;
+downsamplingRate = 7;
 
-createDatasetBatch(filelist, strcat(outdir,'data.mat'), outdir)
+createDatasetBatch(filelist, strcat(outdir,'data.mat'), downsamplingRate, outdir)
