@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 import h5py
 from sklearn.preprocessing import OneHotEncoder
+import matplotlib.pyplot as plt
 
 print('==> Experiment 1b')
 
@@ -42,7 +43,10 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	'''
 		NN config parameters
 	'''
+
 	num_classes = y_test.shape[1]
+	
+	print('==> Creating Neural net with %d features, %d hidden units, and %d classes'%(num_features, hidden_layer_size, num_classes))
 
 	# Set-up NN layers
 	x = tf.placeholder(tf.float64, [None, num_features])
@@ -80,6 +84,8 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	numEpochs = 20
 	print_freq = 5
 
+	print('Training with %d samples, a batch size of %d, for %d epochs'%(numTrainingVec, batchSize, numEpochs))
+
 	for epoch in range(numEpochs):
 	    for i in range(0,numTrainingVec,batchSize):
 
@@ -97,11 +103,53 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	        print("epoch: %d, training accuracy, test accuracy: %g, %g"%(epoch+1, train_accuracy, test_accuracy))
 
 	# Validation
-	print("test accuracy %g"%accuracy.eval(feed_dict={x: X_test, y_: y_test}))
+	train_accuracy = accuracy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
+	test_accuracy = accuracy.eval(feed_dict={x: X_test, y_: y_test})
+	print("test accuracy %g"%(test_accuracy))
+	return [train_accuracy, test_accuracy]
 
 
+''' 
+our main
+'''
 [X_train, y_train, X_test, y_test] = loadData('exp1a_smallDataset.mat')
-runNeuralNet(121, 20, X_train, y_train, X_test, y_test)
+
+numTrainingSamples = X_train.shape[0]
+
+# leave the testing data the same, downsample the training data
+print("==> Starting Downsampling Tests for exp1c")
+# set the rates we want to test at
+downsamplingRates = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50]
+trainingAccuracies = []
+testAccuracies = []
+
+for curRate in downsamplingRates:
+	print("==> Test with Downsampling Rate of %d"%(curRate))
+	# downsample then ron on the downsampled training data
+	X_train_downsampled = X_train[:numTrainingSamples / curRate,:]
+	y_train_downsampled = y_train[:numTrainingSamples / curRate, :]
+	[trainingAccuracy, testAccuracy] = runNeuralNet(121, 20, X_train_downsampled, y_train_downsampled, X_test, y_test)
+	# track the final accuracies
+	trainingAccuracies += [trainingAccuracy]
+	testAccuracies += [testAccuracy]
+
+'''
+Printing results
+'''
+print("--------------------------")
+print("Summary Of Results")
+print("--------------------------")
+print("Downsampling Rates: %s"%str(downsamplingRates))
+print("Training Accuracies: %s"%str(trainingAccuracies))
+print("Test Accuracies: %s"%str(testAccuracies))
+
+'''
+Plotting results
+'''
+plt.plot(downsamplingRates, trainingAccuracies, label="Training Accuracy", marker="o", ls="None")
+plt.plot(downsamplingRates, testAccuracies, label="Test Accuracy", marker="o", ls="None")
+plt.legend(loc="upper left", frameon=False)
+plt.show()
 
 
 
