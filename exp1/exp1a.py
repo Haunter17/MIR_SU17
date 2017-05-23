@@ -4,8 +4,10 @@ import h5py
 from sklearn.preprocessing import OneHotEncoder
 
 # Download data from .mat file into numpy array
+# small dataset can be downloaded at https://drive.google.com/file/d/0BxtJa9dtWREBTUxlYVgtOVdpQ1k/view?usp=sharing
+
 print('==> Experiment 1a')
-filepath = 'smallDataset.mat'
+filepath = 'exp1a_smallDataset.mat'
 print('==> Loading data from {}'.format(filepath))
 f = h5py.File(filepath)
 data_train = np.array(f.get('trainingSet'))
