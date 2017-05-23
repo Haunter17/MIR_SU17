@@ -4,7 +4,7 @@ import h5py
 from sklearn.preprocessing import OneHotEncoder
 
 print('==> Experiment 1b')
-filepath = '../taylorswift_out/data.mat'
+filepath = '../taylorswift_out/small.mat'
 print('==> Loading data from {}'.format(filepath))
 f = h5py.File(filepath)
 data_train = np.array(f.get('trainingSet'))
@@ -37,7 +37,7 @@ def init_bias_variable(shape):
 '''
 num_featuers = 121
 hidden_layer_size = 20
-num_classes = max(max(y_train), max(y_test)) + 1 # label starts from 0
+num_classes = y_test.shape[1]
 
 # Set-up NN layers
 x = tf.placeholder(tf.float64, [None, num_featuers])
@@ -72,7 +72,7 @@ sess.run(tf.global_variables_initializer())
 numTrainingVec = len(X_train)
 batchSize = 1000
 numEpochs = 20
-print_freq = 50
+print_freq = 5
 
 for epoch in range(numEpochs):
     for i in range(0,numTrainingVec,batchSize):
