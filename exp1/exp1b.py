@@ -6,8 +6,10 @@ import time
 print('==> Experiment 1b')
 filepath = '../taylorswift_out/small.mat'
 print('==> Loading data from {}'.format(filepath))
+# benchmark
 t_start = time.time()
 
+# reading data
 f = h5py.File(filepath)
 data_train = np.array(f.get('trainingSet'))
 X_train = data_train[:, :-1]
@@ -18,7 +20,6 @@ y_test = data_test[:, -1].reshape(-1, 1)
 t_end = time.time()
 print('--Time elapsed for loading data: {t:4.2f} \
     seconds'.format(t = t_end - t_start))
-
 del data_train, data_test, f
 print('-- Number of training samples: {}'.format(X_train.shape[0]))
 print('-- Number of test samples: {}'.format(X_test.shape[0]))
