@@ -42,6 +42,7 @@ def init_bias_variable(shape):
 
 def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_test):
 
+
 	'''
 		NN config parameters
 	'''
@@ -185,26 +186,26 @@ plt.show()
 fig = plt.figure()
 accPlot = fig.add_subplot(221)
 
-accPlot.plot(downsamplingRates, trainingAccuracies, label="Training accuracy", marker="o", ls="None")
-accPlot.plot(downsamplingRates, testAccuracies, label="Validation accuracy", marker="o", ls="None")
+accPlot.plot(downsamplingRates, trainingAccuracies, label="Training", marker="o", ls="None")
+accPlot.plot(downsamplingRates, testAccuracies, label="Validation", marker="o", ls="None")
 accPlot.set_xlabel("Downsampling Rate")
-accPlot.set_ylabel("Error")
-accPlot.legend(loc="lower left", frameon=False)
+accPlot.set_ylabel("Accuracy (%)")
+accPlot.legend(loc="upper right", frameon=False)
 accPlot.set_title("Accuracy vs. Downsampling Rate")
 
 errPlot = fig.add_subplot(222)
-errPlot.plot(downsamplingRates, trainingCosts, label="Training Cross Entropy Error", marker="o", ls="None")
-errPlot.plot(downsamplingRates, testCosts, label="Validation Cross Entropy Error", marker="o", ls="None")
+errPlot.plot(downsamplingRates, trainingCosts, label="Training", marker="o", ls="None")
+errPlot.plot(downsamplingRates, testCosts, label="Validation", marker="o", ls="None")
 errPlot.set_xlabel("Downsampling Rate")
 errPlot.set_ylabel("Error")
 errPlot.legend(loc="lower right", frameon=False)
 errPlot.set_title("Error vs. Downsampling Rate")
 
 reciprocalErrPlot = fig.add_subplot(223)
-reciprocalErrPlot.plot(recipOfDownsampling, trainingCosts, label="Training Cross Entropy Error", marker="o", ls="None")
-reciprocalErrPlot.plot(recipOfDownsampling, testCosts, label="Validation Cross Entropy Error", marker="o", ls="None")
+reciprocalErrPlot.plot(recipOfDownsampling, trainingCosts, label="Training", marker="o", ls="None")
+reciprocalErrPlot.plot(recipOfDownsampling, testCosts, label="Validation", marker="o", ls="None")
 reciprocalErrPlot.set_xlabel("Percent Of Data Remaining after Downsampling")
-reciprocalErrPlot.set_ylabel("Error")
+reciprocalErrPlot.set_ylabel("Cross-Entropy Error")
 reciprocalErrPlot.legend(loc="lower left", frameon=False)
 reciprocalErrPlot.set_title("Error vs. Percent of Data Remaining")
 
