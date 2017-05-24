@@ -4,7 +4,7 @@ import h5py
 import time
 
 print('==> Experiment 1b')
-filepath = '../taylorswift_out/data.mat'
+filepath = '../taylorswift_out/small.mat'
 print('==> Loading data from {}'.format(filepath))
 t_start = time.time()
 
@@ -38,7 +38,7 @@ def init_bias_variable(shape):
 '''
 num_featuers = 121
 hidden_layer_size = 20
-num_classes = max(y_train.max(), y_test.max()) + 1
+num_classes = int(max(y_train.max(), y_test.max()) + 1)
 
 # Transform labels into on-hot encoding form
 y_train_OHEnc = tf.one_hot(y_train.copy(), num_classes)
@@ -73,30 +73,29 @@ sess.run(tf.global_variables_initializer())
 
 y_train = sess.run(y_train_OHEnc)[:, 0, :]
 y_test = sess.run(y_test_OHEnc)[:, 0, :]
-print(y_train.shape, y_test.shape)
 
-# '''
-# 	Training config
-# '''
-# numTrainingVec = len(X_train)
-# batchSize = 1000
-# numEpochs = 300
-# print_freq = 5
+'''
+	Training config
+'''
+numTrainingVec = len(X_train)
+batchSize = 1000
+numEpochs = 300
+print_freq = 5
 
-# for epoch in range(numEpochs):
-#     for i in range(0,numTrainingVec,batchSize):
+for epoch in range(numEpochs):
+    for i in range(0,numTrainingVec,batchSize):
 
-#         # Batch Data
-#         batchEndPoint = min(i+batchSize, numTrainingVec)
-#         trainBatchData = X_train[i:batchEndPoint]
-#         trainBatchLabel = y_train[i:batchEndPoint]
+        # Batch Data
+        batchEndPoint = min(i+batchSize, numTrainingVec)
+        trainBatchData = X_train[i:batchEndPoint]
+        trainBatchLabel = y_train[i:batchEndPoint]
 
-#         train_step.run(feed_dict={x: trainBatchData, y_: trainBatchLabel})
+        train_step.run(feed_dict={x: trainBatchData, y_: trainBatchLabel})
 
-#     # Print accuracy
-#     if (epoch + 1) % print_freq == 0:
-#         train_accuracy = accuracy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
-#         print("epoch: %d, training accuracy %g"%(epoch + 1, train_accuracy))
+    # Print accuracy
+    if (epoch + 1) % print_freq == 0:
+        train_accuracy = accuracy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
+        print("epoch: %d, training accuracy %g"%(epoch + 1, train_accuracy))
 
-# # Validation
-# print("test accuracy %g"%accuracy.eval(feed_dict={x: X_test, y_: y_test}))
+# Validation
+print("test accuracy %g"%accuracy.eval(feed_dict={x: X_test, y_: y_test}))
