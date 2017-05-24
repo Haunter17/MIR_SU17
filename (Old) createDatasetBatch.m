@@ -1,5 +1,9 @@
 function createDatasetBatch(filelist, filename, downsamplingRate, outdir)
 
+% ***Note: This version of createDatasetBatch does not separate features and labels 
+% before saving the matrices. The resulting matrices will have the dimension of
+% 122 x number of samples, which can be read by the python code that is also marked (old).***
+
 % Call pitchProfilePartial to compute energy of each pitch class for 
 % each track in filelist. This is for test files, because training is done
 % only on songs without pitch shifts.
