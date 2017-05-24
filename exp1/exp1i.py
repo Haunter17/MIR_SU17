@@ -71,7 +71,7 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
 	train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 
-	sess = tf.InteractiveSession(config=tf.ConfigProto(log_device_placement=True)) #config=tf.ConfigProto(log_device_placement=True)
+	sess = tf.InteractiveSession()
 
 	correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
 	accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float64))
@@ -83,12 +83,15 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	'''
 	numTrainingVec = len(X_train)
 	batchSize = 1000
-	numEpochs = 300
+	numEpochs = 2
 	print_freq = 5
 
 	print('Training with %d samples, a batch size of %d, for %d epochs'%(numTrainingVec, batchSize, numEpochs))
 
 	for epoch in range(numEpochs):
+
+	    epochStart = time.time()
+
 	    for i in range(0,numTrainingVec,batchSize):
 
 	        # Batch Data
@@ -98,32 +101,39 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 
 	        train_step.run(feed_dict={x: trainBatchData, y_: trainBatchLabel})
 
+	    epochEnd = time.time()
 	    # Print accuracy
 	    if (epoch + 1) % print_freq == 0:
 	        train_accuracy = accuracy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
 	        test_accuracy = accuracy.eval(feed_dict={x: X_test, y_: y_test})
-	        print("epoch: %d, training accuracy, test accuracy: %g, %g"%(epoch+1, train_accuracy, test_accuracy))
+	        train_cost = cross_entropy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
+	        test_cost = cross_entropy.eval(feed_dict={x: X_test, y_: y_test})
+	        print("epoch: %d, time: %d, t acc, v acc, t cost, v cost: %g, %g, %g, %g"%(epoch+1, epochEnd - epochStart, train_accuracy, test_accuracy, train_cost, test_cost))
 
 	# Validation
-	train_accuracy = accuracy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
+	train_accuracy = accuracy.eval(feed_dict={x:X_train, y_: y_train})
 	test_accuracy = accuracy.eval(feed_dict={x: X_test, y_: y_test})
+	train_cost = cross_entropy.eval(feed_dict={x:X_train, y_: y_train})
+	test_cost = cross_entropy.eval(feed_dict={x:X_test, y_: y_test})
 	print("test accuracy %g"%(test_accuracy))
-	return [train_accuracy, test_accuracy]
+	return [train_accuracy, test_accuracy, train_cost, test_cost]
 
 
 ''' 
 our main
 '''
-[X_train, y_train, X_test, y_test] = loadData('taylorswift_fullDataset_71_1.mat')
+[X_train, y_train, X_test, y_test] = loadData('taylorswift_smallDataset_71_7.mat')
 
 numTrainingSamples = X_train.shape[0]
 
 # leave the testing data the same, downsample the training data
 print("==> Starting Downsampling Tests for exp1c")
 # set the rates we want to test at
-downsamplingRates = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50]
+downsamplingRates = [1, 2, 3, 4, 5, 6, 7]
 trainingAccuracies = []
 testAccuracies = []
+trainingCosts = []
+testCosts = []
 
 for curRate in downsamplingRates:
 	startOfLoop = time.time()
@@ -131,12 +141,15 @@ for curRate in downsamplingRates:
 	# downsample then ron on the downsampled training data
 	X_train_downsampled = X_train[:numTrainingSamples / curRate,:]
 	y_train_downsampled = y_train[:numTrainingSamples / curRate, :]
-	[trainingAccuracy, testAccuracy] = runNeuralNet(121, 20, X_train_downsampled, y_train_downsampled, X_test, y_test)
+	[trainingAccuracy, testAccuracy, trainingCost, testCost] = runNeuralNet(121, 20, X_train_downsampled, y_train_downsampled, X_test, y_test)
 	# track the final accuracies
 	trainingAccuracies += [trainingAccuracy]
 	testAccuracies += [testAccuracy]
+	trainingCosts += [trainingCost]
+	testCosts += [testCost]
+
 	endOfLoop = time.time()
-	print("Test with downsampling of %d took: %d"(curRate, endOfLoop - startOfLoop))
+	print("Test with downsampling of %d took: %d"%(curRate, endOfLoop - startOfLoop))
 
 endTime = time.time()
 print("Whole experiment Took: %d"%(endTime - startTime))
@@ -151,16 +164,52 @@ print("--------------------------")
 print("Downsampling Rates: %s"%str(downsamplingRates))
 print("Training Accuracies: %s"%str(trainingAccuracies))
 print("Test Accuracies: %s"%str(testAccuracies))
+print("Training Costs: %s"%str(trainingCosts))
+print("Test Costs: %s"%str(testCosts))
 
 '''
 Plotting results
 '''
+
+recipOfDownsampling = map(lambda x:1.0/x, downsamplingRates)
+
+matplotlib.rcParams.update({'font.size': 8})
+
 plt.plot(downsamplingRates, trainingAccuracies, label="Training Accuracy", marker="o", ls="None")
 plt.plot(downsamplingRates, testAccuracies, label="Test Accuracy", marker="o", ls="None")
 plt.xlabel("Downsampling of Training Data")
 plt.ylabel("Accuracy")
 plt.legend(loc="upper left", frameon=False)
 plt.show()
+
+fig = plt.figure()
+accPlot = fig.add_subplot(221)
+
+accPlot.plot(downsamplingRates, trainingAccuracies, label="Training accuracy", marker="o", ls="None")
+accPlot.plot(downsamplingRates, testAccuracies, label="Validation accuracy", marker="o", ls="None")
+accPlot.set_xlabel("Downsampling Rate")
+accPlot.set_ylabel("Error")
+accPlot.legend(loc="lower left", frameon=False)
+accPlot.set_title("Accuracy vs. Downsampling Rate")
+
+errPlot = fig.add_subplot(222)
+errPlot.plot(downsamplingRates, trainingCosts, label="Training Cross Entropy Error", marker="o", ls="None")
+errPlot.plot(downsamplingRates, testCosts, label="Validation Cross Entropy Error", marker="o", ls="None")
+errPlot.set_xlabel("Downsampling Rate")
+errPlot.set_ylabel("Error")
+errPlot.legend(loc="lower right", frameon=False)
+errPlot.set_title("Error vs. Downsampling Rate")
+
+reciprocalErrPlot = fig.add_subplot(223)
+reciprocalErrPlot.plot(recipOfDownsampling, trainingCosts, label="Training Cross Entropy Error", marker="o", ls="None")
+reciprocalErrPlot.plot(recipOfDownsampling, testCosts, label="Validation Cross Entropy Error", marker="o", ls="None")
+reciprocalErrPlot.set_xlabel("Percent Of Data Remaining after Downsampling")
+reciprocalErrPlot.set_ylabel("Error")
+reciprocalErrPlot.legend(loc="lower left", frameon=False)
+reciprocalErrPlot.set_title("Error vs. Percent of Data Remaining")
+
+fig.tight_layout()
+fig.savefig('exp1i_AccuracyErrorAndRecip.png')
 
 
 

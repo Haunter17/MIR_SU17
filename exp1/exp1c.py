@@ -83,7 +83,7 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	'''
 	numTrainingVec = len(X_train)
 	batchSize = 1000
-	numEpochs = 10
+	numEpochs = 300
 	print_freq = 5
 
 	print('Training with %d samples, a batch size of %d, for %d epochs'%(numTrainingVec, batchSize, numEpochs))
@@ -167,12 +167,28 @@ Plotting results
 trainingError = map(lambda x: 1.0 - x, trainingAccuracies)
 validationError = map(lambda x: 1.0 - x, testAccuracies)
 
-plt.plot(numSongs, trainingError, label="One-hot error", marker="o", ls="None")
-plt.plot(numSongs, validationError, label="Validation one-hot error", marker="o", ls="None")
-plt.xlabel("Number of songs")
-plt.ylabel("Error")
-plt.legend(loc="upper left", frameon=False)
-plt.show()
+fig = plt.figure()
+accPlot = fig.add_subplot(211)
+
+accPlot.plot(numSongs, trainingAccuracies, label="Training accuracy", marker="o", ls="None")
+accPlot.plot(numSongs, testAccuracies, label="Validation accuracy", marker="o", ls="None")
+accPlot.set_xlabel("Number of songs")
+accPlot.set_ylabel("Error")
+accPlot.legend(loc="upper left", frameon=False)
+accPlot.set_title("Accuracy vs. Number of Songs")
+
+errPlot = fig.add_subplot(212)
+errPlot.plot(numSongs, trainingError, label="One-hot error", marker="o", ls="None")
+errPlot.plot(numSongs, validationError, label="Validation one-hot error", marker="o", ls="None")
+errPlot.set_xlabel("Number of songs")
+errPlot.set_ylabel("Error")
+errPlot.legend(loc="upper left", frameon=False)
+errPlot.set_title("Error vs. Number of Songs")
+
+fig.tight_layout()
+fig.savefig('exp1c_AcurracyAndError.png')
+
+
 
 
 
