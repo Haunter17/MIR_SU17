@@ -18,7 +18,7 @@ data_test = np.array(f.get('testSet'))
 X_test = data_test[:, :-1]
 y_test = data_test[:, -1].reshape(-1, 1)
 t_end = time.time()
-print('--Time elapsed for loading data: {t:4.2f} \
+print('--Time elapsed for loading data: {t:.2f} \
     seconds'.format(t = t_end - t_start))
 del data_train, data_test, f
 print('-- Number of training samples: {}'.format(X_train.shape[0]))
@@ -83,6 +83,8 @@ batchSize = 1000
 numEpochs = 300
 print_freq = 5
 
+# benchmark
+t_start = time.time()
 for epoch in range(numEpochs):
     for i in range(0,numTrainingVec,batchSize):
 
@@ -97,6 +99,10 @@ for epoch in range(numEpochs):
     if (epoch + 1) % print_freq == 0:
         train_accuracy = accuracy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
         print("epoch: %d, training accuracy %g"%(epoch + 1, train_accuracy))
+
+t_end = time.time()
+print('--Time elapsed for training: {t:.2f} \
+    seconds'.format(t = t_end - t_start))
 
 # Validation
 print("test accuracy %g"%accuracy.eval(feed_dict={x: X_test, y_: y_test}))
