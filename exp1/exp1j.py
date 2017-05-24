@@ -9,7 +9,7 @@ import time
 
 startTime = time.time()
 
-print('==> Experiment 1i')
+print('==> Experiment 1c')
 
 def loadData(filepath):
 
@@ -44,7 +44,8 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 
 	'''
 		NN config parameters
-'''
+	'''
+
 	num_classes = y_test.shape[1]
 	
 	print('==> Creating Neural net with %d features, %d hidden units, and %d classes'%(num_features, hidden_layer_size, num_classes))
@@ -62,6 +63,7 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 
 	# Softmax layer (Output), dtype = float64
 	y = tf.matmul(h1, W2) + b2
+
 	# NN desired value (labels)
 	y_ = tf.placeholder(tf.float64, [None, num_classes])
 
@@ -69,8 +71,7 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
 	train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 
-	config = tf.ConfigProto(device_count = {'GPU': 0}, log_device_placement=True)
-	sess = tf.InteractiveSession(config=config)
+	sess = tf.InteractiveSession()
 
 	correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
 	accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float64))
@@ -88,9 +89,6 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	print('Training with %d samples, a batch size of %d, for %d epochs'%(numTrainingVec, batchSize, numEpochs))
 
 	for epoch in range(numEpochs):
-
-	    epochStart = time.time()
-
 	    for i in range(0,numTrainingVec,batchSize):
 
 	        # Batch Data
@@ -100,12 +98,11 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 
 	        train_step.run(feed_dict={x: trainBatchData, y_: trainBatchLabel})
 
-	    epochEnd = time.time()
 	    # Print accuracy
 	    if (epoch + 1) % print_freq == 0:
-	        train_accuracy = accuracy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
+	        train_accuracy = accuracy.eval(feed_dict={x:X_train, y_: y_train})
 	        test_accuracy = accuracy.eval(feed_dict={x: X_test, y_: y_test})
-	        train_cost = cross_entropy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
+	        train_cost = cross_entropy.eval(feed_dict={x:X_train, y_: y_train})
 	        test_cost = cross_entropy.eval(feed_dict={x: X_test, y_: y_test})
 	        print("epoch: %d, time: %g, t acc, v acc, t cost, v cost: %g, %g, %g, %g"%(epoch+1, epochEnd - epochStart, train_accuracy, test_accuracy, train_cost, test_cost))
 
@@ -121,38 +118,36 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 ''' 
 our main
 '''
-[X_train, y_train, X_test, y_test] = loadData('taylorswift_smallDataset_71_7.mat')
 
-numTrainingSamples = X_train.shape[0]
-
-# leave the testing data the same, downsample the training data
 print("==> Starting Downsampling Tests for exp1c")
 # set the rates we want to test at
-downsamplingRates = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 40, 50]
+files = ['bigk.r.i.t._smallDataset_71_7.mat', 'chromeo_smallDataset_44_7.mat', 'deathcabforcutie_smallDataset_87_7.mat', 'foofighters_smallDataset_87_7.mat', 'kanyewest_smallDataset_92_7.mat', 'maroon5_smallDataset_66_7.mat', 'onedirection_smallDataset_60_7.mat', 'taylorswift_smallDataset_71_7.mat']
+numSongs = [71, 44, 87, 87, 92, 66, 60, 71] # track the number of songs for each file
+
 trainingAccuracies = []
 testAccuracies = []
 trainingCosts = []
 testCosts = []
 
-for curRate in downsamplingRates:
+for curFileName in files:
+	print("==> Test with Filename %s"%(curFileName))
 	startOfLoop = time.time()
-	print("==> Test with Downsampling Rate of %d"%(curRate))
-	# downsample then ron on the downsampled training data
-	X_train_downsampled = X_train[:numTrainingSamples / curRate,:]
-	y_train_downsampled = y_train[:numTrainingSamples / curRate, :]
-	[trainingAccuracy, testAccuracy, trainingCost, testCost] = runNeuralNet(121, 100, X_train_downsampled, y_train_downsampled, X_test, y_test)
+
+	[X_train, y_train, X_test, y_test] = loadData(curFileName)
+	# run with this set of data
+	[trainingAccuracy, testAccuracy, trainingCost, testCost] = runNeuralNet(121, 100, X_train, y_train, X_test, y_test)
 	# track the final accuracies
 	trainingAccuracies += [trainingAccuracy]
 	testAccuracies += [testAccuracy]
 	trainingCosts += [trainingCost]
 	testCosts += [testCost]
 
+	# time how long this run took
 	endOfLoop = time.time()
-	print("Test with downsampling of %d took: %d"%(curRate, endOfLoop - startOfLoop))
+	print("Test with file %s took: %d"%(curFileName, endOfLoop - startOfLoop))
 
 endTime = time.time()
 print("Whole experiment Took: %d"%(endTime - startTime))
-
 
 '''
 Printing results
@@ -160,7 +155,7 @@ Printing results
 print("--------------------------")
 print("Summary Of Results")
 print("--------------------------")
-print("Downsampling Rates: %s"%str(downsamplingRates))
+print("Filenames: %s"%str(files))
 print("Training Accuracies: %s"%str(trainingAccuracies))
 print("Test Accuracies: %s"%str(testAccuracies))
 print("Training Costs: %s"%str(trainingCosts))
@@ -170,54 +165,38 @@ print("Test Costs: %s"%str(testCosts))
 Plotting results
 '''
 
-recipOfDownsampling = map(lambda x:1.0/x, downsamplingRates)
+trainingError = map(lambda x: 1.0 - x, trainingAccuracies)
+validationError = map(lambda x: 1.0 - x, testAccuracies)
 
 matplotlib.rcParams.update({'font.size': 8})
 
-plt.plot(downsamplingRates, trainingAccuracies, label="Training Accuracy", marker="o", ls="None")
-plt.plot(downsamplingRates, testAccuracies, label="Test Accuracy", marker="o", ls="None")
-plt.xlabel("Downsampling of Training Data")
-plt.ylabel("Accuracy")
-plt.legend(loc="upper left", frameon=False)
-plt.show()
-
 fig = plt.figure()
-accPlot = fig.add_subplot(221)
+accPlot = fig.add_subplot(211)
 
-accPlot.plot(downsamplingRates, trainingAccuracies, label="Training", marker="o", markersize="3", ls="None")
-accPlot.plot(downsamplingRates, testAccuracies, label="Validation", marker="o", markersize="3", ls="None")
-accPlot.set_xlabel("Downsampling Rate")
-accPlot.set_ylabel("Accuracy (%)")
-accPlot.legend(loc="upper right", frameon=False)
-accPlot.set_title("Accuracy vs. Downsampling Rate")
+accPlot.plot(numSongs, trainingAccuracies, label="Training accuracy", marker="o", ls="None")
+accPlot.plot(numSongs, testAccuracies, label="Validation accuracy", marker="o", ls="None")
+accPlot.set_xlabel("Number of songs")
+accPlot.set_ylabel("Accuracy")
+accPlot.legend(loc="upper left", frameon=False)
+accPlot.set_title("Accuracy vs. Number of Songs")
 
-errPlot = fig.add_subplot(222)
-errPlot.plot(downsamplingRates, trainingCosts, label="Training", marker="o", markersize="3",  ls="None")
-errPlot.plot(downsamplingRates, testCosts, label="Validation", marker="o", markersize="3", ls="None")
-errPlot.set_xlabel("Downsampling Rate")
-errPlot.set_ylabel("Cross-Entropy Error")
-errPlot.legend(loc="lower right", frameon=False)
-errPlot.set_title("Error vs. Downsampling Rate")
-
-reciprocalErrPlot = fig.add_subplot(223)
-reciprocalErrPlot.plot(recipOfDownsampling, trainingCosts, label="Training", marker="o", markersize="3", ls="None")
-reciprocalErrPlot.plot(recipOfDownsampling, testCosts, label="Validation", marker="o", markersize="3", ls="None")
-reciprocalErrPlot.set_xlabel("Percent Of Data Remaining after Downsampling")
-reciprocalErrPlot.set_ylabel("Cross-Entropy Error")
-reciprocalErrPlot.legend(loc="lower left", frameon=False)
-reciprocalErrPlot.set_title("Error vs. Percent of Data Remaining")
+errPlot = fig.add_subplot(212)
+errPlot.plot(numSongs, trainingError, label="Training", marker="o", ls="None")
+errPlot.plot(numSongs, validationError, label="Validation", marker="o", ls="None")
+errPlot.set_xlabel("Number of songs")
+errPlot.set_ylabel("One-hot error")
+errPlot.legend(loc="upper left", frameon=False)
+errPlot.set_title("Error vs. Number of Songs")
 
 fig.tight_layout()
-fig.savefig('exp1i_AccuracyErrorAndRecip.png')
+fig.savefig('exp1c_AcurracyAndError.png')
 
 '''
 --------------------------
-Summary Of Results - on 'taylorswift_smallDataset_71_7.mat'
+Summary Of Results
 --------------------------
-Downsampling Rates: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 40, 50]
-Training Accuracies: [0.53892874164415927, 0.47806151379465373, 0.44131513920560839, 0.40775863754570507, 0.38405699690818662, 0.36050740577797336, 0.34082704580061229, 0.32178401736308004, 0.30807303123625152, 0.29447133010705384, 0.24769027716673986, 0.20829056068827301, 0.18637335777574091, 0.174585716380701, 0.14137661321861558, 0.13651918846247862]
-Test Accuracies: [0.50163891570141617, 0.449460062741313, 0.41443955115830139, 0.38324987934362942, 0.36179818211068215, 0.33886341698841699, 0.32238376769626764, 0.30372727638352648, 0.29301399613899615, 0.28020933880308885, 0.23180099742599738, 0.19884169884169883, 0.17611305501930505, 0.16318774131274127, 0.13811132561132555, 0.12854428088803091]
-Training Costs: [1.6813306359695026, 1.9332665070077102, 2.0811193325782944, 2.2077154246943871, 2.3001199834867907, 2.3931665543962617, 2.47497979334159, 2.5465880652459698, 2.5939233912394779, 2.6515009136545671, 2.8707026074927713, 3.0627334249113582, 3.1785790370267559, 3.2983200331840048, 3.5141303311235879, 3.6721708876656765]
-Test Costs: [1.8309723669637192, 2.0354896755905214, 2.1655903244656738, 2.286901244334369, 2.3709173844094029, 2.4572944759312487, 2.5266386179264084, 2.5972954569980988, 2.6425106567188346, 2.6976812797701628, 2.9020364739279425, 3.0784706741561965, 3.1932050531873348, 3.3134997833991515, 3.5219883284574927, 3.6808464251794963]
+
 '''
+
+
 
