@@ -7,7 +7,7 @@ import time
 
 startTime = time.time()
 
-print('==> Experiment 1c')
+print('==> Experiment 1g')
 
 def loadData(filepath):
 
@@ -84,8 +84,10 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	'''
 	numTrainingVec = len(X_train)
 	batchSize = 1000
-	numEpochs = 400
+	numEpochs = 800
 	print_freq = 5
+	train_accuracies = []
+	test_accuracies = []
 
 	print('Training with %d samples, a batch size of %d, for %d epochs'%(numTrainingVec, batchSize, numEpochs))
 
@@ -99,68 +101,57 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 
 	        train_step.run(feed_dict={x: trainBatchData, y_: trainBatchLabel})
 
+		train_accuracy = accuracy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
+	    test_accuracy = accuracy.eval(feed_dict={x: X_test, y_: y_test})
+	    # keep a list of the training and testing accuracies for each epoch
+	    train_accuracies += [train_accuracy]
+	    test_accuracies += [test_accuracy]
 	    # Print accuracy
 	    if (epoch + 1) % print_freq == 0:
-	        train_accuracy = accuracy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
-	        test_accuracy = accuracy.eval(feed_dict={x: X_test, y_: y_test})
 	        print("epoch: %d, training accuracy, test accuracy: %g, %g"%(epoch+1, train_accuracy, test_accuracy))
 
 	# Validation
 	train_accuracy = accuracy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
 	test_accuracy = accuracy.eval(feed_dict={x: X_test, y_: y_test})
 	print("test accuracy %g"%(test_accuracy))
-	return [train_accuracy, test_accuracy]
+	return [train_accuracies, test_accuracies]
 
 
 ''' 
 our main
 '''
+[X_train, y_train, X_test, y_test] = loadData('taylorswift_smallDataset_71_7.mat')
 
-print("==> Starting Downsampling Tests for exp1c")
-# set the rates we want to test at
-files = ['taylorswift_smallDataset_10_7.mat','taylorswift_smallDataset_20_7.mat', 'taylorswift_smallDataset_30_7.mat', 'taylorswift_smallDataset_40_7.mat', 'taylorswift_smallDataset_50_7.mat', 'taylorswift_smallDataset_60_7.mat', 'taylorswift_smallDataset_70_7.mat']
-numSongs = [10, 20, 30, 40, 50, 60, 70] # track the number of songs for each file
+[train_accuracies, test_accuracies] = runNeuralNet(121, 20, X_train, y_train, X_test, y_test)
 
-trainingAccuracies = []
-testAccuracies = []
-
-for curFileName in files:
-	print("==> Test with Filename %s"%(curFileName))
-	startOfLoop = time.time()
-
-	[X_train, y_train, X_test, y_test] = loadData(curFileName)
-	# run with this set of data
-	[trainingAccuracy, testAccuracy] = runNeuralNet(121, 20, X_train, y_train, X_test, y_test)
-	# track the final accuracies
-	trainingAccuracies += [trainingAccuracy]
-	testAccuracies += [testAccuracy]
-
-	# time how long this run took
-	endOfLoop = time.time()
-	print("Test with downsampling of %d took: %d"(curRate, endOfLoop - startOfLoop))
 
 endTime = time.time()
-print("Whole experiment Took: %d"%(endTime - startTime))
+print("Experiment took: %d"%(endTime - startTime))
 
 '''
 Printing results
 '''
 print("--------------------------")
 print("Summary Of Results")
+print("Training Accuracies: %s"%str(train_accuracies))
+print("Testing Accuracies: %s"%str(test_accuracies))
 print("--------------------------")
-print("Filenames: %s"%str(files))
-print("Training Accuracies: %s"%str(trainingAccuracies))
-print("Test Accuracies: %s"%str(testAccuracies))
+
 
 '''
 Plotting results
 '''
-plt.plot(numSongs, trainingAccuracies, label="Training Accuracy", marker="o", ls="None")
-plt.plot(numSongs, testAccuracies, label="Test Accuracy", marker="o", ls="None")
-plt.xlabel("Number of songs")
+numEpochs = len(train_accuracies)
+epochNumbers = range(numEpochs)
+plt.plot(epochNumbers, train_accuracies, label="Training Accuracy", marker="o", ls="None")
+plt.plot(epochNumbers, test_accuracies, label="Test Accuracy", marker="o", ls="None")
+plt.xlabel("Epoch Number (starting at 0)")
 plt.ylabel("Accuracy")
 plt.legend(loc="upper left", frameon=False)
 plt.show()
+
+
+
 
 
 

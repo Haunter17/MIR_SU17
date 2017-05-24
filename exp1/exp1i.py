@@ -3,6 +3,9 @@ import tensorflow as tf
 import h5py
 from sklearn.preprocessing import OneHotEncoder
 import matplotlib.pyplot as plt
+import time
+
+startTime = time.time()
 
 print('==> Experiment 1i')
 
@@ -112,7 +115,7 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 ''' 
 our main
 '''
-[X_train, y_train, X_test, y_test] = loadData('exp1a_smallDataset_71_7.mat')
+[X_train, y_train, X_test, y_test] = loadData('taylorswift_fullDataset_71_1.mat')
 
 numTrainingSamples = X_train.shape[0]
 
@@ -124,6 +127,7 @@ trainingAccuracies = []
 testAccuracies = []
 
 for curRate in downsamplingRates:
+	startOfLoop = time.time()
 	print("==> Test with Downsampling Rate of %d"%(curRate))
 	# downsample then ron on the downsampled training data
 	X_train_downsampled = X_train[:numTrainingSamples / curRate,:]
@@ -132,6 +136,12 @@ for curRate in downsamplingRates:
 	# track the final accuracies
 	trainingAccuracies += [trainingAccuracy]
 	testAccuracies += [testAccuracy]
+	endOfLoop = time.time()
+	print("Test with downsampling of %d took: %d"(curRate, endOfLoop - startOfLoop))
+
+endTime = time.time()
+print("Whole experiment Took: %d"%(endTime - startTime))
+
 
 '''
 Printing results
