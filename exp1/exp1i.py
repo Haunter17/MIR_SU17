@@ -4,7 +4,7 @@ import h5py
 from sklearn.preprocessing import OneHotEncoder
 import matplotlib.pyplot as plt
 
-print('==> Experiment 1c')
+print('==> Experiment 1i')
 
 def loadData(filepath):
 
@@ -69,7 +69,7 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
 	train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 
-	sess = tf.InteractiveSession()
+	sess = tf.InteractiveSession() #config=tf.ConfigProto(log_device_placement=True)
 
 	correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
 	accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float64))
@@ -81,7 +81,7 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	'''
 	numTrainingVec = len(X_train)
 	batchSize = 1000
-	numEpochs = 400
+	numEpochs = 20
 	print_freq = 5
 
 	print('Training with %d samples, a batch size of %d, for %d epochs'%(numTrainingVec, batchSize, numEpochs))
@@ -112,20 +112,23 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 ''' 
 our main
 '''
+[X_train, y_train, X_test, y_test] = loadData('exp1a_smallDataset_71_7.mat')
 
+numTrainingSamples = X_train.shape[0]
+
+# leave the testing data the same, downsample the training data
 print("==> Starting Downsampling Tests for exp1c")
 # set the rates we want to test at
-files = ['taylorswift_smallDataset_10_7.mat','taylorswift_smallDataset_20_7.mat', 'taylorswift_smallDataset_30_7.mat', 'taylorswift_smallDataset_40_7.mat', 'taylorswift_smallDataset_50_7.mat', 'taylorswift_smallDataset_60_7.mat', 'taylorswift_smallDataset_70_7.mat']
-numSongs = [10, 20, 30, 40, 50, 60, 70] # track the number of songs for each file
-
+downsamplingRates = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50]
 trainingAccuracies = []
 testAccuracies = []
 
-for curFileName in files:
-	print("==> Test with Filename %s"%(curFileName))
-	[X_train, y_train, X_test, y_test] = loadData(curFileName)
-	# run with this set of data
-	[trainingAccuracy, testAccuracy] = runNeuralNet(121, 20, X_train, y_train, X_test, y_test)
+for curRate in downsamplingRates:
+	print("==> Test with Downsampling Rate of %d"%(curRate))
+	# downsample then ron on the downsampled training data
+	X_train_downsampled = X_train[:numTrainingSamples / curRate,:]
+	y_train_downsampled = y_train[:numTrainingSamples / curRate, :]
+	[trainingAccuracy, testAccuracy] = runNeuralNet(121, 20, X_train_downsampled, y_train_downsampled, X_test, y_test)
 	# track the final accuracies
 	trainingAccuracies += [trainingAccuracy]
 	testAccuracies += [testAccuracy]
@@ -136,16 +139,16 @@ Printing results
 print("--------------------------")
 print("Summary Of Results")
 print("--------------------------")
-print("Filenames: %s"%str(files))
+print("Downsampling Rates: %s"%str(downsamplingRates))
 print("Training Accuracies: %s"%str(trainingAccuracies))
 print("Test Accuracies: %s"%str(testAccuracies))
 
 '''
 Plotting results
 '''
-plt.plot(numSongs, trainingAccuracies, label="Training Accuracy", marker="o", ls="None")
-plt.plot(numSongs, testAccuracies, label="Test Accuracy", marker="o", ls="None")
-plt.xlabel("Number of songs")
+plt.plot(downsamplingRates, trainingAccuracies, label="Training Accuracy", marker="o", ls="None")
+plt.plot(downsamplingRates, testAccuracies, label="Test Accuracy", marker="o", ls="None")
+plt.xlabel("Downsampling of Training Data")
 plt.ylabel("Accuracy")
 plt.legend(loc="upper left", frameon=False)
 plt.show()
