@@ -2,6 +2,8 @@ import numpy as np
 import tensorflow as tf
 import h5py
 from sklearn.preprocessing import OneHotEncoder
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import time
 
@@ -13,15 +15,12 @@ def loadData(filepath):
 
 	print('==> Loading data from {}'.format(filepath))
 	f = h5py.File(filepath)
-	data_train = np.array(f.get('trainingSet'))
-	X_train = data_train[:, :-1]
-	y_train = data_train[:, -1].reshape(-1, 1)
-	data_test = np.array(f.get('testSet'))
-	X_test = data_test[:, :-1]
-	y_test = data_test[:, -1].reshape(-1, 1)
-	del data_train, data_test, f
-	print('-- Number of training samples: {}'.format(X_train.shape[0]))
-	print('-- Number of test samples: {}'.format(X_test.shape[0]))
+	X_train = np.array(f.get('trainingFeatures'))
+	y_train = np.array(f.get('trainingLabels'))
+	X_test = np.array(f.get('validationFeatures'))
+	y_test = np.array(f.get('validationLabels'))
+	del f
+	print('==> Data sizes:',X_train.shape, y_train.shape, X_test.shape, y_test.shape)
 
 	# Transform labels into on-hot encoding form
 	enc = OneHotEncoder()

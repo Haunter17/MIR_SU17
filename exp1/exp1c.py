@@ -2,6 +2,8 @@ import numpy as np
 import tensorflow as tf
 import h5py
 from sklearn.preprocessing import OneHotEncoder
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import time
 
@@ -13,15 +15,12 @@ def loadData(filepath):
 
 	print('==> Loading data from {}'.format(filepath))
 	f = h5py.File(filepath)
-	data_train = np.array(f.get('trainingSet'))
-	X_train = data_train[:, :-1]
-	y_train = data_train[:, -1].reshape(-1, 1)
-	data_test = np.array(f.get('testSet'))
-	X_test = data_test[:, :-1]
-	y_test = data_test[:, -1].reshape(-1, 1)
-	del data_train, data_test, f
-	print('-- Number of training samples: {}'.format(X_train.shape[0]))
-	print('-- Number of test samples: {}'.format(X_test.shape[0]))
+	X_train = np.array(f.get('trainingFeatures'))
+	y_train = np.array(f.get('trainingLabels'))
+	X_test = np.array(f.get('validationFeatures'))
+	y_test = np.array(f.get('validationLabels'))
+	del f
+	print('==> Data sizes:',X_train.shape, y_train.shape, X_test.shape, y_test.shape)
 
 	# Transform labels into on-hot encoding form
 	enc = OneHotEncoder()
@@ -84,7 +83,7 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	'''
 	numTrainingVec = len(X_train)
 	batchSize = 1000
-	numEpochs = 400
+	numEpochs = 10
 	print_freq = 5
 
 	print('Training with %d samples, a batch size of %d, for %d epochs'%(numTrainingVec, batchSize, numEpochs))
@@ -103,13 +102,17 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	    if (epoch + 1) % print_freq == 0:
 	        train_accuracy = accuracy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
 	        test_accuracy = accuracy.eval(feed_dict={x: X_test, y_: y_test})
-	        print("epoch: %d, training accuracy, test accuracy: %g, %g"%(epoch+1, train_accuracy, test_accuracy))
+	        train_cost = cross_entropy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
+	        test_cost = cross_entropy.eval(feed_dict={x: X_test, y_: y_test})
+	        print("epoch: %d, training accuracy, validation accuracy, train cost, validation cost: %g, %g, %g, %g"%(epoch+1, train_accuracy, test_accuracy, train_cost, test_cost))
 
 	# Validation
-	train_accuracy = accuracy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
+	train_accuracy = accuracy.eval(feed_dict={x:X_train, y_: y_train})
 	test_accuracy = accuracy.eval(feed_dict={x: X_test, y_: y_test})
+	train_cost = cross_entropy.eval(feed_dict={x:X_train, y_: y_train})
+	test_cost = cross_entropy.eval(feed_dict={x:X_test, y_: y_test})
 	print("test accuracy %g"%(test_accuracy))
-	return [train_accuracy, test_accuracy]
+	return [train_accuracy, test_accuracy, train_cost, test_cost]
 
 
 ''' 
@@ -123,6 +126,8 @@ numSongs = [10, 20, 30, 40, 50, 60, 70] # track the number of songs for each fil
 
 trainingAccuracies = []
 testAccuracies = []
+trainingCosts = []
+testCosts = []
 
 for curFileName in files:
 	print("==> Test with Filename %s"%(curFileName))
@@ -130,14 +135,16 @@ for curFileName in files:
 
 	[X_train, y_train, X_test, y_test] = loadData(curFileName)
 	# run with this set of data
-	[trainingAccuracy, testAccuracy] = runNeuralNet(121, 20, X_train, y_train, X_test, y_test)
+	[trainingAccuracy, testAccuracy, trainingCost, testCost] = runNeuralNet(121, 100, X_train, y_train, X_test, y_test)
 	# track the final accuracies
 	trainingAccuracies += [trainingAccuracy]
 	testAccuracies += [testAccuracy]
+	trainingCosts += [trainingCost]
+	testCosts += [testCost]
 
 	# time how long this run took
 	endOfLoop = time.time()
-	print("Test with downsampling of %d took: %d"(curRate, endOfLoop - startOfLoop))
+	print("Test with file %s took: %d"%(curFileName, endOfLoop - startOfLoop))
 
 endTime = time.time()
 print("Whole experiment Took: %d"%(endTime - startTime))
@@ -151,14 +158,19 @@ print("--------------------------")
 print("Filenames: %s"%str(files))
 print("Training Accuracies: %s"%str(trainingAccuracies))
 print("Test Accuracies: %s"%str(testAccuracies))
+print("Training Costs: %s"%str(trainingCosts))
+print("Test Costs: %s"%str(testCosts))
 
 '''
 Plotting results
 '''
-plt.plot(numSongs, trainingAccuracies, label="Training Accuracy", marker="o", ls="None")
-plt.plot(numSongs, testAccuracies, label="Test Accuracy", marker="o", ls="None")
+trainingError = map(lambda x: 1.0 - x, trainingAccuracies)
+validationError = map(lambda x: 1.0 - x, testAccuracies)
+
+plt.plot(numSongs, trainingError, label="One-hot error", marker="o", ls="None")
+plt.plot(numSongs, validationError, label="Validation one-hot error", marker="o", ls="None")
 plt.xlabel("Number of songs")
-plt.ylabel("Accuracy")
+plt.ylabel("Error")
 plt.legend(loc="upper left", frameon=False)
 plt.show()
 
