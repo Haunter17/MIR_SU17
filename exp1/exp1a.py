@@ -4,6 +4,8 @@ import numpy as np
 import tensorflow as tf
 import h5py
 from sklearn.preprocessing import OneHotEncoder
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import time
 
