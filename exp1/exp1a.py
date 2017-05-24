@@ -2,12 +2,12 @@ import numpy as np
 import tensorflow as tf
 import h5py
 from sklearn.preprocessing import OneHotEncoder
+import matplotlib.pyplot as plt
+import time
 
 # Download data from .mat file into numpy array
-# small dataset can be downloaded at https://drive.google.com/file/d/0BxtJa9dtWREBTUxlYVgtOVdpQ1k/view?usp=sharing
-
 print('==> Experiment 1a')
-filepath = 'exp1a_smallDataset.mat'
+filepath = 'exp1a_smallDataset_71_7.mat'
 print('==> Loading data from {}'.format(filepath))
 f = h5py.File(filepath)
 data_train = np.array(f.get('trainingSet'))
@@ -24,34 +24,33 @@ enc = OneHotEncoder()
 y_train = enc.fit_transform(y_train.copy()).astype(int).toarray()
 y_test = enc.fit_transform(y_test.copy()).astype(int).toarray()
 
-# Neural-network model set-up
-
 # Functions for initializing neural nets parameters
 def weight_variable(shape):
-  initial = tf.truncated_normal(shape, stddev=0.1, dtype=tf.float64)
-  return tf.Variable(initial)
+    initial = tf.truncated_normal(shape, stddev=0.1, dtype=tf.float64)
+    return tf.Variable(initial)
 
 def bias_variable(shape):
-  initial = tf.constant(0.1, shape=shape, dtype=tf.float64)
-  return tf.Variable(initial)
+    initial = tf.constant(0.1, shape=shape, dtype=tf.float64)
+    return tf.Variable(initial)
 
 '''
 	NN config parameters
 '''
-num_featuers = 121
+num_features = 121
 hidden_layer_size = 20
 num_classes = y_test.shape[1]
+print("Number of songs:",num_classes)
 
 # Set-up NN layers
-x = tf.placeholder(tf.float64, [None, num_featuers])
-W1 = init_weight_variable([num_featuers, hidden_layer_size])
-b1 = init_bias_variable([hidden_layer_size])
+x = tf.placeholder(tf.float64, [None, num_features])
+W1 = weight_variable([num_features, hidden_layer_size])
+b1 = bias_variable([hidden_layer_size])
 
 # Hidden layer activation function: ReLU
 h1 = tf.nn.relu(tf.matmul(x, W1) + b1)
 
-W2 = init_weight_variable([hidden_layer_size, num_classes])
-b2 = init_bias_variable([num_classes])
+W2 = weight_variable([hidden_layer_size, num_classes])
+b2 = bias_variable([num_classes])
 
 # Softmax layer (Output), dtype = float64
 y = tf.matmul(h1, W2) + b2
@@ -72,8 +71,14 @@ sess.run(tf.global_variables_initializer())
 # Training
 numTrainingVec = len(X_train)
 batchSize = 1000
-numEpochs = 20
+numEpochs = 300
+
+plotx = []
+ploty = []
+
 noisy = True
+
+startTime = time.time()
 for epoch in range(numEpochs):
     for i in range(0,numTrainingVec,batchSize):
 
@@ -85,9 +90,23 @@ for epoch in range(numEpochs):
         train_step.run(feed_dict={x: trainBatchData, y_: trainBatchLabel})
 
     # Print accuracy
-    if noisy:
-        train_accuracy = accuracy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
+    if (epoch%10 == 0 or epoch == numEpochs-1)  and noisy:
+        train_accuracy = accuracy.eval(feed_dict={x:X_train, y_: y_train})
         print("epoch: %d, training accuracy %g"%(epoch, train_accuracy))
+        plotx.append(epoch)
+        ploty.append(train_accuracy)
+
+endTime = time.time()
+print("Elapse Time:", endTime - startTime)
+
+# Save plot
+fig = plt.figure()
+plot = fig.add_subplot(111)
+plot.set_xlabel('Number of epochs')
+plot.set_ylabel('Training Accuracy (%)')
+plot.set_title('Training Accuracy vs Number of Epochs')
+plot.scatter(plotx, ploty)
+fig.savefig('exp1a.png')
 
 # Validation
 print("test accuracy %g"%accuracy.eval(feed_dict={x: X_test, y_: y_test}))
