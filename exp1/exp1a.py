@@ -78,7 +78,10 @@ batchSize = 1000
 numEpochs = 300
 
 plotx = []
-ploty = []
+ploty_train_acc = []
+ploty_test_acc = []
+ploty_train_err = []
+ploty_test_err = []
 
 noisy = True
 
@@ -93,24 +96,49 @@ for epoch in range(numEpochs):
 
         train_step.run(feed_dict={x: trainBatchData, y_: trainBatchLabel})
 
-    # Print accuracy
-    if (epoch%10 == 0 or epoch == numEpochs-1)  and noisy:
+    if epoch%10 == 0 or epoch == numEpochs-1:
+
+        # Evaluation
         train_accuracy = accuracy.eval(feed_dict={x:X_train, y_: y_train})
-        print("epoch: %d, training accuracy %g"%(epoch, train_accuracy))
+        validation_accuracy = accuracy.eval(feed_dict={x:X_test, y_: y_test})
+        train_error = cross_entropy.eval(feed_dict={x:X_train, y_: y_train})
+        validation_error = cross_entropy.eval(feed_dict={x:X_test, y_: y_test})
+
+        # Save accuracy and error values for plotting
         plotx.append(epoch)
-        ploty.append(train_accuracy)
+        ploty_train_acc.append(train_accuracy)
+        ploty_test_acc.append(validation_accuracy)
+        ploty_train_err.append(train_error)
+        ploty_test_err.append(validation_error)
+
+        if noisy:
+            print("epoch: %d, training accuracy %g"%(epoch, train_accuracy))
 
 endTime = time.time()
 print("Elapse Time:", endTime - startTime)
 
 # Save plot
-fig = plt.figure()
-plot = fig.add_subplot(111)
-plot.set_xlabel('Number of epochs')
-plot.set_ylabel('Training Accuracy (%)')
-plot.set_title('Training Accuracy vs Number of Epochs')
-plot.scatter(plotx, ploty)
-fig.savefig('exp1a.png')
+# Accuracy plot
+accfig = plt.figure()
+trainacc = accfig.add_subplot(111)
+trainacc.set_xlabel('Number of epochs')
+trainacc.set_ylabel('Accuracy (%)')
+trainacc.set_title('Accuracy vs Number of Epochs')
+trainacc.scatter(plotx, ploty_train_acc)
+validacc = accfig.add_subplot(111)
+validacc.scatter(plotx, ploty_test_acc, c='r')
+accfig.savefig('exp1a_accuracy.png')
+
+# Error plot
+errfig = plt.figure()
+trainacc = errfig.add_subplot(111)
+trainacc.set_xlabel('Number of epochs')
+trainacc.set_ylabel('Cross-Entropy Error')
+trainacc.set_title('Error vs Number of Epochs')
+trainacc.scatter(plotx, ploty_train_err)
+validacc = errfig.add_subplot(111)
+validacc.scatter(plotx, ploty_test_err, c='r')
+errfig.savefig('exp1a_error.png')
 
 # Validation
-print("test accuracy %g"%accuracy.eval(feed_dict={x: X_test, y_: y_test}))
+print("Final test accuracy %g"%accuracy.eval(feed_dict={x: X_test, y_: y_test}))
