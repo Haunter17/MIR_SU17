@@ -1,7 +1,6 @@
 import numpy as np
-# import tensorflow as tf
+import tensorflow as tf
 import h5py
-from sklearn.preprocessing import OneHotEncoder
 import time
 
 print('==> Experiment 1b')
@@ -24,54 +23,57 @@ del data_train, data_test, f
 print('-- Number of training samples: {}'.format(X_train.shape[0]))
 print('-- Number of test samples: {}'.format(X_test.shape[0]))
 
-# # Transform labels into on-hot encoding form
-# enc = OneHotEncoder()
-# y_train = enc.fit_transform(y_train.copy()).astype(int).toarray()
-# y_test = enc.fit_transform(y_test.copy()).astype(int).toarray()
+# Neural-network model set-up
+# Functions for initializing neural nets parameters
+def init_weight_variable(shape):
+  initial = tf.truncated_normal(shape, stddev=0.1, dtype=tf.float64)
+  return tf.Variable(initial)
 
-# # Neural-network model set-up
-# # Functions for initializing neural nets parameters
-# def init_weight_variable(shape):
-#   initial = tf.truncated_normal(shape, stddev=0.1, dtype=tf.float64)
-#   return tf.Variable(initial)
+def init_bias_variable(shape):
+  initial = tf.constant(0.1, shape=shape, dtype=tf.float64)
+  return tf.Variable(initial)
 
-# def init_bias_variable(shape):
-#   initial = tf.constant(0.1, shape=shape, dtype=tf.float64)
-#   return tf.Variable(initial)
+'''
+	NN config parameters
+'''
+num_featuers = 121
+hidden_layer_size = 20
+num_classes = max(y_train.max(), y_test.max()) + 1
 
-# '''
-# 	NN config parameters
-# '''
-# num_featuers = 121
-# hidden_layer_size = 20
-# num_classes = y_test.shape[1]
+# Transform labels into on-hot encoding form
+y_train_OHEnc = tf.one_hot(y_train.copy(), num_classes)
+y_test_OHEnc = tf.one_hot(y_test.copy(), num_classes)
 
-# # Set-up NN layers
-# x = tf.placeholder(tf.float64, [None, num_featuers])
-# W1 = init_weight_variable([num_featuers, hidden_layer_size])
-# b1 = init_bias_variable([hidden_layer_size])
+# Set-up NN layers
+x = tf.placeholder(tf.float64, [None, num_featuers])
+W1 = init_weight_variable([num_featuers, hidden_layer_size])
+b1 = init_bias_variable([hidden_layer_size])
 
-# # Hidden layer activation function: ReLU
-# h1 = tf.nn.relu(tf.matmul(x, W1) + b1)
+# Hidden layer activation function: ReLU
+h1 = tf.nn.relu(tf.matmul(x, W1) + b1)
 
-# W2 = init_weight_variable([hidden_layer_size, num_classes])
-# b2 = init_bias_variable([num_classes])
+W2 = init_weight_variable([hidden_layer_size, num_classes])
+b2 = init_bias_variable([num_classes])
 
-# # Softmax layer (Output), dtype = float64
-# y = tf.matmul(h1, W2) + b2
+# Softmax layer (Output), dtype = float64
+y = tf.matmul(h1, W2) + b2
 
-# # NN desired value (labels)
-# y_ = tf.placeholder(tf.float64, [None, num_classes])
+# NN desired value (labels)
+y_ = tf.placeholder(tf.float64, [None, num_classes])
 
-# # Loss function
-# cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
-# train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+# Loss function
+cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
+train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 
-# sess = tf.InteractiveSession()
+sess = tf.InteractiveSession()
 
-# correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
-# accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float64))
-# sess.run(tf.global_variables_initializer())
+correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float64))
+sess.run(tf.global_variables_initializer())
+
+y_train = sess.run(y_train_OHEnc)[:, 0, :]
+y_test = sess.run(y_test_OHEnc)[:, 0, :]
+print(y_train.shape, y_test.shape)
 
 # '''
 # 	Training config
