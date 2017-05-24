@@ -197,7 +197,7 @@ errPlot = fig.add_subplot(222)
 errPlot.plot(downsamplingRates, trainingCosts, label="Training", marker="o", markersize="3",  ls="None")
 errPlot.plot(downsamplingRates, testCosts, label="Validation", marker="o", markersize="3", ls="None")
 errPlot.set_xlabel("Downsampling Rate")
-errPlot.set_ylabel("Error")
+errPlot.set_ylabel("Cross-Entropy Error")
 errPlot.legend(loc="lower right", frameon=False)
 errPlot.set_title("Error vs. Downsampling Rate")
 
