@@ -100,11 +100,11 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 
 	    # Print accuracy
 	    if (epoch + 1) % print_freq == 0:
-	        train_accuracy = accuracy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
+	        train_accuracy = accuracy.eval(feed_dict={x:X_train, y_: y_train})
 	        test_accuracy = accuracy.eval(feed_dict={x: X_test, y_: y_test})
-	        train_cost = cross_entropy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
+	        train_cost = cross_entropy.eval(feed_dict={x:X_train, y_: y_train})
 	        test_cost = cross_entropy.eval(feed_dict={x: X_test, y_: y_test})
-	        print("epoch: %d, training accuracy, validation accuracy, train cost, validation cost: %g, %g, %g, %g"%(epoch+1, train_accuracy, test_accuracy, train_cost, test_cost))
+	        print("epoch: %d, time: %g, t acc, v acc, t cost, v cost: %g, %g, %g, %g"%(epoch+1, epochEnd - epochStart, train_accuracy, test_accuracy, train_cost, test_cost))
 
 	# Validation
 	train_accuracy = accuracy.eval(feed_dict={x:X_train, y_: y_train})
@@ -164,8 +164,11 @@ print("Test Costs: %s"%str(testCosts))
 '''
 Plotting results
 '''
+
 trainingError = map(lambda x: 1.0 - x, trainingAccuracies)
 validationError = map(lambda x: 1.0 - x, testAccuracies)
+
+matplotlib.rcParams.update({'font.size': 8})
 
 fig = plt.figure()
 accPlot = fig.add_subplot(211)
@@ -173,24 +176,31 @@ accPlot = fig.add_subplot(211)
 accPlot.plot(numSongs, trainingAccuracies, label="Training accuracy", marker="o", ls="None")
 accPlot.plot(numSongs, testAccuracies, label="Validation accuracy", marker="o", ls="None")
 accPlot.set_xlabel("Number of songs")
-accPlot.set_ylabel("Error")
+accPlot.set_ylabel("Accuracy")
 accPlot.legend(loc="upper left", frameon=False)
 accPlot.set_title("Accuracy vs. Number of Songs")
 
 errPlot = fig.add_subplot(212)
-errPlot.plot(numSongs, trainingError, label="One-hot error", marker="o", ls="None")
-errPlot.plot(numSongs, validationError, label="Validation one-hot error", marker="o", ls="None")
+errPlot.plot(numSongs, trainingError, label="Training", marker="o", ls="None")
+errPlot.plot(numSongs, validationError, label="Validation", marker="o", ls="None")
 errPlot.set_xlabel("Number of songs")
-errPlot.set_ylabel("Error")
+errPlot.set_ylabel("One-hot error")
 errPlot.legend(loc="upper left", frameon=False)
 errPlot.set_title("Error vs. Number of Songs")
 
 fig.tight_layout()
 fig.savefig('exp1c_AcurracyAndError.png')
 
-
-
-
+'''
+--------------------------
+Summary Of Results
+--------------------------
+Filenames: ['taylorswift_smallDataset_10_7.mat', 'taylorswift_smallDataset_20_7.mat', 'taylorswift_smallDataset_30_7.mat', 'taylorswift_smallDataset_40_7.mat', 'taylorswift_smallDataset_50_7.mat', 'taylorswift_smallDataset_60_7.mat', 'taylorswift_smallDataset_70_7.mat']
+Training Accuracies: [0.85150544983632503, 0.79318458133981751, 0.73239903143274854, 0.68456192941817684, 0.65745659788187993, 0.61915241869132798, 0.58361215195140015]
+Test Accuracies: [0.81753143784341931, 0.76569956957876351, 0.69938995776630686, 0.64522161791012411, 0.61488714537495026, 0.57569181656772894, 0.54347527017593922]
+Training Costs: [0.45125228348996471, 0.66918894646697002, 0.8819675195768728, 1.0657343255149825, 1.1911586729883441, 1.3317401808704952, 1.4914203862837254]
+Test Costs: [0.57377099980906343, 0.77767474398884329, 1.0067558088052708, 1.2194738264021796, 1.3581973625154826, 1.5107276530916787, 1.6642674191124696]
+'''
 
 
 

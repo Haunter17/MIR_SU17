@@ -84,7 +84,7 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	'''
 	numTrainingVec = len(X_train)
 	batchSize = 1000
-	numEpochs = 2
+	numEpochs = 300
 	print_freq = 5
 
 	print('Training with %d samples, a batch size of %d, for %d epochs'%(numTrainingVec, batchSize, numEpochs))
@@ -105,11 +105,11 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	    epochEnd = time.time()
 	    # Print accuracy
 	    if (epoch + 1) % print_freq == 0:
-	        train_accuracy = accuracy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
+	        train_accuracy = accuracy.eval(feed_dict={x:X_train, y_: y_train})
 	        test_accuracy = accuracy.eval(feed_dict={x: X_test, y_: y_test})
-	        train_cost = cross_entropy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
+	        train_cost = cross_entropy.eval(feed_dict={x:X_train, y_: y_train})
 	        test_cost = cross_entropy.eval(feed_dict={x: X_test, y_: y_test})
-	        print("epoch: %d, time: %d, t acc, v acc, t cost, v cost: %g, %g, %g, %g"%(epoch+1, epochEnd - epochStart, train_accuracy, test_accuracy, train_cost, test_cost))
+	        print("epoch: %d, time: %g, t acc, v acc, t cost, v cost: %g, %g, %g, %g"%(epoch+1, epochEnd - epochStart, train_accuracy, test_accuracy, train_cost, test_cost))
 
 	# Validation
 	train_accuracy = accuracy.eval(feed_dict={x:X_train, y_: y_train})
@@ -142,7 +142,7 @@ for curRate in downsamplingRates:
 	# downsample then ron on the downsampled training data
 	X_train_downsampled = X_train[:numTrainingSamples / curRate,:]
 	y_train_downsampled = y_train[:numTrainingSamples / curRate, :]
-	[trainingAccuracy, testAccuracy, trainingCost, testCost] = runNeuralNet(121, 20, X_train_downsampled, y_train_downsampled, X_test, y_test)
+	[trainingAccuracy, testAccuracy, trainingCost, testCost] = runNeuralNet(121, 100, X_train_downsampled, y_train_downsampled, X_test, y_test)
 	# track the final accuracies
 	trainingAccuracies += [trainingAccuracy]
 	testAccuracies += [testAccuracy]

@@ -83,37 +83,54 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	'''
 	numTrainingVec = len(X_train)
 	batchSize = 1000
-	numEpochs = 800
+	numEpochs = 10
 	print_freq = 5
+
 	train_accuracies = []
 	test_accuracies = []
+	train_costs = []
+	test_costs = []
 
 	print('Training with %d samples, a batch size of %d, for %d epochs'%(numTrainingVec, batchSize, numEpochs))
 
+
 	for epoch in range(numEpochs):
-	    for i in range(0,numTrainingVec,batchSize):
 
-	        # Batch Data
-	        batchEndPoint = min(i+batchSize, numTrainingVec)
-	        trainBatchData = X_train[i:batchEndPoint]
-	        trainBatchLabel = y_train[i:batchEndPoint]
+		epochStart = time.time()
+		for i in range(0,numTrainingVec,batchSize):
 
-	        train_step.run(feed_dict={x: trainBatchData, y_: trainBatchLabel})
+			# Batch Data
+			batchEndPoint = min(i+batchSize, numTrainingVec)
+			trainBatchData = X_train[i:batchEndPoint]
+			trainBatchLabel = y_train[i:batchEndPoint]
 
-		train_accuracy = accuracy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
-	    test_accuracy = accuracy.eval(feed_dict={x: X_test, y_: y_test})
-	    # keep a list of the training and testing accuracies for each epoch
-	    train_accuracies += [train_accuracy]
-	    test_accuracies += [test_accuracy]
-	    # Print accuracy
-	    if (epoch + 1) % print_freq == 0:
-	        print("epoch: %d, training accuracy, test accuracy: %g, %g"%(epoch+1, train_accuracy, test_accuracy))
+			train_step.run(feed_dict={x: trainBatchData, y_: trainBatchLabel})
+
+		epochEnd = time.time()
+
+		# calculate the accuracies and costs at this epoch
+		train_accuracy = accuracy.eval(feed_dict={x:X_train, y_: y_train})
+		test_accuracy = accuracy.eval(feed_dict={x: X_test, y_: y_test})
+		train_cost = cross_entropy.eval(feed_dict={x:X_train, y_: y_train})
+		test_cost = cross_entropy.eval(feed_dict={x: X_test, y_: y_test})
+		# update the lists
+		train_accuracies += [train_accuracy]
+		test_accuracies += [test_accuracy]
+		train_costs += [train_cost]
+		test_costs += [test_cost]
+		# Print accuracy
+
+		if (epoch + 1) % print_freq == 0:
+
+			print("epoch: %d, time: %g, t acc, v acc, t cost, v cost: %g, %g, %g, %g"%(epoch+1, epochEnd - epochStart, train_accuracy, test_accuracy, train_cost, test_cost))
 
 	# Validation
-	train_accuracy = accuracy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
+	train_accuracy = accuracy.eval(feed_dict={x:X_train, y_: y_train})
 	test_accuracy = accuracy.eval(feed_dict={x: X_test, y_: y_test})
+	train_cost = cross_entropy.eval(feed_dict={x:X_train, y_: y_train})
+	test_cost = cross_entropy.eval(feed_dict={x:X_test, y_: y_test})
 	print("test accuracy %g"%(test_accuracy))
-	return [train_accuracies, test_accuracies]
+	return [train_accuracies, test_accuracies, train_costs, test_costs]
 
 
 ''' 
@@ -121,11 +138,11 @@ our main
 '''
 [X_train, y_train, X_test, y_test] = loadData('taylorswift_smallDataset_71_7.mat')
 
-[train_accuracies, test_accuracies] = runNeuralNet(121, 20, X_train, y_train, X_test, y_test)
+[train_accuracies, test_accuracies, train_costs, test_costs] = runNeuralNet(121, 100, X_train, y_train, X_test, y_test)
 
 
 endTime = time.time()
-print("Experiment took: %d"%(endTime - startTime))
+print("Experiment took: %g"%(endTime - startTime))
 
 '''
 Printing results
@@ -142,12 +159,28 @@ Plotting results
 '''
 numEpochs = len(train_accuracies)
 epochNumbers = range(numEpochs)
-plt.plot(epochNumbers, train_accuracies, label="Training Accuracy", marker="o", ls="None")
-plt.plot(epochNumbers, test_accuracies, label="Test Accuracy", marker="o", ls="None")
-plt.xlabel("Epoch Number (starting at 0)")
-plt.ylabel("Accuracy")
-plt.legend(loc="upper left", frameon=False)
-plt.show()
+matplotlib.rcParams.update({'font.size': 8})
+
+fig = plt.figure()
+accPlot = fig.add_subplot(211)
+
+accPlot.plot(epochNumbers, train_accuracies, label="Training", marker="o", markersize="3", ls="None")
+accPlot.plot(epochNumbers, test_accuracies, label="Validation", marker="o", markersize="3", ls="None")
+accPlot.set_xlabel("Epoch Number")
+accPlot.set_ylabel("Accuracy")
+accPlot.legend(loc="upper left", frameon=False)
+accPlot.set_title("Accuracy vs. Epoch")
+
+errPlot = fig.add_subplot(212)
+errPlot.plot(epochNumbers, train_costs, label="Training", marker="o", markersize="3", ls="None")
+errPlot.plot(epochNumbers, test_costs, label="Validation", marker="o", markersize="3", ls="None")
+errPlot.set_xlabel("Epoch Number")
+errPlot.set_ylabel("Cross-Entropy Error")
+errPlot.legend(loc="lower left", frameon=False)
+errPlot.set_title("Cross-Entropy Error vs. Epoch Number")
+
+fig.tight_layout()
+fig.savefig('exp1g_ErrorAndEpoch.png')
 
 
 
