@@ -5,7 +5,7 @@ from sklearn.preprocessing import OneHotEncoder
 import time
 
 print('==> Experiment 1b')
-filepath = 'data.mat'
+filepath = '../taylorswift_out/data.mat'
 print('==> Loading data from {}'.format(filepath))
 t_start = time.time()
 
