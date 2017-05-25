@@ -143,6 +143,7 @@ Printing results
 print("--------------------------")
 print("Summary Of Results")
 print("--------------------------")
+print("Timing for Creating and Training Neural Net, doesn't include loading data")
 print("GPU: %g"%(withGPUEnd - withGPUStart))
 print("CPU Only: %g"%(cpuOnlyEnd - cpuOnlyStart))
 
