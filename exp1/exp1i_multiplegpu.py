@@ -44,7 +44,7 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 
 	'''
 		NN config parameters
-'''
+	'''
 	num_classes = y_test.shape[1]
 	
 	print('==> Creating Neural net with %d features, %d hidden units, and %d classes'%(num_features, hidden_layer_size, num_classes))
@@ -69,7 +69,8 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
 	train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 
-	config = tf.ConfigProto(device_count = {'GPU': 0}, log_device_placement=True)
+	#config = tf.ConfigProto(device_count = {'GPU': 0}, log_device_placement=True)
+	config = tf.ConfigProto(log_device_placement=True)
 	sess = tf.InteractiveSession(config=config)
 
 	correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
@@ -91,15 +92,23 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 
 	    epochStart = time.time()
 
-	    for i in range(0,numTrainingVec,batchSize):
+	    with tf.device('/gpu:0'):
+		    for i in range(0,numTrainingVec/2,batchSize):
 
-	        # Batch Data
-	        batchEndPoint = min(i+batchSize, numTrainingVec)
-	        trainBatchData = X_train[i:batchEndPoint]
-	        trainBatchLabel = y_train[i:batchEndPoint]
+		        # Batch Data
+		        batchEndPoint = min(i+batchSize, numTrainingVec)
+		        trainBatchData = X_train[i:batchEndPoint]
+		        trainBatchLabel = y_train[i:batchEndPoint]
 
-	        train_step.run(feed_dict={x: trainBatchData, y_: trainBatchLabel})
+		        train_step.run(feed_dict={x: trainBatchData, y_: trainBatchLabel})
+		with tf.device('/gpu:1'):
+			for i in range(batchEndPoint, numTrainingVec, batchSize):
+				# Batch Data
+		        batchEndPoint = min(i+batchSize, numTrainingVec)
+		        trainBatchData = X_train[i:batchEndPoint]
+		        trainBatchLabel = y_train[i:batchEndPoint]
 
+		        train_step.run(feed_dict={x: trainBatchData, y_: trainBatchLabel})
 	    epochEnd = time.time()
 	    # Print accuracy
 	    if (epoch + 1) % print_freq == 0:
@@ -128,7 +137,7 @@ numTrainingSamples = X_train.shape[0]
 # leave the testing data the same, downsample the training data
 print("==> Starting Downsampling Tests for exp1c")
 # set the rates we want to test at
-downsamplingRates = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 40, 50]
+downsamplingRates = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]
 trainingAccuracies = []
 testAccuracies = []
 trainingCosts = []
@@ -208,7 +217,7 @@ reciprocalErrPlot.legend(loc="lower left", frameon=False)
 reciprocalErrPlot.set_title("Error vs. Percent of Data Remaining")
 
 fig.tight_layout()
-fig.savefig('exp1i_AccuracyErrorAndRecip.png')
+fig.savefig('exp1j_DifferentArtists.png')
 
 '''
 --------------------------
