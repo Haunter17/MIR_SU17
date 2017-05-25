@@ -173,30 +173,28 @@ validationError = map(lambda x: 1.0 - x, testAccuracies)
 matplotlib.rcParams.update({'font.size': 8})
 
 fig = plt.figure()
-accPlot = fig.add_subplot(211)
 
-accPlot.plot(numSongs, trainingAccuracies, label="Training accuracy", marker="o", ls="None")
-accPlot.plot(numSongs, testAccuracies, label="Validation accuracy", marker="o", ls="None")
-accPlot.set_xlabel("Number of songs")
-accPlot.set_ylabel("Accuracy")
-accPlot.legend(loc="upper left", frameon=False)
-accPlot.set_title("Accuracy vs. Number of Songs")
-
-errPlot = fig.add_subplot(212)
-errPlot.plot(numSongs, trainingError, label="Training", marker="o", ls="None")
-errPlot.plot(numSongs, validationError, label="Validation", marker="o", ls="None")
+errPlot = fig.add_subplot(111)
+errPlot.plot(numSongs, trainingCosts, label="Training", marker="o", ls="None")
+errPlot.plot(numSongs, testCosts, label="Validation", marker="o", ls="None")
 errPlot.set_xlabel("Number of songs")
-errPlot.set_ylabel("One-hot error")
+errPlot.set_ylabel("Cross Entropy error")
 errPlot.legend(loc="upper left", frameon=False)
 errPlot.set_title("Error vs. Number of Songs")
 
 fig.tight_layout()
-fig.savefig('exp1c_AcurracyAndError.png')
+fig.savefig('exp1j_PerformanceAcrossArtists.png')
 
 '''
 --------------------------
-Summary Of Results
+Summary Of Results - for 300 epochs
 --------------------------
+
+Filenames: ['bigk.r.i.t._smallDataset_71_7.mat', 'chromeo_smallDataset_44_7.mat', 'deathcabforcutie_smallDataset_87_7.mat', 'foofighters_smallDataset_87_7.mat', 'kanyewest_smallDataset_92_7.mat', 'maroon5_smallDataset_66_7.mat', 'onedirection_smallDataset_60_7.mat', 'taylorswift_smallDataset_71_7.mat', 't.i_smallDataset_154_7.mat', 'tompetty_smallDataset_193_7.mat']
+Training Accuracies: [0.58595070684843586, 0.60337084524426965, 0.71044389478549086, 0.60007004404165865, 0.56118181425548153, 0.56451058821420785, 0.5986581029533623, 0.54863434723630988, 0.46090013956588533, 0.5567197749613505]
+Test Accuracies: [0.56793070603643292, 0.58072204520936299, 0.67555961289688715, 0.56432122788635419, 0.53601238082160263, 0.53326174263350323, 0.55787824497522975, 0.51083393661518661, 0.44379958312350248, 0.52012423083954251]
+Training Costs: [1.6256964327979653, 1.4740867976275571, 1.1182194621819614, 1.519509695555127, 1.7502016665566253, 1.6169096778482237, 1.4587339405195838, 1.6475863633655878, 2.3200866634944766, 1.860562361959889]
+Test Costs: [1.7118313871313515, 1.5639550092026051, 1.2812777912222009, 1.6638050544617826, 1.8812740629121854, 1.7815370122594094, 1.6176581532431178, 1.7977739956364229, 2.4125679386842025, 2.0531056328918629]
 
 '''
 
