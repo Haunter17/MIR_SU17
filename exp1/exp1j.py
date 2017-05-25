@@ -123,7 +123,7 @@ our main
 
 print("==> Starting Downsampling Tests for exp1c")
 # set the rates we want to test at
-files = ['bigk.r.i.t._smallDataset_71_7.mat', 'chromeo_smallDataset_44_7.mat', 'deathcabforcutie_smallDataset_87_7.mat', 'foofighters_smallDataset_87_7.mat', 'kanyewest_smallDataset_92_7.mat', 'maroon5_smallDataset_66_7.mat', 'onedirection_smallDataset_60_7.mat', 'taylorswift_smallDataset_71_7.mat', 't.i_smallDataset_154_7.mat', 'tompetty_smallDataset_193_7.mat']
+files = ['/pylon2/ci560sp/cstrong/bigk.r.i.t._smallDataset_71_7.mat', '/pylon2/ci560sp/cstrong/chromeo_smallDataset_44_7.mat', '/pylon2/ci560sp/cstrong/deathcabforcutie_smallDataset_87_7.mat', '/pylon2/ci560sp/cstrong/foofighters_smallDataset_87_7.mat', '/pylon2/ci560sp/cstrong/kanyewest_smallDataset_92_7.mat', '/pylon2/ci560sp/cstrong/maroon5_smallDataset_66_7.mat', '/pylon2/ci560sp/cstrong/onedirection_smallDataset_60_7.mat', '/pylon2/ci560sp/cstrong/taylorswift_smallDataset_71_7.mat', '/pylon2/ci560sp/cstrong/t.i_smallDataset_154_7.mat', '/pylon2/ci560sp/cstrong/tompetty_smallDataset_193_7.mat']
 numSongs = [71, 44, 87, 87, 92, 66, 60, 71, 154, 193] # track the number of songs for each file
 
 trainingAccuracies = []
