@@ -84,7 +84,7 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	'''
 	numTrainingVec = len(X_train)
 	batchSize = 1000
-	numEpochs = 300
+	numEpochs = 2
 	print_freq = 5
 
 	print('Training with %d samples, a batch size of %d, for %d epochs'%(numTrainingVec, batchSize, numEpochs))
@@ -130,7 +130,7 @@ numTrainingSamples = X_train.shape[0]
 # leave the testing data the same, downsample the training data
 print("==> Starting Downsampling Tests for exp1c")
 # set the rates we want to test at
-downsamplingRates = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 40, 50]
+downsamplingRates = [1, 2, 3, 4, 5, 6, 7]
 trainingAccuracies = []
 testAccuracies = []
 trainingCosts = []
@@ -150,10 +150,10 @@ for curRate in downsamplingRates:
 	testCosts += [testCost]
 
 	endOfLoop = time.time()
-	print("Test with downsampling of %d took: %d"%(curRate, endOfLoop - startOfLoop))
+	print("Test with downsampling of %d took: %g"%(curRate, endOfLoop - startOfLoop))
 
 endTime = time.time()
-print("Whole experiment Took: %d"%(endTime - startTime))
+print("Whole experiment Took: %g"%(endTime - startTime))
 
 
 '''
@@ -184,16 +184,8 @@ plt.legend(loc="upper left", frameon=False)
 plt.show()
 
 fig = plt.figure()
-accPlot = fig.add_subplot(221)
 
-accPlot.plot(downsamplingRates, trainingAccuracies, label="Training", marker="o", markersize="3", ls="None")
-accPlot.plot(downsamplingRates, testAccuracies, label="Validation", marker="o", markersize="3", ls="None")
-accPlot.set_xlabel("Downsampling Rate")
-accPlot.set_ylabel("Accuracy (%)")
-accPlot.legend(loc="upper right", frameon=False)
-accPlot.set_title("Accuracy vs. Downsampling Rate")
-
-errPlot = fig.add_subplot(222)
+errPlot = fig.add_subplot(211)
 errPlot.plot(downsamplingRates, trainingCosts, label="Training", marker="o", markersize="3",  ls="None")
 errPlot.plot(downsamplingRates, testCosts, label="Validation", marker="o", markersize="3", ls="None")
 errPlot.set_xlabel("Downsampling Rate")
@@ -201,7 +193,7 @@ errPlot.set_ylabel("Cross-Entropy Error")
 errPlot.legend(loc="lower right", frameon=False)
 errPlot.set_title("Error vs. Downsampling Rate")
 
-reciprocalErrPlot = fig.add_subplot(223)
+reciprocalErrPlot = fig.add_subplot(212)
 reciprocalErrPlot.plot(recipOfDownsampling, trainingCosts, label="Training", marker="o", markersize="3", ls="None")
 reciprocalErrPlot.plot(recipOfDownsampling, testCosts, label="Validation", marker="o", markersize="3", ls="None")
 reciprocalErrPlot.set_xlabel("Percent Of Data Remaining after Downsampling")

@@ -90,33 +90,33 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 
 	for epoch in range(numEpochs):
 
-	    epochStart = time.time()
+		epochStart = time.time()
 
-	    with tf.device('/gpu:0'):
-		    for i in range(0,numTrainingVec/2,batchSize):
+		with tf.device('/gpu:0'):
+			for i in range(0,numTrainingVec/2,batchSize):
 
-		        # Batch Data
-		        batchEndPoint = min(i+batchSize, numTrainingVec)
-		        trainBatchData = X_train[i:batchEndPoint]
-		        trainBatchLabel = y_train[i:batchEndPoint]
+				# Batch Data
+				batchEndPoint = min(i+batchSize, numTrainingVec)
+				trainBatchData = X_train[i:batchEndPoint]
+				trainBatchLabel = y_train[i:batchEndPoint]
 
-		        train_step.run(feed_dict={x: trainBatchData, y_: trainBatchLabel})
+				train_step.run(feed_dict={x: trainBatchData, y_: trainBatchLabel})
 		with tf.device('/gpu:1'):
 			for i in range(batchEndPoint, numTrainingVec, batchSize):
 				# Batch Data
-		        batchEndPoint = min(i+batchSize, numTrainingVec)
-		        trainBatchData = X_train[i:batchEndPoint]
-		        trainBatchLabel = y_train[i:batchEndPoint]
+				batchEndPoint = min(i+batchSize, numTrainingVec)
+				trainBatchData = X_train[i:batchEndPoint]
+				trainBatchLabel = y_train[i:batchEndPoint]
 
-		        train_step.run(feed_dict={x: trainBatchData, y_: trainBatchLabel})
-	    epochEnd = time.time()
-	    # Print accuracy
-	    if (epoch + 1) % print_freq == 0:
-	        train_accuracy = accuracy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
-	        test_accuracy = accuracy.eval(feed_dict={x: X_test, y_: y_test})
-	        train_cost = cross_entropy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
-	        test_cost = cross_entropy.eval(feed_dict={x: X_test, y_: y_test})
-	        print("epoch: %d, time: %g, t acc, v acc, t cost, v cost: %g, %g, %g, %g"%(epoch+1, epochEnd - epochStart, train_accuracy, test_accuracy, train_cost, test_cost))
+				train_step.run(feed_dict={x: trainBatchData, y_: trainBatchLabel})
+		epochEnd = time.time()
+		# Print accuracy
+		if (epoch + 1) % print_freq == 0:
+			train_accuracy = accuracy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
+			test_accuracy = accuracy.eval(feed_dict={x: X_test, y_: y_test})
+			train_cost = cross_entropy.eval(feed_dict={x:trainBatchData, y_: trainBatchLabel})
+			test_cost = cross_entropy.eval(feed_dict={x: X_test, y_: y_test})
+			print("epoch: %d, time: %g, t acc, v acc, t cost, v cost: %g, %g, %g, %g"%(epoch+1, epochEnd - epochStart, train_accuracy, test_accuracy, train_cost, test_cost))
 
 	# Validation
 	train_accuracy = accuracy.eval(feed_dict={x:X_train, y_: y_train})

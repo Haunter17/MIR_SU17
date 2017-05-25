@@ -129,7 +129,7 @@ numTrainingSamples = X_train.shape[0]
 # leave the testing data the same, downsample the training data
 print("==> Starting Downsampling Tests for exp1c")
 # set the rates we want to test at
-batchSizes = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000]
+batchSizes = [100, 200, 500, 1000, 2000, 5000, 10000]
 trainingAccuracies = []
 testAccuracies = []
 trainingCosts = []

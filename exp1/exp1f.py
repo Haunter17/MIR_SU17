@@ -127,26 +127,32 @@ our main
 '''
 [X_train, y_train, X_test, y_test] = loadData('taylorswift_smallDataset_71_7.mat')
 
-# with gpu
-withGPUStart = time.time()
+### CODE FOR RUNNING ON THE GPU NODE
+#withGPUStart = time.time()
+#[trainingAccuracy, testAccuracy, trainingCost, testCost] = runNeuralNet(121, 100, X_train, y_train, X_test, y_test, False)
+#withGPUEnd = time.time()
+#
+#cpuOnlyStart = time.time()
+#[trainingAccuracy, testAccuracy, trainingCost, testCost] = runNeuralNet(121, 100, X_train, y_train, X_test, y_test, True)
+#cpuOnlyEnd = time.time()
+#print("Timing for Creating and Training Neural Net, doesn't include loading data")
+#print("GPU: %g"%(withGPUEnd - withGPUStart))
+#print("CPU Only on GPU Node: %g"%(cpuOnlyEnd - cpuOnlyStart))
+###
+### CODE FOR RUNNING ON THE NON-GPU NODE
+cpuNodeStart = time.time()
+# last parameter of False just runs it normally, with no restrictions
 [trainingAccuracy, testAccuracy, trainingCost, testCost] = runNeuralNet(121, 100, X_train, y_train, X_test, y_test, False)
-withGPUEnd = time.time()
-
-cpuOnlyStart = time.time()
-[trainingAccuracy, testAccuracy, trainingCost, testCost] = runNeuralNet(121, 100, X_train, y_train, X_test, y_test, True)
-cpuOnlyEnd = time.time()
-
+cpuNodeEnd = time.time()
+print("Timing for Creating and Training Neural Net, doesn't include loading data")
+print("Running on CPU Node: %g"%(cpuNodeEnd - cpuNodeStart))
 
 '''
 Printing results
 '''
-print("--------------------------")
-print("Summary Of Results")
-print("--------------------------")
-print("Timing for Creating and Training Neural Net, doesn't include loading data")
-print("GPU: %g"%(withGPUEnd - withGPUStart))
-print("CPU Only: %g"%(cpuOnlyEnd - cpuOnlyStart))
 
+
+print("C")
 '''
 Plotting results
 '''
@@ -158,10 +164,12 @@ Summary Of Results
 --------------------------
 Timing for Creating and Training Neural Net, doesn't include loading data
 GPU: 516.153
-CPU Only: 844.12
+CPU Only on GPU Node: 844.12
+Running on CPU Node: 1027.41
 
 test accuracy 0.509728 GPU+CPU
-test accuracy 0.508567 CPU
+test accuracy 0.508567 CPU on GPU Node
+test accuracy 0.510065 CPU on CPU Node
 
 
 '''

@@ -83,7 +83,7 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	'''
 	numTrainingVec = len(X_train)
 	batchSize = 1000
-	numEpochs = 300
+	numEpochs = 500
 	print_freq = 5
 
 	print('Training with %d samples, a batch size of %d, for %d epochs'%(numTrainingVec, batchSize, numEpochs))

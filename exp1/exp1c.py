@@ -83,7 +83,7 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	'''
 	numTrainingVec = len(X_train)
 	batchSize = 1000
-	numEpochs = 300
+	numEpochs = 3
 	print_freq = 5
 
 	print('Training with %d samples, a batch size of %d, for %d epochs'%(numTrainingVec, batchSize, numEpochs))
@@ -167,26 +167,33 @@ Plotting results
 
 trainingError = map(lambda x: 1.0 - x, trainingAccuracies)
 validationError = map(lambda x: 1.0 - x, testAccuracies)
+randomAccuracies = map(lambda x:1.0/x, numSongs)
+# convert to percentage
+trainingAccuracies = [x * 100 for x in trainingAccuracies]
+testAccuracies = [x * 100 for x in testAccuracies]
+randomAccuracies = [x * 100 for x in randomAccuracies]
+
 
 matplotlib.rcParams.update({'font.size': 8})
 
 fig = plt.figure()
-accPlot = fig.add_subplot(211)
 
-accPlot.plot(numSongs, trainingAccuracies, label="Training accuracy", marker="o", ls="None")
-accPlot.plot(numSongs, testAccuracies, label="Validation accuracy", marker="o", ls="None")
+accPlot = fig.add_subplot(211)
+accPlot.plot(numSongs, trainingAccuracies, label="Training", marker="o", ls="None")
+accPlot.plot(numSongs, testAccuracies, label="Validation", marker="o", ls="None")
+accPlot.plot(numSongs, randomAccuracies, label="Random Guess", marker="o", ls="None")
 accPlot.set_xlabel("Number of songs")
-accPlot.set_ylabel("Accuracy")
+accPlot.set_ylabel("Accuracy (%)")
 accPlot.legend(loc="upper left", frameon=False)
 accPlot.set_title("Accuracy vs. Number of Songs")
 
-errPlot = fig.add_subplot(212)
-errPlot.plot(numSongs, trainingError, label="Training", marker="o", ls="None")
-errPlot.plot(numSongs, validationError, label="Validation", marker="o", ls="None")
-errPlot.set_xlabel("Number of songs")
-errPlot.set_ylabel("One-hot error")
-errPlot.legend(loc="upper left", frameon=False)
-errPlot.set_title("Error vs. Number of Songs")
+crossEntropyPlot = fig.add_subplot(212)
+crossEntropyPlot.plot(numSongs, trainingCosts, label="Training", marker="o", ls="None")
+crossEntropyPlot.plot(numSongs, testCosts, label="Validation", marker="o", ls="None")
+crossEntropyPlot.set_xlabel("Number of songs")
+crossEntropyPlot.set_ylabel("Cross Entropy Error")
+crossEntropyPlot.legend(loc="upper left", frameon=False)
+crossEntropyPlot.set_title("Error vs. Number of Songs")
 
 fig.tight_layout()
 fig.savefig('exp1c_AcurracyAndError.png')
