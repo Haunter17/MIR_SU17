@@ -9,7 +9,7 @@ import time
 
 startTime = time.time()
 
-print('==> Experiment 1c')
+print('==> Experiment 1j')
 
 def loadData(filepath):
 
@@ -83,28 +83,30 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	'''
 	numTrainingVec = len(X_train)
 	batchSize = 1000
-	numEpochs = 300
+	numEpochs = 5
 	print_freq = 5
 
 	print('Training with %d samples, a batch size of %d, for %d epochs'%(numTrainingVec, batchSize, numEpochs))
 
 	for epoch in range(numEpochs):
-	    for i in range(0,numTrainingVec,batchSize):
+		epochStart = time.time()
+		for i in range(0,numTrainingVec,batchSize):
 
-	        # Batch Data
-	        batchEndPoint = min(i+batchSize, numTrainingVec)
-	        trainBatchData = X_train[i:batchEndPoint]
-	        trainBatchLabel = y_train[i:batchEndPoint]
+			# Batch Data
+			batchEndPoint = min(i+batchSize, numTrainingVec)
+			trainBatchData = X_train[i:batchEndPoint]
+			trainBatchLabel = y_train[i:batchEndPoint]
 
-	        train_step.run(feed_dict={x: trainBatchData, y_: trainBatchLabel})
-
-	    # Print accuracy
-	    if (epoch + 1) % print_freq == 0:
-	        train_accuracy = accuracy.eval(feed_dict={x:X_train, y_: y_train})
-	        test_accuracy = accuracy.eval(feed_dict={x: X_test, y_: y_test})
-	        train_cost = cross_entropy.eval(feed_dict={x:X_train, y_: y_train})
-	        test_cost = cross_entropy.eval(feed_dict={x: X_test, y_: y_test})
-	        print("epoch: %d, time: %g, t acc, v acc, t cost, v cost: %g, %g, %g, %g"%(epoch+1, epochEnd - epochStart, train_accuracy, test_accuracy, train_cost, test_cost))
+			train_step.run(feed_dict={x: trainBatchData, y_: trainBatchLabel})
+		epochEnd = time.time()
+		
+		# Print accuracy
+		if (epoch + 1) % print_freq == 0:
+			train_accuracy = accuracy.eval(feed_dict={x:X_train, y_: y_train})
+			test_accuracy = accuracy.eval(feed_dict={x: X_test, y_: y_test})
+			train_cost = cross_entropy.eval(feed_dict={x:X_train, y_: y_train})
+			test_cost = cross_entropy.eval(feed_dict={x: X_test, y_: y_test})
+			print("epoch: %d, time: %g, t acc, v acc, t cost, v cost: %g, %g, %g, %g"%(epoch+1, epochEnd - epochStart, train_accuracy, test_accuracy, train_cost, test_cost))
 
 	# Validation
 	train_accuracy = accuracy.eval(feed_dict={x:X_train, y_: y_train})
@@ -121,8 +123,8 @@ our main
 
 print("==> Starting Downsampling Tests for exp1c")
 # set the rates we want to test at
-files = ['bigk.r.i.t._smallDataset_71_7.mat', 'chromeo_smallDataset_44_7.mat', 'deathcabforcutie_smallDataset_87_7.mat', 'foofighters_smallDataset_87_7.mat', 'kanyewest_smallDataset_92_7.mat', 'maroon5_smallDataset_66_7.mat', 'onedirection_smallDataset_60_7.mat', 'taylorswift_smallDataset_71_7.mat']
-numSongs = [71, 44, 87, 87, 92, 66, 60, 71] # track the number of songs for each file
+files = ['bigk.r.i.t._smallDataset_71_7.mat', 'chromeo_smallDataset_44_7.mat', 'deathcabforcutie_smallDataset_87_7.mat', 'foofighters_smallDataset_87_7.mat', 'kanyewest_smallDataset_92_7.mat', 'maroon5_smallDataset_66_7.mat', 'onedirection_smallDataset_60_7.mat', 'taylorswift_smallDataset_71_7.mat', 't.i_smallDataset_154_7.mat', 'tompetty_smallDataset_193_7.mat']
+numSongs = [71, 44, 87, 87, 92, 66, 60, 71, 154, 193] # track the number of songs for each file
 
 trainingAccuracies = []
 testAccuracies = []
