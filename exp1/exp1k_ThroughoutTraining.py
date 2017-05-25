@@ -40,7 +40,7 @@ def init_bias_variable(shape):
   return tf.Variable(initial)
 
 
-def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_test):
+def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_test, batchSize, numEpochs):
 
 	'''
 		NN config parameters
@@ -82,8 +82,6 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 		Training config
 	'''
 	numTrainingVec = len(X_train)
-	batchSize = 1000
-	numEpochs = 5
 	print_freq = 5
 
 	train_accuracies = []
