@@ -83,7 +83,7 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	'''
 	numTrainingVec = len(X_train)
 	batchSize = 1000
-	numEpochs = 5
+	numEpochs = 300
 	print_freq = 5
 
 	print('Training with %d samples, a batch size of %d, for %d epochs'%(numTrainingVec, batchSize, numEpochs))
@@ -146,10 +146,10 @@ for curFileName in files:
 
 	# time how long this run took
 	endOfLoop = time.time()
-	print("Test with file %s took: %d"%(curFileName, endOfLoop - startOfLoop))
+	print("Test with file %s took: %g"%(curFileName, endOfLoop - startOfLoop))
 
 endTime = time.time()
-print("Whole experiment Took: %d"%(endTime - startTime))
+print("Whole experiment Took: %g"%(endTime - startTime))
 
 '''
 Printing results
