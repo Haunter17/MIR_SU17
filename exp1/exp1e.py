@@ -6,7 +6,7 @@ import time
 
 # Download data from .mat file into numpy array
 print('==> Experiment 1e')
-filepath = '(separate features & labels) exp1a_smallDataset_71_7.mat'
+filepath = '(separate features & labels) taylorswift_7_36.mat'
 print('==> Loading data from {}'.format(filepath))
 f = h5py.File(filepath)
 X_train = np.array(f.get('trainingFeatures'))
@@ -41,16 +41,16 @@ def setFreqRange(M, tb, numbins, totalFeatures):
     return M
 
 # Narrow frequency range
-tb = 't'
-numbins = 12
-totalFeatures = 121
+tb = 'n'
+numbins = 0
+totalFeatures = 181
 X_train = setFreqRange(X_train, tb, numbins, totalFeatures)
 X_test = setFreqRange(X_test, tb, numbins, totalFeatures)
 
 '''
 	NN config parameters
 '''
-num_features = 121 - numbins
+num_features = totalFeatures - numbins
 hidden_layer_size = 100 # set according to exp1b
 num_classes = y_test.shape[1]
 print("Number of features:", num_features)
@@ -110,4 +110,13 @@ endTime = time.time()
 print("Elapse Time:", endTime - startTime)
 
 # Validation
-print("test accuracy %g"%accuracy.eval(feed_dict={x: X_test, y_: y_test}))
+
+train_accuracy = accuracy.eval(feed_dict={x:X_train, y_: y_train})
+validation_accuracy = accuracy.eval(feed_dict={x:X_test, y_: y_test})
+train_error = cross_entropy.eval(feed_dict={x:X_train, y_: y_train})
+validation_error = cross_entropy.eval(feed_dict={x:X_test, y_: y_test})
+
+print("Train accuracy:",train_accuracy)
+print("Validation accuracy:",validation_accuracy)
+print("Train error:", train_error)
+print("Validation error:", validation_error)
