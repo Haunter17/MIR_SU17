@@ -84,7 +84,7 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	'''
 	numTrainingVec = len(X_train)
 	batchSize = 1000
-	numEpochs = 2
+	numEpochs = 500
 	print_freq = 5
 
 	print('Training with %d samples, a batch size of %d, for %d epochs'%(numTrainingVec, batchSize, numEpochs))
@@ -123,7 +123,7 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 ''' 
 our main
 '''
-[X_train, y_train, X_test, y_test] = loadData('taylorswift_smallDataset_71_7.mat')
+[X_train, y_train, X_test, y_test] = loadData('taylorswift_fullDataset_71_1.mat')
 
 numTrainingSamples = X_train.shape[0]
 
