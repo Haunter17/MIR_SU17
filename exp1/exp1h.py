@@ -9,7 +9,7 @@ import time
 import math
 
 # Download data from .mat file into numpy array
-print('==> Experiment 1e')
+print('==> Experiment 1h')
 filepath = '(separate features & labels) exp1a_smallDataset_71_7.mat'
 print('==> Loading data from {}'.format(filepath))
 f = h5py.File(filepath)
