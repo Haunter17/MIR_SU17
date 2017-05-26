@@ -83,7 +83,7 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 	'''
 	numTrainingVec = len(X_train)
 	batchSize = 1000
-	numEpochs = 1000
+	numEpochs = 2000
 	print_freq = 5
 
 	train_accuracies = []
@@ -136,7 +136,7 @@ def runNeuralNet(num_features, hidden_layer_size, X_train, y_train, X_test, y_te
 ''' 
 our main
 '''
-[X_train, y_train, X_test, y_test] = loadData('taylorswift_smallDataset_71_7.mat')
+[X_train, y_train, X_test, y_test] = loadData('/pylon2/ci560sp/cstrong/taylorswift_fullDataset_71_1.mat')
 
 [train_accuracies, test_accuracies, train_costs, test_costs] = runNeuralNet(121, 100, X_train, y_train, X_test, y_test)
 

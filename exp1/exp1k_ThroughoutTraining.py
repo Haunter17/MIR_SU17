@@ -138,43 +138,41 @@ Plot the cost at each epoch for each of these downsampling amounts
 '''
 
 
-[X_train, y_train, X_test, y_test] = loadData('/pylon2/ci560sp/cstrong/taylorswift_smallDataset_71_7.mat')
-numEpochs = 800
+[X_train, y_train, X_test, y_test] = loadData('pylon2/ci560sp/cstrong/taylorswift_smallDataset_71_7.mat')
+numEpochs = 5
 
 numTrainingSamples = X_train.shape[0]
 
 # leave the testing data the same, downsample the training data
 print("==> Starting Downsampling Tests for exp1c")
 # set the rates we want to test at
-batchSizes = [100, 200, 500, 1000, 2000, 5000, 10000]
+batchSizes = [100, 500, 1000, 5000, 10000]
 
 matplotlib.rcParams.update({'font.size': 8})
 
-#setup the figure, will add plots to it in the loop
-fig = plt.figure()
-errPlot = fig.add_subplot(111)
-errPlot.set_xlabel("Epoch Numbers")
-errPlot.set_ylabel("Cross-Entropy Error")
 
-errPlot.set_title("Error vs. Epoch Number")
+trainingAccuracyLists = []
+testAccuracyLists = []
+trainingCostLists = []
+testCostLists = []
 
 times = []
 for curSize in batchSizes:
 	startOfLoop = time.time()
 	print("==> Test with Batch Size of %d"%(curSize))
 	[trainingAccuracies, testAccuracies, trainingCosts, testCosts] = runNeuralNet(121, 100, X_train, y_train, X_test, y_test, curSize, numEpochs)
+	# store the data at each epoch
+	trainingAccuracyLists += [trainingAccuracies]
+	testAccuracyLists += [testAccuracies]
+	trainingCostLists += [trainingCosts]
+	testCostLists += [testCosts]
+
 	endOfTraining = time.time()
 
 	times += [endOfTraining - startOfLoop]
 
 	endOfLoop = time.time()
 	print("Test with Batch Size of %d took: %g"%(curSize, endOfLoop - startOfLoop))
-
-	# add the cost vs epoch for this batch size
-	numEpochs = len(trainingAccuracies)
-	epochNumbers = range(numEpochs)	
-	errPlot.plot(epochNumbers, trainingCosts, label="Training, Batchsize = %d"%(curSize), marker="o", markersize="3",  ls="None")
-	errPlot.plot(epochNumbers, testCosts, label="Validation, Batchsize = %d"%(curSize), marker="o", markersize="3", ls="None")
 
 #track the time of the whole experiment	
 endTime = time.time()
@@ -188,15 +186,58 @@ print("--------------------------")
 print("Summary Of Results")
 print("--------------------------")
 print("Batch Sizes: %s"%str(batchSizes))
+print("Training Accuracy Lists: %s"%str(trainingAccuracyLists))
+print("Test Accuracy Lists: %s"%str(testAccuracyLists))
+print("Training Cost Lists: %s"%str(trainingCostLists))
+print("Test Cost Lists: %s"%str(testCostLists))
 
 
 '''
 Plotting results
 '''
+#setup the figure, will add plots to it in the loop
+fig = plt.figure(figsize=(8,11))
+trainingPlot = fig.add_subplot(311)
+trainingPlot.set_xlabel("Epoch Numbers")
+trainingPlot.set_ylabel("Cross-Entropy Error")
+
+trainingPlot.set_title("Error vs. Epoch Number")
+
+for i in range(len(trainingAccuracyLists)):
+	curSize = batchSizes[i]
+	trainingCosts = trainingCostLists[i]
+	testCosts = testCostLists[i]
+	numEpochs = len(trainingAccuracies)
+	epochNumbers = range(numEpochs)	
+	# only put on validation cost
+	trainingPlot.plot(epochNumbers, testCosts, label="Validation, Batchsize = %d"%(curSize), marker="o", markersize="3", ls="None")
+
+
 # plots have already been added to the figure during the loop
-errPlot.legend(loc="upper right", frameon=False)
+trainingPlot.legend(loc="upper right", frameon=False)
+
+# add in the final values
+finalTrainingAccuracies = [curList[-1] for curList in trainingAccuracyLists]
+finalTestAccuracies = [curList[-1] for curList in testAccuracyLists]
+finalTrainingCosts = [curList[-1] for curList in trainingCostLists]
+finalTestCosts = [curList[-1] for curList in testCostLists]
+
+errPlot = fig.add_subplot(312)
+errPlot.plot(batchSizes, finalTrainingCosts, label="Training", marker="o", markersize="3",  ls="None")
+errPlot.plot(batchSizes, finalTestCosts, label="Validation", marker="o", markersize="3", ls="None")
+errPlot.set_xlabel("Batch Size")
+errPlot.set_ylabel("Cross-Entropy Error")
+errPlot.legend(loc="lower right", frameon=False)
+errPlot.set_title("Final Error vs. Batch Size")
+# plot the time versus batch size
+timePlot = fig.add_subplot(313)
+timePlot.plot(batchSizes, times, label="Time", marker="o", markersize="3",  ls="None")
+timePlot.set_xlabel("Batch Size")
+timePlot.set_ylabel("Time to Make and Train NN (S)")
+timePlot.set_title("Time vs. Batch Size")
+
 fig.tight_layout()
-fig.savefig('exp1k_BatchSizeThroughoutTraining.png')
+fig.savefig('exp1k_BatchSize.png')
 
 
 
