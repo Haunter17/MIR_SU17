@@ -139,7 +139,7 @@ Plot the cost at each epoch for each of these downsampling amounts
 
 
 [X_train, y_train, X_test, y_test] = loadData('/pylon2/ci560sp/cstrong/taylorswift_smallDataset_71_7.mat')
-numEpochs = 500
+numEpochs = 800
 
 numTrainingSamples = X_train.shape[0]
 
@@ -155,9 +155,10 @@ fig = plt.figure()
 errPlot = fig.add_subplot(111)
 errPlot.set_xlabel("Epoch Numbers")
 errPlot.set_ylabel("Cross-Entropy Error")
-errPlot.legend(loc="lower right", frameon=False)
 
 errPlot.set_title("Error vs. Epoch Number")
+
+times = []
 for curSize in batchSizes:
 	startOfLoop = time.time()
 	print("==> Test with Batch Size of %d"%(curSize))
@@ -166,17 +167,11 @@ for curSize in batchSizes:
 
 	times += [endOfTraining - startOfLoop]
 
-	# track the final accuracies
-	trainingAccuracies += [trainingAccuracy]
-	testAccuracies += [testAccuracy]
-	trainingCosts += [trainingCost]
-	testCosts += [testCost]
-
 	endOfLoop = time.time()
 	print("Test with Batch Size of %d took: %g"%(curSize, endOfLoop - startOfLoop))
 
 	# add the cost vs epoch for this batch size
-	numEpochs = len(train_accuracies)
+	numEpochs = len(trainingAccuracies)
 	epochNumbers = range(numEpochs)	
 	errPlot.plot(epochNumbers, trainingCosts, label="Training, Batchsize = %d"%(curSize), marker="o", markersize="3",  ls="None")
 	errPlot.plot(epochNumbers, testCosts, label="Validation, Batchsize = %d"%(curSize), marker="o", markersize="3", ls="None")
@@ -193,37 +188,17 @@ print("--------------------------")
 print("Summary Of Results")
 print("--------------------------")
 print("Batch Sizes: %s"%str(batchSizes))
-print("Training Accuracies: %s"%str(trainingAccuracies))
-print("Test Accuracies: %s"%str(testAccuracies))
-print("Training Costs: %s"%str(trainingCosts))
-print("Test Costs: %s"%str(testCosts))
+
 
 '''
 Plotting results
 '''
-
-
-matplotlib.rcParams.update({'font.size': 8})
-
-fig = plt.figure()
-
-errPlot = fig.add_subplot(211)
-errPlot.plot(batchSizes, trainingCosts, label="Training", marker="o", markersize="3",  ls="None")
-errPlot.plot(batchSizes, testCosts, label="Validation", marker="o", markersize="3", ls="None")
-errPlot.set_xlabel("Batch Size")
-errPlot.set_ylabel("Cross-Entropy Error")
-errPlot.legend(loc="lower right", frameon=False)
-errPlot.set_title("Error vs. Batch Size")
-# plot the time versus batch size
-timePlot = fig.add_subplot(212)
-timePlot.plot(batchSizes, times, label="Time", marker="o", markersize="3",  ls="None")
-timePlot.set_xlabel("Batch Size")
-timePlot.set_ylabel("Time to Make and Train NN (S)")
-timePlot.set_title("Time vs. Batch Size")
-
-
+# plots have already been added to the figure during the loop
+errPlot.legend(loc="upper right", frameon=False)
 fig.tight_layout()
-fig.savefig('exp1k_BatchSizeFinalVals.png')
+fig.savefig('exp1k_BatchSizeThroughoutTraining.png')
+
+
 
 
 
