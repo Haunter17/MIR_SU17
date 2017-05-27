@@ -18,7 +18,7 @@ print('==> Data sizes:',X_train.shape, y_train.shape, X_test.shape, y_test.shape
 y_train = [i[0] for i in y_train]
 y_test = [i[0] for i in y_test]
 
-testList = [20, 40, 60, 80, 100, 150, 200, 250, 300]
+testList = [20, 40, 60, 80, 100, 150, 200, 250]
 
 for numTrees in testList:
     print("Number of Trees:",numTrees)
