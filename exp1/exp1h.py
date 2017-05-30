@@ -42,12 +42,12 @@ hidden_layer_size = 100
 num_classes = y_test.shape[1]
 
 # log transformation
-X_train_log = [ [ math.log10(x) for x in i ] for i in X_train ]
-X_test_log = [ [ math.log10(x) for x in i ] for i in X_test ]
+X_train_log = np.log10(X_train)
+X_test_log = np.log10(X_test)
 
 # cubic root
-X_train_cr = [ [ x ** (1./3) for x in i ] for i in X_train ]
-X_test_cr = [ [ x ** (1./3) for x in i ] for i in X_test ]
+X_train_cr = np.cbrt(X_train)
+X_test_cr = np.cbrt(X_test)
 
 ''' No preprocessing '''
 print("No Preprocessing")
