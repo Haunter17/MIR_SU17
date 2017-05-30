@@ -41,7 +41,7 @@ def init_bias_variable(shape):
 	NN config parameters
 '''
 num_featuers = 121
-hidden_layer_size = 20
+hidden_layer_size = 80
 num_classes = int(max(y_train.max(), y_test.max()) + 1)
 
 # Transform labels into on-hot encoding form
@@ -83,7 +83,7 @@ y_test = sess.run(y_test_OHEnc)[:, 0, :]
 '''
 numTrainingVec = len(X_train)
 batchSize = 1000
-numEpochs = 300
+numEpochs = 1200
 print_freq = 5
 
 train_acc_list = []
