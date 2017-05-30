@@ -41,7 +41,7 @@ def init_bias_variable(shape):
 	NN config parameters
 '''
 num_featuers = 121
-hidden_layer_size = 80
+hidden_layer_size = 800
 num_classes = int(max(y_train.max(), y_test.max()) + 1)
 
 # Transform labels into on-hot encoding form
@@ -83,8 +83,8 @@ y_test = sess.run(y_test_OHEnc)[:, 0, :]
 '''
 numTrainingVec = len(X_train)
 batchSize = 1000
-numEpochs = 1200
-print_freq = 5
+numEpochs = 1500
+print_freq = 50
 
 train_acc_list = []
 val_acc_list = []
@@ -134,21 +134,21 @@ print('==> Generating accuracy plot...')
 x_list = range(0, print_freq * len(train_acc_list), print_freq)
 plt.xlabel('Number of epochs')
 plt.ylabel('Accuracy (%)')
-plt.title('Accuracy vs Number of Epochs')
+plt.title('Accuracy vs Number of Epochs with {} Neurons'.format(hidden_layer_size))
 train_acc_plot, = plt.plot(x_list, train_acc_list, 'bo')
 val_acc_plot, = plt.plot(x_list, val_acc_list, 'ro')
 plt.legend((train_acc_plot, val_acc_plot), ('training', 'validation'), loc='best')
-plt.savefig('exp1b_accuracy.png', format='png')
+plt.savefig('exp1b_accuracy_{}.png'.format(hidden_layer_size), format='png')
 plt.close()
 
 print('==> Generating error plot...')
 plt.xlabel('Number of epochs')
 plt.ylabel('Cross-Entropy Error')
-plt.title('Error vs Number of Epochs')
+plt.title('Error vs Number of Epochs with {} Neurons'.format(hidden_layer_size))
 train_err_plot, = plt.plot(x_list, train_err_list, 'bo')
 val_err_plot, = plt.plot(x_list, val_err_list, 'ro')
 plt.legend((train_err_plot, val_err_plot), ('training', 'validation'), loc='best')
-plt.savefig('exp1b_error.png', format='png')
+plt.savefig('exp1b_error_{}.png'.format(hidden_layer_size), format='png')
 plt.close()
 
 print('==> Done.')
