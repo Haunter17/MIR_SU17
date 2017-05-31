@@ -41,7 +41,7 @@ def init_bias_variable(shape):
 	NN config parameters
 '''
 num_featuers = 121
-hidden_layer_size = 800
+hidden_layer_size = 20
 num_classes = int(max(y_train.max(), y_test.max()) + 1)
 
 # Transform labels into on-hot encoding form
