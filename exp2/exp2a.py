@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import h5py
 
-
 def PCA(X, target_pct = 0.99, k = -1):
 	'''
 		X has dimension m x n.
@@ -17,7 +16,7 @@ def PCA(X, target_pct = 0.99, k = -1):
 	# std = np.sqrt(var).reshape(1, -1)
 	# X = np.nan_to_num(np.divide(X, np.repeat(std, m, axis = 0)))
 	# svd
-	U, S, V = np.linalg.svd(X.T @ X)
+	U, S, V = np.linalg.svd(X.transpose() * X)
 	if k == -1:
 		# calculate target k
 		total_var = sum(S ** 2)
@@ -29,7 +28,7 @@ def PCA(X, target_pct = 0.99, k = -1):
 				break
 			k += 1
 	# projection
-	X_rot = X @ U[:, :k + 1]
+	X_rot = X * U[:, :k + 1]
 	return X_rot, S ** 2, k
 
 def PCA_analysis(D, title = 'Relative Variance Preservation', savename = 'variance.png'):
@@ -48,7 +47,7 @@ def PCA_analysis(D, title = 'Relative Variance Preservation', savename = 'varian
 
 
 print('==> Experiment 2a')
-filepath = '../taylorswift_out/data.mat'
+filepath = '../taylorswift_out/s71d7.mat'
 print('==> Loading data from {}'.format(filepath))
 # benchmark
 t_start = time.time()
@@ -64,3 +63,14 @@ print('--Time elapsed for loading data: {t:.2f} \
 del f
 print('-- Number of training samples: {}'.format(X_train.shape[0]))
 print('-- Number of test samples: {}'.format(X_val.shape[0]))
+
+# running pca
+X_rot_col, D_col, k_col = PCA(X_train.transpose())
+X_rot_row, D_row, k_row = PCA(X_train)
+
+print('-- Number of features for column vectors is {}'.format(k_col))
+print('-- Number of features for row vectors is {}'.format(k_row))
+
+print('==> Generating plots...')
+PCA_analysis(D_col, title='Variance Retention for Columns', savename='col_pca.png')
+PCA_analysis(D_row, title='Variance Retention for Rows', savename='row_pca.png')
