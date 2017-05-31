@@ -4,6 +4,23 @@ import h5py
 from sklearn.preprocessing import OneHotEncoder
 import time
 
+# Download data from .mat file into numpy array
+print('==> Experiment 1l')
+filepath = 'exp1l_C1.mat'
+print('==> Loading data from {}'.format(filepath))
+f = h5py.File(filepath)
+X_train = np.array(f.get('trainingFeatures'))
+y_train = np.array(f.get('trainingLabels'))
+X_test = np.array(f.get('validationFeatures'))
+y_test = np.array(f.get('validationLabels'))
+del f
+print('==> Data sizes:',X_train.shape, y_train.shape, X_test.shape, y_test.shape)
+
+# Transform labels into on-hot encoding form
+enc = OneHotEncoder()
+y_train = enc.fit_transform(y_train.copy()).astype(int).toarray()
+y_test = enc.fit_transform(y_test.copy()).astype(int).toarray()
+
 # Functions for initializing neural nets parameters
 def weight_variable(shape):
     initial = tf.truncated_normal(shape, stddev=0.1, dtype=tf.float64)
@@ -13,33 +30,32 @@ def bias_variable(shape):
     initial = tf.constant(0.1, shape=shape, dtype=tf.float64)
     return tf.Variable(initial)
 
-# Download data from .mat file into numpy array
-print('==> Experiment 1l')
-fileList = ['exp1l_C1.mat', 'exp1l_Gb1.mat', 'exp1l_C2.mat', 'exp1l_Gb2.mat']
+def setFreqRange(M, tb, numbins, totalFeatures):
+    # Dimension of M is numSamples x 121
+    if tb == 't':
+        M = [x[0:totalFeatures-numbins] for x in M]
+    elif tb == 'b':
+        M = [x[numbins:totalFeatures] for x in M]
+    else:
+        M = [x[numbins:totalFeatures] for x in M]
+    return M
 
-for fileNum in range(4):
+removeBinsNum = [0, 13, 25, 37, 48]
 
-    print("Data File Name:", fileList[fileNum])
+for numbins in removeBinsNum:
 
-    filepath = fileList[fileNum]
-    print('==> Loading data from {}'.format(filepath))
-    f = h5py.File(filepath)
-    X_train = np.array(f.get('trainingFeatures'))
-    y_train = np.array(f.get('trainingLabels'))
-    X_test = np.array(f.get('validationFeatures'))
-    y_test = np.array(f.get('validationLabels'))
-    del f
-    print('==> Data sizes:',X_train.shape, y_train.shape, X_test.shape, y_test.shape)
+    print("Number of Bins:",169-numbins)
 
-    # Transform labels into on-hot encoding form
-    enc = OneHotEncoder()
-    y_train = enc.fit_transform(y_train.copy()).astype(int).toarray()
-    y_test = enc.fit_transform(y_test.copy()).astype(int).toarray()
+    # Narrow frequency range
+    tb = 'b'
+    totalFeatures = 169
+    X_train_sub = setFreqRange(X_train, tb, numbins, totalFeatures)
+    X_test_sub = setFreqRange(X_test, tb, numbins, totalFeatures)
 
     '''
         NN config parameters
     '''
-    num_features = X_train.shape[1]
+    num_features = totalFeatures - numbins
     hidden_layer_size = 100 # set according to exp1b
     num_classes = y_test.shape[1]
     print("Number of features:", num_features)
@@ -73,11 +89,9 @@ for fileNum in range(4):
     sess.run(tf.global_variables_initializer())
 
     # Training
-    numTrainingVec = len(X_train)
+    numTrainingVec = len(X_train_sub)
     batchSize = 1000
-    numEpochs = 300
-
-    noisy = False
+    numEpochs = 500
 
     startTime = time.time()
     for epoch in range(numEpochs):
@@ -85,14 +99,14 @@ for fileNum in range(4):
 
             # Batch Data
             batchEndPoint = min(i+batchSize, numTrainingVec)
-            trainBatchData = X_train[i:batchEndPoint]
+            trainBatchData = X_train_sub[i:batchEndPoint]
             trainBatchLabel = y_train[i:batchEndPoint]
 
             train_step.run(feed_dict={x: trainBatchData, y_: trainBatchLabel})
 
         # Print accuracy
         if (epoch%10 == 0 or epoch == numEpochs-1)  and noisy:
-            train_accuracy = accuracy.eval(feed_dict={x:X_train, y_: y_train})
+            train_accuracy = accuracy.eval(feed_dict={x:X_train_sub, y_: y_train})
             print("epoch: %d, training accuracy %g"%(epoch, train_accuracy))
 
     endTime = time.time()
@@ -100,10 +114,10 @@ for fileNum in range(4):
 
     # Validation
 
-    train_accuracy = accuracy.eval(feed_dict={x:X_train, y_: y_train})
-    validation_accuracy = accuracy.eval(feed_dict={x:X_test, y_: y_test})
-    train_error = cross_entropy.eval(feed_dict={x:X_train, y_: y_train})
-    validation_error = cross_entropy.eval(feed_dict={x:X_test, y_: y_test})
+    train_accuracy = accuracy.eval(feed_dict={x:X_train_sub, y_: y_train})
+    validation_accuracy = accuracy.eval(feed_dict={x:X_test_sub, y_: y_test})
+    train_error = cross_entropy.eval(feed_dict={x:X_train_sub, y_: y_train})
+    validation_error = cross_entropy.eval(feed_dict={x:X_test_sub, y_: y_test})
 
     print("Train accuracy:",train_accuracy)
     print("Validation accuracy:",validation_accuracy)
