@@ -21,7 +21,13 @@ while ischar(curfile)
     [pathstr,name,ext] = fileparts(curfile);
     cqt_file = strcat(outdir,name,'.mat');
     Qfile = load(cqt_file); % loads Q (struct)
-    QMat = abs(Qfile.Q.c);
+    % preprocessing of Q: cubic root
+    Q_Mat = nthroot(abs(Qfile.Q.c), downsamplingRate);
+    % average every three column
+    QMat = avg_kcol(Q_abs, downsamplingRate);
+    % reshape
+    num_frame_agg = floor(1451 / downsamplingRate);
+    QMat = reshape_prow(QMat, num_frame_agg);
     
     [trainVec, testVec] = createDataset(QMat, label);
     trainingSet = cat(1, trainingSet, trainVec);
@@ -31,11 +37,6 @@ while ischar(curfile)
     label = label + 1;
 end
 
-% Note: Downsampling is done before shuffling data to ensure that we sample
-% from every track.
-disp(['==> Downsampling Data'])
-trainingSet = trainingSet(1:downsamplingRate:size(trainingSet,1),:);
-testSet = testSet(1:downsamplingRate:size(testSet,1),:);
 
 disp(['==> Shuffling data...'])
 trainingSet = trainingSet(randperm(size(trainingSet, 1)), :)';
@@ -47,4 +48,33 @@ validationLabels = testSet(size(testSet,1), :);
 trainingFeatures = trainingSet(1:size(trainingSet,1)-1, :);
 validationFeatures = testSet(1:size(testSet,1)-1, :);
 
+size(trainingFeatures)
+size(trainingLabels)
+
 save(filename, 'trainingFeatures', 'validationFeatures', 'trainingLabels', 'validationLabels', '-v7.3');
+end
+
+function [ D ] = avg_kcol( A, k )
+% average a matrix by every k columns
+%   
+[orig_row, orig_col] = size(A);
+new_col = floor(orig_col / k) * k;
+A = A(:, 1: new_col);
+B = reshape(A', k, [])';
+C = mean(B, 2);
+D = reshape(C', [], orig_row)';
+end
+
+function [ D ] = reshape_prow( A, p )
+% reshape the matrix to have p x original number of rows
+[orig_row, orig_col] = size(A);
+new_col = floor(orig_col / p) * p;
+A = A(:, 1 : new_col);
+B = reshape(A', [], orig_row * p)';
+idx = [];
+for i = 1 : p
+    curr_idx = [i : p : orig_row * p];
+    idx = [idx curr_idx];
+end
+D = B(idx, :);
+end
