@@ -50,6 +50,8 @@ k1 = 16
 k2 = 32
 l = 5
 
+print('-- Number of hidden units: {}'.format(hidden_layer_size))
+
 # Transform labels into on-hot encoding form
 y_train_OHEnc = tf.one_hot(y_train.copy(), num_classes)
 y_test_OHEnc = tf.one_hot(y_test.copy(), num_classes)
@@ -65,7 +67,9 @@ x_image = tf.reshape(x, [-1, num_freq, num_frames, 1])
 h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
 
 # second layer
-
+W_conv2 = init_weight_variable([1, l, k1, k2])
+b_conv2 = init_bias_variable([k2])
+h_conv2 = tf.nn.relu(conv2d(h_conv1, W_conv2) + b_conv2)
 
 print('==> Done.')
 
