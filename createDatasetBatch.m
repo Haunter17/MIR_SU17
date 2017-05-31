@@ -48,9 +48,6 @@ validationLabels = testSet(size(testSet,1), :);
 trainingFeatures = trainingSet(1:size(trainingSet,1)-1, :);
 validationFeatures = testSet(1:size(testSet,1)-1, :);
 
-size(trainingFeatures)
-size(trainingLabels)
-
 save(filename, 'trainingFeatures', 'validationFeatures', 'trainingLabels', 'validationLabels', '-v7.3');
 end
 
