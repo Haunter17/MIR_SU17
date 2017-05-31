@@ -24,7 +24,7 @@ while ischar(curfile)
     % preprocessing of Q: cubic root
     Q_Mat = nthroot(abs(Qfile.Q.c), downsamplingRate);
     % average every three column
-    QMat = avg_kcol(Q_abs, downsamplingRate);
+    QMat = avg_kcol(Q_Mat, downsamplingRate);
     % reshape
     num_frame_agg = floor(1451 / downsamplingRate);
     QMat = reshape_prow(QMat, num_frame_agg);
