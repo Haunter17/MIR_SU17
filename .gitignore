@@ -7,3 +7,4 @@
 *.png
 *.out
 *.batch
+./exp1/exp1b/*

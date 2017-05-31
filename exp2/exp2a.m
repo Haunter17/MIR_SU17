@@ -8,14 +8,14 @@ disp(['-- Number of training samples ', int2str(size(X_train, 1))]);
 disp(['==> PCA on frequency...']);
 [~, S_freq] = PCA(X_train);
 
-disp(['PCA on temporal...']);
-X_train_sub = X_train(1: 5000, :);
-[~, S_temp] = PCA(X_train_sub');
+% disp(['PCA on temporal...']);
+% X_train_sub = X_train(1: 5000, :);
+% [~, S_temp] = PCA(X_train_sub');
 
-k_freq = variance_analysis(diag(S_freq) .^ 2, 0.99); % 55
-k_temp = variance_analysis(diag(S_temp) .^ 2, 0.99); % 58
-disp(['Number of desired components for frequency (column) vectors is ', int2str(k_freq)]);
-disp(['Number of desired components for row (temporal) vectors is ', int2str(k_temp)]);
+% k_freq = variance_analysis(diag(S_freq) .^ 2, 0.99); % 55
+% k_temp = variance_analysis(diag(S_temp) .^ 2, 0.99); % 58
+% disp(['Number of desired components for frequency (column) vectors is ', int2str(k_freq)]);
+% disp(['Number of desired components for row (temporal) vectors is ', int2str(k_temp)]);
 
 function [k] = variance_analysis(D, target)
 	total_var = sum(D);
