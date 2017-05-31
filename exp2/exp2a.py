@@ -47,8 +47,8 @@ def PCA_analysis(D, title = 'Relative Variance Preservation', savename = 'varian
 	plt.close()
 
 
-print('==> Experiment 1b')
-filepath = '../taylorswift_out/small.mat'
+print('==> Experiment 2a')
+filepath = '../taylorswift_out/data.mat'
 print('==> Loading data from {}'.format(filepath))
 # benchmark
 t_start = time.time()
