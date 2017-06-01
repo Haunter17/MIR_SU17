@@ -45,9 +45,9 @@ total_features = X_train.shape[1]
 num_freq = 121
 num_frames = int(total_features / num_freq)
 num_classes = int(max(y_train.max(), y_test.max()) + 1)
-k1 = 16
-k2 = 32
-l = 5
+k1 = 9
+k2 = 3
+l = num_frames
 
 # Transform labels into on-hot encoding form
 y_train_OHEnc = tf.one_hot(y_train.copy(), num_classes)
@@ -69,7 +69,8 @@ b_conv2 = init_bias_variable([k2])
 h_conv2 = tf.nn.relu(conv2d(h_conv1, W_conv2) + b_conv2)
 
 # softmax layer
-W_sm = init_weight_variable([])
+W_sm = init_weight_variable([(num_frames - l + 1) * k1 * k2, num_classes])
+b_sm = init_bias_variable([num_classes])
 
 print('==> Done.')
 
