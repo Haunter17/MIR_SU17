@@ -25,7 +25,15 @@ disp(['Number of desired components for row (temporal) vectors is ', int2str(k_t
 
 freq_fig = figure;
 var_freq = diag(S_freq) .^ 2;
-stem(var_freq / sum(var_freq));
+var_freq = var_freq / sum(var_freq);
+stem(var_freq(1 : 20));
+axis([1 20 0 1.1 * var_freq(2)]);
+title('Column PCA: Relative Variance of Top 20 Eigenvalue');
+saveas(freq_fig, 'col_pca.png');
 temp_fig = figure;
 var_temp = diag(S_temp) .^ 2;
-stem(var_temp / sum(var_temp));
+var_temp = var_temp / sum(var_temp);
+stem(var_temp(1 : 10));
+axis([1 10 0 1.1 * var_temp(2)]);
+title('Row PCA: Relative Variance of Top 10 Eigenvalue');
+saveas(temp_fig, 'row_pca.png');

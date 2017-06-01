@@ -2,8 +2,6 @@ import numpy as np
 import tensorflow as tf
 import h5py
 import time
-import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 # Functions for initializing neural nets parameters
@@ -19,7 +17,7 @@ def conv2d(x, W):
   return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='VALID')
 
 print('==> Experiment 2b')
-filepath = '../taylorswift_out/s71d7.mat'
+filepath = '../taylorswift_out/data.mat'
 print('==> Loading data from {}'.format(filepath))
 # benchmark
 t_start = time.time()
@@ -37,10 +35,6 @@ print('-- Number of training samples: {}'.format(X_train.shape[0]))
 print('-- Number of validation samples: {}'.format(X_val.shape[0]))
 
 # Neural-network model set-up
-
-'''
-	CNN config parameters
-'''
 num_training_vec, total_features = X_train
 num_freq = 121
 num_frames = int(total_features / num_freq)
