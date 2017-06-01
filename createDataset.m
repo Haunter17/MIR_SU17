@@ -1,12 +1,12 @@
 function [trainingSet,testingSet] = createDataset (Q, label)
 
 % 250 frames/sec
-% Training duration: 12 secs = 3000 frames
-% Testing duration: 6 secs = 1500 frames
+% Training duration: 12 secs = 966 frames = 2 col
+% Testing duration: 6 secs = 483 frames = 1 col
 trainingVec = [];
 testingVec = [];
-trainingDuration = 3000;
-testingDuration = 1500;
+trainingDuration = 2;
+testingDuration = 1;
 
 for col=1:trainingDuration+testingDuration: size(Q,2)
 	if col + trainingDuration + testingDuration - 1 >= size(Q, 2)
