@@ -26,8 +26,8 @@ while ischar(curfile)
     % average every three column
     QMat = avg_kcol(Q_Mat, downsamplingRate);
     % reshape
-    num_frame_agg = floor(1451 / downsamplingRate);
-    QMat = reshape_prow(QMat, num_frame_agg);
+    % num_frame_agg = floor(1451 / downsamplingRate);
+    % QMat = reshape_prow(QMat, num_frame_agg);
     
     [trainVec, testVec] = createDataset(QMat, label);
     trainingSet = cat(1, trainingSet, trainVec);
@@ -47,6 +47,9 @@ trainingLabels = trainingSet(size(trainingSet,1), :);
 validationLabels = testSet(size(testSet,1), :);
 trainingFeatures = trainingSet(1:size(trainingSet,1)-1, :);
 validationFeatures = testSet(1:size(testSet,1)-1, :);
+
+size(trainingFeatures')
+size(trainingLabels')
 
 save(filename, 'trainingFeatures', 'validationFeatures', 'trainingLabels', 'validationLabels', '-v7.3');
 end
