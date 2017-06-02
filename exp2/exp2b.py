@@ -6,18 +6,18 @@ import matplotlib.pyplot as plt
 
 # Functions for initializing neural nets parameters
 def init_weight_variable(shape):
-  initial = tf.truncated_normal(shape, stddev=0.1, dtype=tf.float64)
-  return tf.Variable(initial)
+	initial = tf.truncated_normal(shape, stddev=0.1, dtype=tf.float32)
+	return tf.Variable(initial)
 
 def init_bias_variable(shape):
-  initial = tf.constant(0.1, shape=shape, dtype=tf.float64)
-  return tf.Variable(initial)
+	initial = tf.constant(0.1, shape=shape, dtype=tf.float32)
+	return tf.Variable(initial)
 
 def conv2d(x, W):
-  return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='VALID')
+	return tf.nn.conv2d(x, W, [1, 1, 1, 1], 'VALID')
 
 print('==> Experiment 2b')
-filepath = '../taylorswift_out/data.mat'
+filepath = '../taylorswift_out/exp2_d15_1s.mat'
 print('==> Loading data from {}'.format(filepath))
 # benchmark
 t_start = time.time()
@@ -28,30 +28,32 @@ X_train = np.array(f.get('trainingFeatures'))
 y_train = np.array(f.get('trainingLabels'))
 X_val = np.array(f.get('validationFeatures'))
 y_val = np.array(f.get('validationLabels'))
+t_end = time.time()
 print('--Time elapsed for loading data: {t:.2f} \
-    seconds'.format(t = t_end - t_start))
+		seconds'.format(t = t_end - t_start))
 del f
 print('-- Number of training samples: {}'.format(X_train.shape[0]))
 print('-- Number of validation samples: {}'.format(X_val.shape[0]))
 
 # Neural-network model set-up
-num_training_vec, total_features = X_train
+num_training_vec, total_features = X_train.shape
 num_freq = 121
 num_frames = int(total_features / num_freq)
+print('-- Num frames: {}'.format(num_frames))
 num_classes = int(max(y_train.max(), y_val.max()) + 1)
 k1 = 9
 k2 = 3
 l = num_frames
 batch_size = 1000
-num_epochs = 1500
-print_freq = 50
+num_epochs = 20
+print_freq = 1
 
 # Transform labels into on-hot encoding form
 y_train_OHEnc = tf.one_hot(y_train.copy(), num_classes)
 y_val_OHEnc = tf.one_hot(y_val.copy(), num_classes)
 
 # Set-up input and output label
-x = tf.placeholder(tf.float64, [None, num_freq])
+x = tf.placeholder(tf.float32, [None, total_features])
 y_ = tf.placeholder(tf.float32, [None, num_classes])
 
 # first convolutional layer
@@ -64,16 +66,17 @@ h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
 W_conv2 = init_weight_variable([1, l, k1, k2])
 b_conv2 = init_bias_variable([k2])
 h_conv2 = tf.nn.relu(conv2d(h_conv1, W_conv2) + b_conv2)
+h_conv2_flat = tf.reshape(h_conv2, [-1, (num_frames - l + 1) * k2])
 
 # softmax layer
-W_sm = init_weight_variable([(num_frames - l + 1) * k1 * k2, num_classes])
+W_sm = init_weight_variable([(num_frames - l + 1) * k2, num_classes])
 b_sm = init_bias_variable([num_classes])
 
-y_conv = tf.matmul(h_conv2, W_sm) + b_sm
+y_conv = tf.matmul(h_conv2_flat, W_sm) + b_sm
 
 # evaluations
 cross_entropy = tf.reduce_mean(
-    tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_conv))
+		tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_conv))
 train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
@@ -81,6 +84,7 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 # session
 sess = tf.InteractiveSession()
 sess.run(tf.global_variables_initializer())
+
 y_train = sess.run(y_train_OHEnc)[:, 0, :]
 y_val = sess.run(y_val_OHEnc)[:, 0, :]
 
@@ -96,24 +100,21 @@ for epoch in range(num_epochs):
 		batch_end_point = min(i + batch_size, num_training_vec)
 		train_batch_data = X_train[i : batch_end_point]
 		train_batch_label = y_train[i : batch_end_point]
-
 		train_step.run(feed_dict={x: train_batch_data, y_: train_batch_label})
-
 	if (epoch + 1) % print_freq == 0:
-		# evaluate accuracy and errors
-        train_acc = accuracy.eval(feed_dict={x:X_train, y_: y_train})
-        train_acc_list.append(train_acc)
-        val_acc = accuracy.eval(feed_dict={x: X_test, y_: y_test})
-        val_acc_list.append(val_acc)
-        train_err = cross_entropy.eval(feed_dict={x: X_train, y_: y_train})
-        train_err_list.append(train_err)
-        val_err = cross_entropy.eval(feed_dict={x: X_test, y_: y_test})
-        val_err_list.append(val_err)      
-        print("-- epoch: %d, training error %g"%(epoch + 1, train_err))
+		train_acc = accuracy.eval(feed_dict={x:X_train, y_: y_train})
+		train_acc_list.append(train_acc)
+		val_acc = accuracy.eval(feed_dict={x: X_val, y_: y_val})
+		val_acc_list.append(val_acc)
+		train_err = cross_entropy.eval(feed_dict={x: X_train, y_: y_train})
+		train_err_list.append(train_err)
+		val_err = cross_entropy.eval(feed_dict={x: X_val, y_: y_val})
+		val_err_list.append(val_err)      
+		print("-- epoch: %d, training error %g"%(epoch + 1, train_err))
 
-time = time.time()
+t_end = time.time()
 print('--Time elapsed for training: {t:.2f} \
-    seconds'.format(t = t_end - t_start))
+		seconds'.format(t = t_end - t_start))
 
 # Reports
 print('-- Training accuracy: {:.4f}'.format(train_acc_list[-1]))
