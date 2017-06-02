@@ -2,6 +2,8 @@ import numpy as np
 import tensorflow as tf
 import h5py
 import time
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import sys
 
@@ -132,11 +134,11 @@ print('-- Validation error: {:.4E}'.format(val_err_list[-1]))
 
 print('==> Generating error plot...')
 x_list = range(0, print_freq * len(train_acc_list), print_freq)
+train_err_plot, = plt.plot(x_list, train_err_list, 'b.')
+val_err_plot, = plt.plot(x_list, val_err_list, '.', color='orange')
 plt.xlabel('Number of epochs')
 plt.ylabel('Cross-Entropy Error')
 plt.title('Error vs Number of Epochs with Window Size of {}'.format(l))
-train_err_plot, = plt.plot(x_list, train_err_list, 'bo')
-val_err_plot, = plt.plot(x_list, val_err_list, 'o', color='orange')
 plt.legend((train_err_plot, val_err_plot), ('training', 'validation'), loc='best')
 plt.savefig('exp1b_error_{}.png'.format(l), format='png')
 plt.close()
