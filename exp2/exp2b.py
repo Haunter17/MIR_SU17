@@ -55,8 +55,8 @@ except Exception, e:
 print('-- Window size is {}'.format(l))
 
 batch_size = 1000
-num_epochs = 5
-print_freq = 1
+num_epochs = 1500
+print_freq = 50
 
 # Transform labels into on-hot encoding form
 y_train_OHEnc = tf.one_hot(y_train.copy(), num_classes)
