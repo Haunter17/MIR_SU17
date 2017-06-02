@@ -3,6 +3,7 @@ import tensorflow as tf
 import h5py
 import time
 import matplotlib.pyplot as plt
+import sys
 
 # Functions for initializing neural nets parameters
 def init_weight_variable(shape):
@@ -39,13 +40,20 @@ print('-- Number of validation samples: {}'.format(X_val.shape[0]))
 num_training_vec, total_features = X_train.shape
 num_freq = 121
 num_frames = int(total_features / num_freq)
-print('-- Num frames: {}'.format(num_frames))
 num_classes = int(max(y_train.max(), y_val.max()) + 1)
 k1 = 9
 k2 = 3
 l = num_frames
+try:
+	l = int(sys.argv[1])
+except Exception, e:
+	print('-- {}'.format(e))
+	l = num_frames
+
+print('-- Window size is {}'.format(l))
+
 batch_size = 1000
-num_epochs = 20
+num_epochs = 5
 print_freq = 1
 
 # Transform labels into on-hot encoding form
@@ -123,11 +131,12 @@ print('-- Training error: {:.4E}'.format(train_err_list[-1]))
 print('-- Validation error: {:.4E}'.format(val_err_list[-1]))
 
 print('==> Generating error plot...')
+x_list = range(0, print_freq * len(train_acc_list), print_freq)
 plt.xlabel('Number of epochs')
 plt.ylabel('Cross-Entropy Error')
 plt.title('Error vs Number of Epochs with Window Size of {}'.format(l))
 train_err_plot, = plt.plot(x_list, train_err_list, 'bo')
-val_err_plot, = plt.plot(x_list, val_err_list, 'ro')
+val_err_plot, = plt.plot(x_list, val_err_list, 'o', color='orange')
 plt.legend((train_err_plot, val_err_plot), ('training', 'validation'), loc='best')
 plt.savefig('exp1b_error_{}.png'.format(l), format='png')
 plt.close()
