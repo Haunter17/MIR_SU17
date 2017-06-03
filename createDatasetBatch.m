@@ -22,11 +22,14 @@ while ischar(curfile)
     cqt_file = strcat(outdir,name,'.mat');
     Qfile = load(cqt_file); % loads Q (struct)
     % preprocessing of Q: cubic root
-    Q_Mat = nthroot(abs(Qfile.Q.c), 3);
-    % average every k column
+    Q_Mat = nthroot(abs(Qfile.Q.c), downsamplingRate);
+    % average every three column
     QMat = avg_kcol(Q_Mat, downsamplingRate);
+
+    num_frame_agg = 16;
+    strideSize = 1;
     
-    [trainVec, testVec] = createDataset(QMat, label);
+    [trainVec, testVec] = createDataset(QMat, label, strideSize, num_frame_agg);
     trainingSet = cat(1, trainingSet, trainVec);
     testSet = cat(1, testSet, testVec);
     
@@ -35,42 +38,12 @@ while ischar(curfile)
 end
 
 
-% disp(['==> Shuffling data...'])
-% trainingSet = trainingSet(randperm(size(trainingSet, 1)), :)';
-% testSet = testSet(randperm(size(testSet, 1)), :)';
-trainingSet = trainingSet';
-testSet = testSet';
+disp(['==> Shuffling data...'])
+trainingSet = trainingSet(randperm(size(trainingSet, 1)), :)';
+testSet = testSet(randperm(size(testSet, 1)), :)';
 
 disp(['==> Separate coefficients and labels'])
 trainingLabels = trainingSet(size(trainingSet,1), :);
 validationLabels = testSet(size(testSet,1), :);
 trainingFeatures = trainingSet(1:size(trainingSet,1)-1, :);
 validationFeatures = testSet(1:size(testSet,1)-1, :);
-
-save(filename, 'trainingFeatures', 'validationFeatures', 'trainingLabels', 'validationLabels', '-v7.3');
-end
-
-function [ D ] = avg_kcol( A, k )
-% average a matrix by every k columns
-%   
-[orig_row, orig_col] = size(A);
-new_col = floor(orig_col / k) * k;
-A = A(:, 1: new_col);
-B = reshape(A', k, [])';
-C = mean(B, 2);
-D = reshape(C', [], orig_row)';
-end
-
-function [ D ] = reshape_prow( A, p )
-% reshape the matrix to have p x original number of rows
-[orig_row, orig_col] = size(A);
-new_col = floor(orig_col / p) * p;
-A = A(:, 1 : new_col);
-B = reshape(A', [], orig_row * p)';
-idx = [];
-for i = 1 : p
-    curr_idx = [i : p : orig_row * p];
-    idx = [idx curr_idx];
-end
-D = B(idx, :);
-end
