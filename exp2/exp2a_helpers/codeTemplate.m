@@ -12,4 +12,4 @@ param.precomputeCQT = 1;
 param.precomputeCQTdir = outdir;
 downsamplingRate = 15;
 
-createDatasetBatch(filelist, strcat(outdir,'data_pca.mat'), downsamplingRate, outdir)
+createDatasetBatch(filelist, strcat(outdir, artist, '_d15_pca.mat'), downsamplingRate, outdir)

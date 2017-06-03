@@ -1,8 +1,8 @@
 function [trainingSet,testingSet] = createDataset (Q, label)
 
 % 250 frames/sec
-% Training duration: 10 secs = 966 frames = 2 col
-% Testing duration: 5 secs = 483 frames = 1 col
+% Training duration: 10 secs = 160 frames
+% Testing duration: 5 secs = 80 frames
 trainingVec = [];
 testingVec = [];
 trainingDuration = 160;
