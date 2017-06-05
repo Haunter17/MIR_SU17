@@ -142,7 +142,7 @@ batchSize = 500
 numEpochs = 5
 poolingStrategy = 'MAX'
 
-[train_acc_list, val_acc_list, tarin_err_list, val_err_list = runNeuralNet(121, X_train, y_train, X_val, y_val, batchSize, numEpochs, poolingStrategy)
+[train_acc_list, val_acc_list, tarin_err_list, val_err_list] = runNeuralNet(121, X_train, y_train, X_val, y_val, batchSize, numEpochs, poolingStrategy)
 
 
 
