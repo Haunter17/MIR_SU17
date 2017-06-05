@@ -55,5 +55,23 @@ def visualizeColVecs(matrix, numRows, outfile):
 	fig.tight_layout()
 	fig.savefig(outfile)
 
+'''
+Visualize the cols, but group the notes across octaves.
+For example, all the Cs should be displayed together, then all the Ds, etc.
+
+'''
+def visualizeColVecsGroupedByOctave(matrix, numRows, sizeOfOctave, outfile):
+	''' reorganize the matrix' rows'''
+	numColsInMatrix = matrix.shape[1]
+	newMatrix =  matrix[0, :] # take the first row to get the right dimension
+	for noteIndex in range(sizeOfOctave): # for each note in the octave
+		# pull all the rows associated with that note
+		curRows = [matrix[i, :] for i in range(matrix.shape[0]) if (i - noteIndex % sizeOfOctave == 0)]
+		newArray = np.vstack((newArray, curRows))
+
+	# now delete the extra first row that we initialized the new array with (to get the right dimension)
+	newArray = np.delete(newArray, 0, 0)
+	# fall back on our other visualization code with the matrix re-arranged
+	visualizeColVecs(newMatrix, numRows, outfile)
 
 
