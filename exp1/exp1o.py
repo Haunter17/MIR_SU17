@@ -148,7 +148,7 @@ numEpochs = 5
 batchSize = 1000
 numHiddenNeurons = 100
 
-[X_train, y_train, X_test, y_test] = loadData('pylon2/ci560sp/cstrong/taylorswift_smallDataset_71_7.mat')
+[X_train, y_train, X_test, y_test] = loadData('pylon2/ci560sp/cstrong/exp1/taylorswift_smallDataset_71_7.mat')
 
 # cubic root
 X_train_cr = np.cbrt(X_train)
@@ -162,7 +162,7 @@ X_test_cr = np.cbrt(X_test)
 #visualizeWeights(W1colsAsMatrices, 10, 'testvisualize.png')
 visualizationHelper.visualizeColVecs(W1, 5, 'testvisualizecols.png')
 
-visualizationHelper.visualizeColVecsGroupedByOctave(W1, 5, 'testvisualizecols_grouped.png')
+visualizationHelper.visualizeColVecsGroupedByOctave(W1, 5, 24, 'testvisualizecols_grouped.png')
 
 visualizationHelper.visualizeWeights([W1, W2], 1, 'testvisualizeweights.png')
 
