@@ -144,7 +144,7 @@ our main  - compare regularization methods
 '''
 startExperiment = time.time()
 
-numEpochs = 5
+numEpochs = 800
 batchSize = 1000
 numHiddenNeurons = 100
 
