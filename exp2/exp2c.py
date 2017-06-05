@@ -2,8 +2,9 @@ import numpy as np
 import tensorflow as tf
 import h5py
 import time
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-
 # Functions for initializing neural nets parameters
 def init_weight_variable(shape):
   initial = tf.truncated_normal(shape, stddev=0.1, dtype=tf.float32)
@@ -49,11 +50,12 @@ def runNeuralNet(num_freq, X_train, y_train, X_val, y_val, batch_size, num_epoch
   k2 = 3
   l = num_frames
 
-  try:
-    l = int(sys.argv[1])
-  except Exception, e:
-    print('-- {}'.format(e))
-    l = num_frames
+
+#  try:
+#    l = int(sys.argv[1])
+#  except Exception, e:
+#    print('-- {}'.format(e))
+#    l = num_frames
 
   print_freq = 1
 
@@ -103,6 +105,7 @@ def runNeuralNet(num_freq, X_train, y_train, X_val, y_val, batch_size, num_epoch
   val_acc_list = []
   train_err_list = []
   val_err_list = []
+  epoch_numbers = []
 
   # benchmark
   t_start = time.time()
@@ -120,14 +123,15 @@ def runNeuralNet(num_freq, X_train, y_train, X_val, y_val, batch_size, num_epoch
       train_err = cross_entropy.eval(feed_dict={x: X_train, y_: y_train})
       train_err_list.append(train_err)
       val_err = cross_entropy.eval(feed_dict={x: X_val, y_: y_val})
-      val_err_list.append(val_err)      
+      val_err_list.append(val_err)  
+      epoch_numbers += [epoch]    
       print("-- epoch: %d, training error %g"%(epoch + 1, train_err))
 
   t_end = time.time()
   print('--Time elapsed for training: {t:.2f} \
       seconds'.format(t = t_end - t_start))
 
-  return [train_acc_list, val_acc_list, train_err_list, val_err_list]
+  return [train_acc_list, val_acc_list, train_err_list, val_err_list, epoch_numbers]
 
 '''
 Our Main
@@ -135,14 +139,14 @@ Command Line Arguments: (1) Length of horizontal window
 '''
 
 # load the data
-[X_train, y_train, X_val, y_val] = loadData('pylon2/ci560sp/cstrong/exp2/exp2_d15_1s.mat')
+[X_train, y_train, X_val, y_val] = loadData('/pylon2/ci560sp/cstrong/exp2/exp2_d15_1s.mat')
 
 
 batchSize = 500
 numEpochs = 5
 poolingStrategy = 'MAX'
 
-[train_acc_list, val_acc_list, tarin_err_list, val_err_list] = runNeuralNet(121, X_train, y_train, X_val, y_val, batchSize, numEpochs, poolingStrategy)
+[train_acc_list, val_acc_list, train_err_list, val_err_list, epoch_numbers] = runNeuralNet(121, X_train, y_train, X_val, y_val, batchSize, numEpochs, poolingStrategy)
 
 
 
@@ -154,13 +158,14 @@ print('-- Training error: {:.4E}'.format(train_err_list[-1]))
 print('-- Validation error: {:.4E}'.format(val_err_list[-1]))
 
 print('==> Generating error plot...')
+x_list = epoch_numbers
+train_err_plot, = plt.plot(x_list, train_err_list, 'b.')
+val_err_plot, = plt.plot(x_list, val_err_list, '.', color='orange')
 plt.xlabel('Number of epochs')
 plt.ylabel('Cross-Entropy Error')
 plt.title('Error vs Number of Epochs with Window Size of {}'.format(l))
-train_err_plot, = plt.plot(x_list, train_err_list, 'bo')
-val_err_plot, = plt.plot(x_list, val_err_list, 'ro')
 plt.legend((train_err_plot, val_err_plot), ('training', 'validation'), loc='best')
-plt.savefig('exp1b_error_{}.png'.format(l), format='png')
+plt.savefig('exp2c.png', format='png')
 plt.close()
 
 print('==> Done.')
