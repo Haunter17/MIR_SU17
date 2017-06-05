@@ -162,7 +162,10 @@ X_test_cr = np.cbrt(X_test)
 #visualizeWeights(W1colsAsMatrices, 10, 'testvisualize.png')
 visualizationHelper.visualizeColVecs(W1, 5, 'testvisualizecols.png')
 
+visualizationHelper.visualizeColVecsGroupedByOctave(W1, 5, 'testvisualizecols_grouped.png')
+
 visualizationHelper.visualizeWeights([W1, W2], 1, 'testvisualizeweights.png')
+
 
 endExperiment = time.time()
 
