@@ -25,7 +25,7 @@ try:
 	num_frames = int(sys.argv[1])
 except Exception, e:
 	print('-- {}'.format(e))
-filepath = '/pylon2/ci560sp/haunter/data_s15_f{}.mat'.format(num_frames)
+filepath = '/pylon2/ci560sp/haunter/data_d15_f{}.mat'.format(num_frames)
 print('==> Loading data from {}'.format(filepath))
 # benchmark
 t_start = time.time()
@@ -133,9 +133,9 @@ train_err_plot, = plt.plot(x_list, train_err_list, 'b.')
 val_err_plot, = plt.plot(x_list, val_err_list, '.', color='orange')
 plt.xlabel('Number of epochs')
 plt.ylabel('Cross-Entropy Error')
-plt.title('Error vs Number of Epochs with {} Frames'.format(num_frames))
+plt.title('Error vs Number of Epochs with {} Frames (Orig Data)'.format(num_frames))
 plt.legend((train_err_plot, val_err_plot), ('training', 'validation'), loc='best')
-plt.savefig('exp2f_error_{}_frames.png'.format(num_frames), format='png')
+plt.savefig('exp2f_orig_error_f{}.png'.format(num_frames), format='png')
 plt.close()
 
 print('==> Done.')
