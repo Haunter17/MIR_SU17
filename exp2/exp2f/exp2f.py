@@ -51,11 +51,11 @@ num_classes = int(max(y_train.max(), y_val.max()) + 1)
 k = 12
 filter_row, filter_col = 121, 1
 
-print('-- Number of frames per column is {}'.format(num_frames)
+print('-- Number of frames per column is {}'.format(num_frames))
 
 batch_size = 1000
-num_epochs = 10
-print_freq = 1
+num_epochs = 300
+print_freq = 5
 
 
 # Transform labels into on-hot encoding form
