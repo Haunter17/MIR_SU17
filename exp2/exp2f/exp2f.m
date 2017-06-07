@@ -23,4 +23,4 @@ param.precomputeCQT = 1;
 param.precomputeCQTdir = outdir;
 downsamplingRate = 15;
 
-createDatasetBatch(filelist, strcat(outdir,'data_s15.mat'), downsamplingRate, outdir)
+createDatasetBatch(filelist, strcat(outdir,'data_d15.mat'), downsamplingRate, outdir)

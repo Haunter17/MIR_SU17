@@ -21,12 +21,17 @@ while ischar(curfile)
     [pathstr,name,ext] = fileparts(curfile);
     cqt_file = strcat(outdir,name,'.mat');
     Qfile = load(cqt_file); % loads Q (struct)
-    % preprocessing of Q: cubic root
-    Q_Mat = nthroot(abs(Qfile.Q.c), downsamplingRate);
-    % average every three column
-    QMat = avg_kcol(Q_Mat, downsamplingRate);
+    
+    % % preprocessing of Q: cubic root
+    % Q_Mat = nthroot(abs(Qfile.Q.c), downsamplingRate);
+    % % average every three column
+    % QMat = avg_kcol(Q_Mat, downsamplingRate);
 
-    num_frame_agg = 8;
+    % downsampling
+    QMat = abs(Qfile.Q.c);
+    QMat = QMat(:, 1 : downsamplingRate : end);
+
+    num_frame_agg = 1;
     strideSize = 1;
     
     [trainVec, testVec] = createDataset(QMat, label, strideSize, num_frame_agg);
