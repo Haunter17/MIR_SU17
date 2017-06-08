@@ -18,7 +18,7 @@ def conv2d(x, W):
   return tf.nn.conv2d(x, W, [1, 1, 1, 1], 'VALID')
 
 def loadData(filepath):
-  print('==> Experiment 2b')
+  print('==> Experiment 2_0')
   print('==> Loading data from {}'.format(filepath))
   # benchmark
   t_start = time.time()
@@ -181,8 +181,8 @@ Command Line Arguments: (1) Length of horizontal window
 [X_train, y_train, X_val, y_val] = loadData('/pylon2/ci560sp/cstrong/exp2/exp2_d15_1s_2.mat')
 
 
-batchSize = 500
-numEpochs = 70
+batchSize = 1000
+numEpochs = 300
 poolingStrategy = 'MAX'
 
 [train_acc_list, val_acc_list, train_err_list, val_err_list, epoch_numbers] = runNeuralNet(121, X_train, y_train, X_val, y_val, batchSize, numEpochs, poolingStrategy)
@@ -203,7 +203,7 @@ plt.xlabel('Number of epochs')
 plt.ylabel('Cross-Entropy Error')
 plt.title('Error vs Number of Epochs')
 plt.legend((train_err_plot, val_err_plot), ('training', 'validation'), loc='best')
-plt.savefig('exp2_0.png', format='png')
+plt.savefig('exp2_SMOnly.png', format='png')
 plt.close()
 
 print('==> Done.')
