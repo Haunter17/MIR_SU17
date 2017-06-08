@@ -19,8 +19,8 @@ def init_bias_variable(shape):
 def conv2d(x, W):
 	return tf.nn.conv2d(x, W, [1, 1, 1, 1], 'VALID')
 
-print('==> Experiment 2 0D')
-filepath = '../taylorswift_out/exp2_d15_1s.mat'
+print('==> Experiment 2d')
+filepath = '/pylon2/ci560sp/haunter/exp2_d15_1s_2.mat'
 print('==> Loading data from {}'.format(filepath))
 # benchmark
 t_start = time.time()
@@ -83,7 +83,7 @@ y_conv = tf.matmul(h_conv1_flat, W_sm) + b_sm
 # evaluations
 cross_entropy = tf.reduce_mean(
 		tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_conv))
-train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+train_step = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cross_entropy)
 correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
