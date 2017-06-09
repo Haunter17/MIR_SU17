@@ -20,7 +20,7 @@ def conv2d(x, W):
   return tf.nn.conv2d(x, W, [1, 1, 1, 1], 'VALID')
 
 def loadData(filepath):
-  print('==> Experiment 2_0b')
+  print('==> Experiment 2h')
   print('==> Loading data from {}'.format(filepath))
   # benchmark
   t_start = time.time()
@@ -170,7 +170,7 @@ print("Running Experiment 2h with %g x %g filter, k1 = %g, k2 = %g, learningRate
 
 
 batchSize = 1000
-numEpochs = 300
+numEpochs = 50
 poolingStrategy = 'MAX'
 
 

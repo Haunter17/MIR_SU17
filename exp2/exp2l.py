@@ -20,7 +20,7 @@ def conv2d(x, W):
   return tf.nn.conv2d(x, W, [1, 1, 1, 1], 'VALID')
 
 def loadData(filepath):
-  print('==> Experiment 2g')
+  print('==> Experiment 2l')
   print('==> Loading data from {}'.format(filepath))
   # benchmark
   t_start = time.time()
@@ -129,7 +129,7 @@ def runNeuralNet(num_freq, X_train, y_train, X_val, y_val, filter_row, filter_co
       train_err = cross_entropy.eval(feed_dict={x: X_train, y_: y_train})
       train_err_list.append(train_err)
       val_err = cross_entropy.eval(feed_dict={x: X_val, y_: y_val})
-      val_err_list.append(val_err) 
+      val_err_list.append(val_err)  
 
       train_acc_on_batch = accuracy.eval(feed_dict={x:train_batch_data, y_:train_batch_label})
       train_acc_on_batch_list.append(train_acc_on_batch)
@@ -139,8 +139,7 @@ def runNeuralNet(num_freq, X_train, y_train, X_val, y_val, filter_row, filter_co
 
       epoch_numbers += [epoch]    
       #print("-- epoch: %d, training error %g"%(epoch + 1, train_err))
-      print("epoch: %d, time: %g, t acc, v acc, t cost, v cost: %g, %g, %g, %g"%(epoch+1, epochEnd - epochStart, train_acc, val_acc, train_err, val_err))
-
+      print("epoch: %d, time: %g, t acc, v acc, t cost, v cost: %.15f, %.15f, %g, %g"%(epoch+1, epochEnd - epochStart, train_acc, val_acc, train_err, val_err))
   t_end = time.time()
   print('--Time elapsed for training: {t:.2f} \
       seconds'.format(t = t_end - t_start))
@@ -160,10 +159,11 @@ try:
   k2 = int(sys.argv[4])
   learningRate = float(sys.argv[5])
   plotFile = str(sys.argv[6])
+  hardwareType = str(sys.argv[7]) # string that tells us what hardware it's running on - k80, p100, or CPU
 except Exception, e:
   print('-- {}'.format(e))
 
-print("Running Experiment 2g with %g x %g filter, k1 = %g, k2 = %g, learningRate = %g")%(filterRow, filterCol, k1, k2, learningRate)
+print("Running Experiment 2l on %s --- with %g x %g filter, k1 = %g, k2 = %g, learningRate = %g")%(hardwareType, filterRow, filterCol, k1, k2, learningRate)
 
 
 # load the data
@@ -171,7 +171,7 @@ print("Running Experiment 2g with %g x %g filter, k1 = %g, k2 = %g, learningRate
 
 
 batchSize = 1000
-numEpochs = 300
+numEpochs = 30
 poolingStrategy = 'MAX'
 
 
@@ -190,10 +190,11 @@ x_list = epoch_numbers
 train_err_plot, = plt.plot(x_list, train_err_list, 'b.')
 val_err_plot, = plt.plot(x_list, val_err_list, '.', color='orange')
 train_err_on_batch_plot, = plt.plot(x_list, train_err_on_batch_list, '.', color='green')
+
 plt.xlabel('Number of epochs')
 plt.ylabel('Cross-Entropy Error')
 
-plt.title('Error vs Number of Epochs, Single Conv Layer: %g x %g, learningRate = %g, k1 = %g'%(filterRow, filterCol, learningRate, k1), fontsize=10)
+plt.title('Error vs Number of Epochs, Single Conv Layer: %g x %g, learningRate = %g, k1 = %g, on: '%(filterRow, filterCol, learningRate, k1), fontsize=10)
 plt.legend((train_err_plot, val_err_plot, train_err_on_batch_plot), ('training', 'validation', 'training on batch'), loc='best')
 
 print("==> Saving training plot to %s"%(plotFile))
@@ -206,9 +207,9 @@ print('==> Done.')
 y_ = np.array([[1, 0, 0, 0], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
 
 
-y_ = np.array([[0], [1], [2], [3], [3]])
-x = np.array([[0, 1, 2, 3, 4, 5], [6, 7, 8, 9, 10, 11], [12, 13, 14, 15, 16, 17], [18, 19, 20, 21, 22, 23], [24, 25, 26, 27, 28, 29]])
-x_val = np.array([[5, 6, 7, 8, 9, 10], [9, 10, 11, 12, 13, 14], [11, 12, 13, 14, 15, 16]])
+y_train = np.array([[0], [1], [2], [3], [3]])
+X_train = np.array([[0, 1, 2, 3, 4, 5], [6, 7, 8, 9, 10, 11], [12, 13, 14, 15, 16, 17], [18, 19, 20, 21, 22, 23], [24, 25, 26, 27, 28, 29]])
+X_val = np.array([[5, 6, 7, 8, 9, 10], [9, 10, 11, 12, 13, 14], [11, 12, 13, 14, 15, 16]])
 y_val = np.array([[1], [3], [2]])
 runNeuralNet(2, x, y_, x_val, y_val, 1, 300, 'MAX')
 

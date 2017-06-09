@@ -50,7 +50,7 @@ def runNeuralNet(num_freq, X_train, y_train, X_val, y_val, batch_size, num_epoch
   print('-- Num frames: {}'.format(num_frames))
   num_classes = int(max(y_train.max(), y_val.max()) + 1)
 
-  k1 = 10
+  k1 = 32
   k2 = 0
   l = num_frames
 
@@ -218,5 +218,9 @@ x_val = np.array([[5, 6, 7, 8, 9, 10], [9, 10, 11, 12, 13, 14], [11, 12, 13, 14,
 y_val = np.array([[1], [3], [2]])
 runNeuralNet(2, x, y_, x_val, y_val, 1, 300, 'MAX')
 
+def numParams(Hk, Wk, Hi, Wi, k1, Ns):
+  return Hk * Wk * k1 + (Hi - Hk + 1) * (Wi - Wk + 1) * k1 * Ns
+def numParamsInKernel(Hk, Wk, k1):
+  return Hk * Wk * k1
 
 '''

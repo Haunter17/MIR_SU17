@@ -90,7 +90,7 @@ def runNeuralNet(num_freq, X_train, y_train, X_val, y_val, batch_size, num_epoch
 
   # get the gradients
   #gradients = train_step.compute_gradients()
-  gradients = train_step.compute_gradients(loss=cross_entropy, var_list=W_sm)
+  #gradients = train_step.compute_gradients(loss=cross_entropy, var_list=W_sm)
 
   # session
   sess = tf.InteractiveSession()
@@ -130,7 +130,7 @@ def runNeuralNet(num_freq, X_train, y_train, X_val, y_val, batch_size, num_epoch
       print("epoch: %d, time: %g, t acc, v acc, t cost, v cost: %g, %g, %g, %g"%(epoch+1, epochEnd - epochStart, train_acc, val_acc, train_err, val_err))
 
     # print out the gradients
-    print(gradients.eval(feed_dict={x:X_train, y_: y_train}))
+    #print(gradients.eval(feed_dict={x:X_train, y_: y_train}))
 
   t_end = time.time()
   print('--Time elapsed for training: {t:.2f} \
