@@ -20,6 +20,15 @@ def init_bias_variable(shape):
 def conv2d(x, W):
 	return tf.nn.conv2d(x, W, [1, 1, 1, 1], 'VALID')
 
+def get_preactv_stats(Z, X, y):
+	Z_mat = sess.run(Z, feed_dict={x: X, y_: y})
+	print(Z_mat[0, :, :, 0])
+	# num_data, num_row, num_col, num_filter = tf.shape(Z)
+	# print '-- number of data {}'.format(num_data)
+	# print '-- number of filters {}'.format(num_filter)
+	# print '-- number of rows {}'.format(num_row)
+	# print '-- number of columns {}'.format(num_col)
+
 print('==> Debugger playground...')
 filepath = '/pylon2/ci560sp/haunter/exp2_d15_1s_2.mat'
 print('==> Loading data from {}'.format(filepath))
@@ -50,7 +59,7 @@ filter_row, filter_col = 121, 1
 print('-- Filter size  is {} x {}'.format(filter_row, filter_col))
 
 batch_size = 1000
-num_epochs = 20
+num_epochs = 5
 print_freq = 1
 
 
@@ -89,8 +98,10 @@ sess = tf.InteractiveSession()
 sess.run(tf.global_variables_initializer())
 
 # debugging session
-sess = tf_debug.LocalCLIDebugWrapperSession(sess)
-sess.add_tensor_filter("has_inf_or_nan", tf_debug.has_inf_or_nan)
+debug = 0
+if debug:
+	sess = tf_debug.LocalCLIDebugWrapperSession(sess)
+	sess.add_tensor_filter("has_inf_or_nan", tf_debug.has_inf_or_nan)
 
 y_train = sess.run(y_train_OHEnc)[:, 0, :]
 y_val = sess.run(y_val_OHEnc)[:, 0, :]
@@ -100,6 +111,10 @@ val_acc_list = []
 train_err_list = []
 val_err_list = []
 
+epoch_tf = tf.Variable(-1, name='epoch_tensor')
+batch_tf = tf.Variable(-1, name='batch_tensor')
+sess.run([epoch_tf.initializer, batch_tf.initializer])
+
 # benchmark
 t_start = time.time()
 for epoch in range(num_epochs):
@@ -107,8 +122,16 @@ for epoch in range(num_epochs):
 		batch_end_point = min(i + batch_size, num_training_vec)
 		train_batch_data = X_train[i : batch_end_point]
 		train_batch_label = y_train[i : batch_end_point]
-		sess.run(train_step, feed_dict={x: train_batch_data, y_: train_batch_label})
-		# train_step.run(feed_dict={x: train_batch_data, y_: train_batch_label})
+		if batch_end_point == num_training_vec:
+			sess.run([epoch_tf.assign(epoch), batch_tf.assign(i), train_step], \
+				feed_dict={x: train_batch_data, y_: train_batch_label})
+		else:
+			train_step.run(feed_dict={x: train_batch_data, y_: train_batch_label})
+	get_preactv_stats(tf.get_default_graph().get_tensor_by_name('z_conv1:0'), \
+		train_batch_data, train_batch_label)
+	# print(sess.run(Z, feed_dict={x: train_batch_data, y_: train_batch_label}))
+		
+
 	if (epoch + 1) % print_freq == 0:
 		train_acc = accuracy.eval(feed_dict={x:X_train, y_: y_train})
 		train_acc_list.append(train_acc)
