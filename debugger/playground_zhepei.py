@@ -22,12 +22,17 @@ def conv2d(x, W):
 
 def get_preactv_stats(Z, X, y):
 	Z_mat = sess.run(Z, feed_dict={x: X, y_: y})
-	print(Z_mat[0, :, :, 0])
-	# num_data, num_row, num_col, num_filter = tf.shape(Z)
-	# print '-- number of data {}'.format(num_data)
-	# print '-- number of filters {}'.format(num_filter)
-	# print '-- number of rows {}'.format(num_row)
-	# print '-- number of columns {}'.format(num_col)
+	for sample_num in range(Z_mat.shape[0]):
+		print('==> Sample #{}'.format(sample_num + 1))
+		Z_max = Z_mat[sample_num].max(axis=2)
+		Z_min = Z_mat[sample_num].min(axis=2)
+		Z_mean = Z_mat[sample_num].mean(axis=2)
+		for i in range(Z_max.shape[0]):
+			for j in range(Z_max.shape[1]):
+				print('-- row {} column {}'.format(i + 1, j + 1))
+				print('-- Min: {:.2f}'.format(Z_min.item(i, j)))
+				print('-- Max: {:.2f}'.format(Z_max.item(i, j)))
+				print('-- Mean: {:.2f}'.format(Z_mean.item(i, j)))
 
 print('==> Debugger playground...')
 filepath = '/pylon2/ci560sp/haunter/exp2_d15_1s_2.mat'
@@ -59,7 +64,7 @@ filter_row, filter_col = 121, 1
 print('-- Filter size  is {} x {}'.format(filter_row, filter_col))
 
 batch_size = 1000
-num_epochs = 5
+num_epochs = 1
 print_freq = 1
 
 
@@ -128,9 +133,7 @@ for epoch in range(num_epochs):
 		else:
 			train_step.run(feed_dict={x: train_batch_data, y_: train_batch_label})
 	get_preactv_stats(tf.get_default_graph().get_tensor_by_name('z_conv1:0'), \
-		train_batch_data, train_batch_label)
-	# print(sess.run(Z, feed_dict={x: train_batch_data, y_: train_batch_label}))
-		
+		train_batch_data, train_batch_label)		
 
 	if (epoch + 1) % print_freq == 0:
 		train_acc = accuracy.eval(feed_dict={x:X_train, y_: y_train})
