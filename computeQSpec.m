@@ -21,11 +21,12 @@ end
 if isfield(param,'targetsr') == 0
     param.targetsr = 22050;
 end
+
 if isfield(param,'B')==0
     param.B = 24;
 end
 if isfield(param,'fmin')==0
-    param.fmin = 130.81;
+    param.fmin = 32.70;
 end
 if isfield(param,'fmax')==0
     param.fmax = 4186.01;
@@ -37,7 +38,7 @@ if isfield(param,'precomputeCQT')==0
     param.precomputeCQT = 0;
 end
 
-
+param.fmin = 32.70;
 if param.precomputeCQT
     [pathstr,name,ext] = fileparts(file);
     cqt_file = strcat(param.precomputeCQTdir,'/',name,'.mat');
@@ -48,5 +49,5 @@ else
     y = resample(y,param.targetsr,fs);
     Q = cqt(y,param.B,param.targetsr, ...
         param.fmin,param.fmax,'gamma',param.gamma);
+    %disp(size(Q));
 end
-
