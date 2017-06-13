@@ -17,7 +17,7 @@ mkdir(outdir)
 confFile = strcat(outdir, 'trainConfig.mat');
 % param for training
 verticalSize = 169;
-horizontalSize = 13;
+horizontalSize = 16;
 numSampPerRef = 100;
 downSampling = 15;
 
