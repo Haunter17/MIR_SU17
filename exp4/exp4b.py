@@ -22,8 +22,8 @@ def init_bias_variable(shape):
 # ==============================================
 # ==============================================
 print('==> Experiment 4b')
-# filepath = '/pylon2/ci560sp/haunter/exp3_taylorswift_d15_1s_C1C8.mat'
-filepath = '/pylon2/ci560sp/haunter/exp3_small.mat'
+filepath = '/pylon2/ci560sp/haunter/exp3_taylorswift_d15_1s_C1C8.mat'
+# filepath = '/pylon2/ci560sp/haunter/exp3_small.mat'
 print('==> Loading data from {}...'.format(filepath))
 # benchmark
 t_start = time.time()
@@ -56,25 +56,23 @@ num_classes = int(max(y_train.max(), y_val.max()) + 1)
 ae1_size, ae2_size = 800, 500
 
 batch_size = 1000
-num_epochs = 5
-print_freq = 1
+num_epochs = 300
+print_freq = 10
 
 # Transform labels into on-hot encoding form
 y_train_OHEnc = tf.one_hot(y_train.copy(), num_classes)
 y_val_OHEnc = tf.one_hot(y_val.copy(), num_classes)
 
+
+# ==============================================
+# train the first autoencoder
+# ==============================================
+
 # Set-up input and output label
 x = tf.placeholder(tf.float32, [None, total_features])
 h1 = tf.placeholder(tf.float32, [None, total_features]) # decoder output for layer 1
 a1_temp = tf.placeholder(tf.float32, [None, ae1_size]) # autoencoder output for layer 1
-a1 = tf.placeholder(tf.float32, [None, ae1_size])
-h2 = tf.placeholder(tf.float32, [None, ae1_size]) # decoder output for layer 2
-a2 = tf.placeholder(tf.float32, [None, ae2_size])
-y_ = tf.placeholder(tf.float32, [None, num_classes])
 
-# ==============================================
-# 				Architecture setup
-# ==============================================
 # first autoencoder: x -> a1 -> x
 W_ae1 = init_weight_variable([total_features, ae1_size])
 b_ae1 = init_bias_variable([ae1_size])
@@ -85,38 +83,14 @@ h1 = tf.nn.relu(tf.matmul(a1_temp, W_ad1 + b_ad1))
 error_ae1 = tf.losses.mean_squared_error(x, h1)
 train_step1 = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(error_ae1)
 
-# second autoencoder: a1 -> a2 -> a1
-W_ae2 = init_weight_variable([ae1_size, ae2_size])
-b_ae2 = init_bias_variable([ae2_size])
-a2_temp = tf.nn.relu(tf.matmul(a1, W_ae2) + b_ae2)
-W_ad2 = init_bias_variable([ae2_size, ae1_size])
-b_ad2 = init_bias_variable([ae1_size])
-h2 = tf.nn.relu(tf.matmul(a2_temp, W_ad2 + b_ad2))
-error_ae2 = tf.losses.mean_squared_error(a1, h2)
-train_step2 = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(error_ae2)
-
-# softmax layer: a2 -> y_sm
-W_sm = init_weight_variable([ae2_size, num_classes])
-b_sm = init_bias_variable([num_classes])
-y_sm = tf.matmul(a2, W_sm) + b_sm
-cross_entropy = tf.reduce_mean(
-		tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_sm))
-train_step3 = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cross_entropy)
-
-correct_prediction = tf.equal(tf.argmax(y_sm, 1), tf.argmax(y_, 1))
-accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
 # session
 sess = tf.InteractiveSession()
 sess.run(tf.global_variables_initializer())
 y_train = sess.run(y_train_OHEnc)[:, 0, :]
 y_val = sess.run(y_val_OHEnc)[:, 0, :]
 
-# ==============================================
-# train the first autoencoder
-# ==============================================
 print('==> Training the first autoencoder layer...')
-for epoch in range(num_epochs):
+for epoch in range(num_epochs / 6):
 	for i in range(0, num_training_vec, batch_size):
 		batch_end_point = min(i + batch_size, num_training_vec)
 		train_batch_data = X_train[i : batch_end_point]
@@ -131,11 +105,26 @@ W_ae1_retrieved, b_ae1_retrieved, a1_retrieved = sess.run([W_ae1, b_ae1, a1_temp
 # train the second autoencoder
 # ==============================================
 sess.close()
+tf.reset_default_graph()
+
+# second autoencoder: a1 -> a2 -> a1
+a1 = tf.placeholder(tf.float32, [None, ae1_size])
+h2 = tf.placeholder(tf.float32, [None, ae1_size]) # decoder output for layer 2
+
+
+W_ae2 = init_weight_variable([ae1_size, ae2_size])
+b_ae2 = init_bias_variable([ae2_size])
+a2_temp = tf.nn.relu(tf.matmul(a1, W_ae2) + b_ae2)
+W_ad2 = init_bias_variable([ae2_size, ae1_size])
+b_ad2 = init_bias_variable([ae1_size])
+h2 = tf.nn.relu(tf.matmul(a2_temp, W_ad2 + b_ad2))
+error_ae2 = tf.losses.mean_squared_error(a1, h2)
+train_step2 = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(error_ae2)
 sess = tf.InteractiveSession()
 sess.run(tf.global_variables_initializer())
 
 print('==> Training the second autoencoder layer...')
-for epoch in range(num_epochs):
+for epoch in range(num_epochs / 3):
 	for i in range(0, num_training_vec, batch_size):
 		batch_end_point = min(i + batch_size, num_training_vec)
 		train_batch_data = a1_retrieved[i : batch_end_point]
@@ -149,11 +138,24 @@ W_ae2_retrieved, b_ae_2_retrieved, a2_retrieved = sess.run([W_ae2, b_ae2, a2_tem
 # train the output layer
 # ==============================================
 sess.close()
+tf.reset_default_graph()
+
+a2 = tf.placeholder(tf.float32, [None, ae2_size])
+y_ = tf.placeholder(tf.float32, [None, num_classes])
+
+# softmax layer: a2 -> y_sm
+W_sm = init_weight_variable([ae2_size, num_classes])
+b_sm = init_bias_variable([num_classes])
+y_sm = tf.matmul(a2, W_sm) + b_sm
+cross_entropy = tf.reduce_mean(
+		tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_sm))
+train_step3 = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cross_entropy)
+
 sess = tf.InteractiveSession()
 sess.run(tf.global_variables_initializer())
 
 print('==> Training the output layer...')
-for epoch in range(num_epochs):
+for epoch in range(num_epochs / 3):
 	for i in range(0, num_training_vec, batch_size):
 		batch_end_point = min(i + batch_size, num_training_vec)
 		train_batch_data = a2_retrieved[i : batch_end_point]
@@ -168,56 +170,80 @@ W_sm_retrieved, b_sm_retrieved = sess.run([W_sm, b_sm], feed_dict={a2: a2_retrie
 # stacking together
 # ==============================================
 sess.close()
+tf.reset_default_graph()
+
+# reset placeholders
+x = tf.placeholder(tf.float32, [None, total_features])
+y_ = tf.placeholder(tf.float32, [None, num_classes])
+
+W_ae1 = tf.Variable(W_ae1_retrieved)
+b_ae1 = tf.constant(b_ae1_retrieved)
+a1 = tf.nn.relu(tf.matmul(x, W_ae1) + b_ae1)
+W_ae2 = tf.Variable(W_ae2_retrieved)
+b_ae2 = tf.constant(b_ae_2_retrieved)
+a2 = tf.nn.relu(tf.matmul(a1, W_ae2) + b_ae2)
+W_sm = tf.Variable(W_sm_retrieved)
+b_sm = tf.constant(b_sm_retrieved)
+y_sm = tf.matmul(a2, W_sm) + b_sm
+
+cross_entropy = tf.reduce_mean(
+		tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_sm))
+train_step = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cross_entropy)
+correct_prediction = tf.equal(tf.argmax(y_sm, 1), tf.argmax(y_, 1))
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
 sess = tf.InteractiveSession()
 sess.run(tf.global_variables_initializer())
 
+# evaluation metrics
+train_acc_list = []
+val_acc_list = []
+train_err_list = []
+val_err_list = []
+
+print('==> Training the full network...')
+t_start = time.time()
+for epoch in range(num_epochs):
+	for i in range(0, num_training_vec, batch_size):
+		batch_end_point = min(i + batch_size, num_training_vec)
+		train_batch_data = X_train[i : batch_end_point]
+		train_batch_label = y_train[i : batch_end_point]
+		train_step.run(feed_dict={x: train_batch_data, y_: train_batch_label})
+	if (epoch + 1) % print_freq == 0:
+		train_acc = accuracy.eval(feed_dict={x:X_train, y_: y_train})
+		train_acc_list.append(train_acc)
+		val_acc = accuracy.eval(feed_dict={x: X_val, y_: y_val})
+		val_acc_list.append(val_acc)
+		train_err = cross_entropy.eval(feed_dict={x: X_train, y_: y_train})
+		train_err_list.append(train_err)
+		val_err = cross_entropy.eval(feed_dict={x: X_val, y_: y_val})
+		val_err_list.append(val_err)      
+		print("-- epoch: %d, training error %g"%(epoch + 1, train_err))
+
+t_end = time.time()
+print('--Time elapsed for training: {t:.2f} \
+		seconds'.format(t = t_end - t_start))
+
 # # ==============================================
 # # ==============================================
 # # ==============================================
-# # evaluation metrics
-# train_acc_list = []
-# val_acc_list = []
-# train_err_list = []
-# val_err_list = []
 
-# # benchmark
-# t_start = time.time()
-# for epoch in range(num_epochs):
-# 	for i in range(0, num_training_vec, batch_size):
-# 		batch_end_point = min(i + batch_size, num_training_vec)
-# 		train_batch_data = X_train[i : batch_end_point]
-# 		train_batch_label = y_train[i : batch_end_point]
-# 		train_step.run(feed_dict={x: train_batch_data, y_: train_batch_label})
-# 	if (epoch + 1) % print_freq == 0:
-# 		train_acc = accuracy.eval(feed_dict={x:X_train, y_: y_train})
-# 		train_acc_list.append(train_acc)
-# 		val_acc = accuracy.eval(feed_dict={x: X_val, y_: y_val})
-# 		val_acc_list.append(val_acc)
-# 		train_err = cross_entropy.eval(feed_dict={x: X_train, y_: y_train})
-# 		train_err_list.append(train_err)
-# 		val_err = cross_entropy.eval(feed_dict={x: X_val, y_: y_val})
-# 		val_err_list.append(val_err)      
-# 		print("-- epoch: %d, training error %g"%(epoch + 1, train_err))
 
-# t_end = time.time()
-# print('--Time elapsed for training: {t:.2f} \
-# 		seconds'.format(t = t_end - t_start))
+# Reports
+print('-- Training accuracy: {:.4f}'.format(train_acc_list[-1]))
+print('-- Validation accuracy: {:.4f}'.format(val_acc_list[-1]))
+print('-- Training error: {:.4E}'.format(train_err_list[-1]))
+print('-- Validation error: {:.4E}'.format(val_err_list[-1]))
 
-# # Reports
-# print('-- Training accuracy: {:.4f}'.format(train_acc_list[-1]))
-# print('-- Validation accuracy: {:.4f}'.format(val_acc_list[-1]))
-# print('-- Training error: {:.4E}'.format(train_err_list[-1]))
-# print('-- Validation error: {:.4E}'.format(val_err_list[-1]))
+print('==> Generating error plot...')
+x_list = range(0, print_freq * len(train_acc_list), print_freq)
+train_err_plot, = plt.plot(x_list, train_err_list, 'b.')
+val_err_plot, = plt.plot(x_list, val_err_list, '.', color='orange')
+plt.xlabel('Number of epochs')
+plt.ylabel('Cross-Entropy Error')
+plt.title('Error vs Number of Epochs with Layer Size {} and {}'.format(ae1_size, ae2_size))
+plt.legend((train_err_plot, val_err_plot), ('training', 'validation'), loc='best')
+plt.savefig('exp4b_{}+{}.png'.format(ae1_size, ae2_size), format='png')
+plt.close()
 
-# print('==> Generating error plot...')
-# x_list = range(0, print_freq * len(train_acc_list), print_freq)
-# train_err_plot, = plt.plot(x_list, train_err_list, 'b.')
-# val_err_plot, = plt.plot(x_list, val_err_list, '.', color='gold')
-# plt.xlabel('Number of epochs')
-# plt.ylabel('Cross-Entropy Error')
-# plt.title('Fraction {}: Error vs Number of Epochs with Filter Size of {} x {}'.format(training_portion, filter_row, filter_col))
-# plt.legend((train_err_plot, val_err_plot), ('training', 'validation'), loc='best')
-# plt.savefig('exp2k_f{}_{}x{}.png'.format(training_portion, filter_row, filter_col), format='png')
-# plt.close()
-
-# print('==> Done.')
+print('==> Done.')
