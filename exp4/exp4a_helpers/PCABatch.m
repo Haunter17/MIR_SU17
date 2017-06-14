@@ -28,7 +28,7 @@ samples = sampleRef(refData, parameter, verticalSize, horizontalSize, numSampPer
 %% perform PCA on horizontal and vertical features
 % Save visualization of eigenvectors and singular values
 disp(['visualizing PCA on temporal samples']);
-[pcaRow, SRow] = PCA(artist, 'row', samples.row, 0.99);
+[pcaRow, SRow] = PCA(artist, 'row', normc(samples.row), 0.99);
 
 disp(['visualizing PCA on frequency samples']);
-[pcaCol, SCol] = PCA(artist, 'col', samples.col, 0.99);
+[pcaCol, SCol] = PCA(artist, 'col', normc(samples.col), 0.99);
