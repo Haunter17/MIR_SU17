@@ -22,7 +22,8 @@ def init_bias_variable(shape):
 # ==============================================
 # ==============================================
 print('==> Experiment 4b')
-filepath = '/pylon2/ci560sp/haunter/exp2_d15_1s_2.mat'
+# filepath = '/pylon2/ci560sp/haunter/exp3_taylorswift_d15_1s_C1C8.mat'
+filepath = '/pylon2/ci560sp/haunter/exp3_small.mat'
 print('==> Loading data from {}...'.format(filepath))
 # benchmark
 t_start = time.time()
@@ -41,7 +42,6 @@ print('--Time elapsed for loading data: {t:.2f} \
 		seconds'.format(t = t_end - t_start))
 del f
 
-print('-- Training portion is: {}'.format(training_portion))
 print('-- Number of training samples: {}'.format(X_train.shape[0]))
 print('-- Number of validation samples: {}'.format(X_val.shape[0]))
 
@@ -81,7 +81,7 @@ a1 = tf.nn.relu(tf.matmul(x, W_ae1) + b_ae1)
 W_ad1 = init_bias_variable([ae1_size, total_features])
 b_ad1 = init_bias_variable([total_features])
 h1 = tf.nn.relu(tf.matmul(a1, W_ad1 + b_ad1))
-error_ae1 = tf.reduce_mean(tf.nn.l2_loss(h1 - x))
+error_ae1 = tf.losses.mean_squared_error(x, h1)
 train_step1 = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(error_ae1)
 
 # second autoencoder: a1 -> a2 -> a1
@@ -122,6 +122,9 @@ for epoch in range(num_epochs):
 		train_err = error_ae1.eval(feed_dict={x: X_train})   
 		print("-- epoch: %d, training error %g"%(epoch + 1, train_err))
 
+W_ae1_retrieved = sess.run(W_ae1, feed_dict={x: X_train})
+print(W_ae1_retrieved.shape)
+
 
 # ==============================================
 # train the second autoencoder
@@ -132,58 +135,58 @@ for epoch in range(num_epochs):
 # train the output layer
 # ==============================================
 
-y_train = sess.run(y_train_OHEnc)[:, 0, :]
-y_val = sess.run(y_val_OHEnc)[:, 0, :]
+# y_train = sess.run(y_train_OHEnc)[:, 0, :]
+# y_val = sess.run(y_val_OHEnc)[:, 0, :]
 
 
 
-# ==============================================
-# ==============================================
-# ==============================================
-# evaluation metrics
-train_acc_list = []
-val_acc_list = []
-train_err_list = []
-val_err_list = []
+# # ==============================================
+# # ==============================================
+# # ==============================================
+# # evaluation metrics
+# train_acc_list = []
+# val_acc_list = []
+# train_err_list = []
+# val_err_list = []
 
-# benchmark
-t_start = time.time()
-for epoch in range(num_epochs):
-	for i in range(0, num_training_vec, batch_size):
-		batch_end_point = min(i + batch_size, num_training_vec)
-		train_batch_data = X_train[i : batch_end_point]
-		train_batch_label = y_train[i : batch_end_point]
-		train_step.run(feed_dict={x: train_batch_data, y_: train_batch_label})
-	if (epoch + 1) % print_freq == 0:
-		train_acc = accuracy.eval(feed_dict={x:X_train, y_: y_train})
-		train_acc_list.append(train_acc)
-		val_acc = accuracy.eval(feed_dict={x: X_val, y_: y_val})
-		val_acc_list.append(val_acc)
-		train_err = cross_entropy.eval(feed_dict={x: X_train, y_: y_train})
-		train_err_list.append(train_err)
-		val_err = cross_entropy.eval(feed_dict={x: X_val, y_: y_val})
-		val_err_list.append(val_err)      
-		print("-- epoch: %d, training error %g"%(epoch + 1, train_err))
+# # benchmark
+# t_start = time.time()
+# for epoch in range(num_epochs):
+# 	for i in range(0, num_training_vec, batch_size):
+# 		batch_end_point = min(i + batch_size, num_training_vec)
+# 		train_batch_data = X_train[i : batch_end_point]
+# 		train_batch_label = y_train[i : batch_end_point]
+# 		train_step.run(feed_dict={x: train_batch_data, y_: train_batch_label})
+# 	if (epoch + 1) % print_freq == 0:
+# 		train_acc = accuracy.eval(feed_dict={x:X_train, y_: y_train})
+# 		train_acc_list.append(train_acc)
+# 		val_acc = accuracy.eval(feed_dict={x: X_val, y_: y_val})
+# 		val_acc_list.append(val_acc)
+# 		train_err = cross_entropy.eval(feed_dict={x: X_train, y_: y_train})
+# 		train_err_list.append(train_err)
+# 		val_err = cross_entropy.eval(feed_dict={x: X_val, y_: y_val})
+# 		val_err_list.append(val_err)      
+# 		print("-- epoch: %d, training error %g"%(epoch + 1, train_err))
 
-t_end = time.time()
-print('--Time elapsed for training: {t:.2f} \
-		seconds'.format(t = t_end - t_start))
+# t_end = time.time()
+# print('--Time elapsed for training: {t:.2f} \
+# 		seconds'.format(t = t_end - t_start))
 
-# Reports
-print('-- Training accuracy: {:.4f}'.format(train_acc_list[-1]))
-print('-- Validation accuracy: {:.4f}'.format(val_acc_list[-1]))
-print('-- Training error: {:.4E}'.format(train_err_list[-1]))
-print('-- Validation error: {:.4E}'.format(val_err_list[-1]))
+# # Reports
+# print('-- Training accuracy: {:.4f}'.format(train_acc_list[-1]))
+# print('-- Validation accuracy: {:.4f}'.format(val_acc_list[-1]))
+# print('-- Training error: {:.4E}'.format(train_err_list[-1]))
+# print('-- Validation error: {:.4E}'.format(val_err_list[-1]))
 
-print('==> Generating error plot...')
-x_list = range(0, print_freq * len(train_acc_list), print_freq)
-train_err_plot, = plt.plot(x_list, train_err_list, 'b.')
-val_err_plot, = plt.plot(x_list, val_err_list, '.', color='gold')
-plt.xlabel('Number of epochs')
-plt.ylabel('Cross-Entropy Error')
-plt.title('Fraction {}: Error vs Number of Epochs with Filter Size of {} x {}'.format(training_portion, filter_row, filter_col))
-plt.legend((train_err_plot, val_err_plot), ('training', 'validation'), loc='best')
-plt.savefig('exp2k_f{}_{}x{}.png'.format(training_portion, filter_row, filter_col), format='png')
-plt.close()
+# print('==> Generating error plot...')
+# x_list = range(0, print_freq * len(train_acc_list), print_freq)
+# train_err_plot, = plt.plot(x_list, train_err_list, 'b.')
+# val_err_plot, = plt.plot(x_list, val_err_list, '.', color='gold')
+# plt.xlabel('Number of epochs')
+# plt.ylabel('Cross-Entropy Error')
+# plt.title('Fraction {}: Error vs Number of Epochs with Filter Size of {} x {}'.format(training_portion, filter_row, filter_col))
+# plt.legend((train_err_plot, val_err_plot), ('training', 'validation'), loc='best')
+# plt.savefig('exp2k_f{}_{}x{}.png'.format(training_portion, filter_row, filter_col), format='png')
+# plt.close()
 
-print('==> Done.')
+# print('==> Done.')
