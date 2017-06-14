@@ -1,13 +1,12 @@
 function [trainingSet,testingSet] = createDataset (Q, label, strideSize, windowSize)
 
-disp(size(Q))
-% With downsampling rate = 15 and 169 coefficients/frame, we have approximately 12.87 frames/sec
-% Training duration: 10 secs = 130 frames
-% Testing duration: 5 secs = 65 frames
+% With downsampling rate = 15, 169 coefficients/frame, we have approximately 16 frames/sec
+% Training duration: 10 secs = 160 frames
+% Testing duration: 5 secs = 80 frames
 trainingVec = [];
 testingVec = [];
-trainingDuration = 130;
-testingDuration = 65;
+trainingDuration = 160;
+testingDuration = 80;
 
 for col=1:trainingDuration+testingDuration: size(Q,2)
     for i=col:strideSize:min(col+trainingDuration-windowSize, size(Q,2)-windowSize+1)
@@ -21,6 +20,11 @@ for col=1:trainingDuration+testingDuration: size(Q,2)
     end
 end
 
+% Volume normalization
+trainingVec = normc(trainingVec);
+testingVec = normc(testingVec);
+
+% Add labels
 trainingLabel = ones(size(trainingVec',1), 1) * label;
 testingLabel = ones(size(testingVec',1), 1) * label;
 trainingSet = [trainingVec' trainingLabel];
