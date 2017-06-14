@@ -26,7 +26,7 @@ while ischar(curfile)
     % average every 15 columns
     QMat = avg_kcol(Q_Mat, downsamplingRate);
 
-    num_frame_agg = 13;
+    num_frame_agg = 16;
     strideSize = 1;
     
     [trainVec, testVec] = createDataset(QMat, label, strideSize, num_frame_agg);
