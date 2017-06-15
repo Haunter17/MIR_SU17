@@ -22,8 +22,8 @@ def init_bias_variable(shape):
 # ==============================================
 # ==============================================
 print('==> Experiment 4d')
-# filepath = '/pylon2/ci560sp/haunter/exp3_taylorswift_d15_1s_C1C8.mat'
-filepath = '/pylon2/ci560sp/haunter/exp3_small.mat'
+filepath = '/pylon2/ci560sp/haunter/exp3_taylorswift_d15_1s_C1C8.mat'
+# filepath = '/pylon2/ci560sp/haunter/exp3_small.mat'
 print('==> Loading data from {}...'.format(filepath))
 # benchmark
 t_start = time.time()
@@ -90,22 +90,6 @@ a_list = [tf.nn.relu(tf.matmul(x, W_ae_list[0]) + b_ae_list[0])]
 for i in range(num_layers - 1):
 	a_list.append(tf.nn.relu(tf.matmul(a_list[-1], W_ae_list[i + 1]) + b_ae_list[i + 1]))
 
-# W_ae1 = init_weight_variable([total_features, size_list[0]])
-# b_ae1 = init_bias_variable([size_list[0]])
-# a1 = tf.nn.relu(tf.matmul(x, W_ae1) + b_ae1)
-# W_ae2 = init_weight_variable([size_list[0], size_list[1])
-# b_ae2 = init_bias_variable([size_list[1])
-# a2 = tf.nn.relu(tf.matmul(a1, W_ae2) + b_ae2)
-# if num_layers >= 3:
-# 	W_ae3 = init_weight_variable([size_list[1], size_list[2])
-# 	b_ae3 = init_bias_variable([size_list[2])
-# 	a3 = tf.nn.relu(tf.matmul(a2, W_ae3) + b_ae3)
-
-# if num_layers == 4:
-# 	W_ae4 = init_weight_variable([size_list[2], size_list[3])
-# 	b_ae4 = init_bias_variable([size_list[3])
-# 	a4 = tf.nn.relu(tf.matmul(a3, W_ae4) + b_ae4)
-
 W_sm = init_weight_variable([size_list[-1], num_classes])
 b_sm = init_bias_variable([num_classes])
 y_sm = tf.matmul(a_list[-1], W_sm) + b_sm
@@ -150,22 +134,22 @@ t_end = time.time()
 print('--Time elapsed for training: {t:.2f} \
 		seconds'.format(t = t_end - t_start))
 
-# # ==============================================
-# # Reports
-# print('-- Training accuracy: {:.4f}'.format(train_acc_list[-1]))
-# print('-- Validation accuracy: {:.4f}'.format(val_acc_list[-1]))
-# print('-- Training error: {:.4E}'.format(train_err_list[-1]))
-# print('-- Validation error: {:.4E}'.format(val_err_list[-1]))
+# ==============================================
+# Reports
+print('-- Training accuracy: {:.4f}'.format(train_acc_list[-1]))
+print('-- Validation accuracy: {:.4f}'.format(val_acc_list[-1]))
+print('-- Training error: {:.4E}'.format(train_err_list[-1]))
+print('-- Validation error: {:.4E}'.format(val_err_list[-1]))
 
-# print('==> Generating error plot...')
-# x_list = range(0, print_freq * len(train_acc_list), print_freq)
-# train_err_plot, = plt.plot(x_list, train_err_list, 'b.')
-# val_err_plot, = plt.plot(x_list, val_err_list, '.', color='orange')
-# plt.xlabel('Number of epochs')
-# plt.ylabel('Cross-Entropy Error')
-# plt.title('Error vs Number of Epochs with Layer Size {} and {}'.format(ae1_size, ae2_size))
-# plt.legend((train_err_plot, val_err_plot), ('training', 'validation'), loc='best')
-# plt.savefig('exp4d4layer_{}+{}.png'.format(ae1_size, ae2_size), format='png')
-# plt.close()
+print('==> Generating error plot...')
+x_list = range(0, print_freq * len(train_acc_list), print_freq)
+train_err_plot = plt.plot(x_list, train_err_list, 'b-', label='training')
+val_err_plot = plt.plot(x_list, val_err_list, '-', color='orange', label='validation')
+plt.xlabel('Number of epochs')
+plt.ylabel('Cross-Entropy Error')
+plt.title('Error vs Number of Epochs with {} Layers and Decreasing Factor {}'.format(num_layers, fac))
+plt.legend(loc='best')
+plt.savefig('exp4d_L{}F{}.png'.format(num_layers, fac), format='png')
+plt.close()
 
-# print('==> Done.')
+print('==> Done.')
