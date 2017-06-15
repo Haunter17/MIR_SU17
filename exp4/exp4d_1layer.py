@@ -22,8 +22,8 @@ def init_bias_variable(shape):
 # ==============================================
 # ==============================================
 print('==> Experiment 4d (1 layer)')
-# filepath = '/pylon2/ci560sp/haunter/exp3_taylorswift_d15_1s_C1C8.mat'
-filepath = '/pylon2/ci560sp/haunter/exp3_small.mat'
+filepath = '/pylon2/ci560sp/haunter/exp3_taylorswift_d15_1s_C1C8.mat'
+# filepath = '/pylon2/ci560sp/haunter/exp3_small.mat'
 print('==> Loading data from {}...'.format(filepath))
 # benchmark
 t_start = time.time()
@@ -54,8 +54,8 @@ num_frames = int(total_features / num_freq)
 num_classes = int(max(y_train.max(), y_val.max()) + 1)
 
 batch_size = 1000
-num_epochs = 5
-print_freq = 1
+num_epochs = 300
+print_freq = 10
 
 # Transform labels into on-hot encoding form
 y_train_OHEnc = tf.one_hot(y_train.copy(), num_classes)
