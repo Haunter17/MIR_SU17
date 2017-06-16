@@ -9,15 +9,15 @@ import time
 
 # Download data from .mat file into numpy array
 print('==> Experiment 5a')
-filepath = 'exp5a_taylorswift_d7_1s_C1C8.mat'
+filepath = 'exp5_taylorswift_d7_1s_C1C8.mat'
 print('==> Loading data from {}'.format(filepath))
 f = h5py.File(filepath)
 X_train = np.array(f.get('trainingFeatures'))
 y_train = np.array(f.get('trainingLabels'))
 X_val = np.array(f.get('validationFeatures'))
 y_val = np.array(f.get('validationLabels'))
-X_test = np.array(f.get('testFeatures'))
-y_test = np.array(f.get('testLabels'))
+X_test = np.array(f.get('window_testFeatures'))
+y_test = np.array(f.get('window_testLabels'))
 del f
 print('==> Data sizes:',X_train.shape, y_train.shape, X_val.shape, y_val.shape, X_test.shape, y_test.shape)
 
