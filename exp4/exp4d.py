@@ -71,8 +71,8 @@ for num in range(num_layers + 1):
 print('-- Layer sizes = {}'.format(size_list))
 
 batch_size = 1000
-num_epochs = 10
-print_freq = 1
+num_epochs = 800
+print_freq = 10
 
 # Transform labels into on-hot encoding form
 y_train_OHEnc = tf.one_hot(y_train.copy(), num_classes)

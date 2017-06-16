@@ -56,7 +56,7 @@ num_classes = int(max(y_train.max(), y_val.max()) + 1)
 ae1_size, ae2_size = 800, 500
 
 batch_size = 1000
-num_epochs = 1500
+num_epochs = 800
 print_freq = 10
 
 # Transform labels into on-hot encoding form
