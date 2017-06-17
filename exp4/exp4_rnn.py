@@ -15,9 +15,11 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+SMALL_FLAG = 0
 print('==> Experiment 4 RNN')
-# filepath = '/pylon2/ci560sp/haunter/exp3_taylorswift_d15_1s_C1C8.mat'
-filepath = '/pylon2/ci560sp/haunter/exp3_small.mat'
+filepath = '/pylon2/ci560sp/haunter/exp3_taylorswift_d15_1s_C1C8.mat'
+if SMALL_FLAG:
+    filepath = '/pylon2/ci560sp/haunter/exp3_small.mat'
 print('==> Loading data from {}...'.format(filepath))
 # benchmark
 t_start = time.time()
@@ -48,14 +50,17 @@ num_training_vec, total_features = X_train.shape
 num_freq = 169
 num_frames = int(total_features / num_freq)
 
-max_iter = 10
-batch_size = 1000
-print_freq = 1
-learning_rate = 0.001
+max_iter = 300
+print_freq = 10
+if SMALL_FLAG:
+    max_iter = 10
+    print_freq = 1
 
+batch_size = 1000
+learning_rate = 0.001
 n_input = num_freq # number of sequences (rows)
 n_steps = num_frames # size of each sequence (number of columns), timesteps
-n_hidden = 128 # hidden layer num of features
+n_hidden = 512 # hidden layer num of features
 n_classes = int(max(y_train.max(), y_val.max()) + 1)
 
 # ==============================================
