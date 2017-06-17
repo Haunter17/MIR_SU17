@@ -96,7 +96,7 @@ y_train = sess.run(y_train_OHEnc)[:, 0, :]
 y_val = sess.run(y_val_OHEnc)[:, 0, :]
 
 print('==> Training the first autoencoder layer...')
-for epoch in range(num_epochs / 6):
+for epoch in range(num_epochs / 4):
 	for i in range(0, num_training_vec, batch_size):
 		batch_end_point = min(i + batch_size, num_training_vec)
 		train_batch_data = X_train[i : batch_end_point]
@@ -132,7 +132,7 @@ sess = tf.InteractiveSession()
 sess.run(tf.global_variables_initializer())
 
 print('==> Training the second autoencoder layer...')
-for epoch in range(num_epochs / 15):
+for epoch in range(num_epochs / 4):
 	for i in range(0, num_training_vec, batch_size):
 		batch_end_point = min(i + batch_size, num_training_vec)
 		train_batch_data = a1_retrieved[i : batch_end_point]
@@ -163,7 +163,7 @@ sess = tf.InteractiveSession()
 sess.run(tf.global_variables_initializer())
 
 print('==> Training the output layer...')
-for epoch in range(num_epochs / 15):
+for epoch in range(num_epochs / 4):
 	for i in range(0, num_training_vec, batch_size):
 		batch_end_point = min(i + batch_size, num_training_vec)
 		train_batch_data = a2_retrieved[i : batch_end_point]
