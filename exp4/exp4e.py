@@ -98,7 +98,7 @@ for i in range(num_layers - 1):
 
 # dropout
 keep_prob = tf.placeholder(tf.float32)
-a_drop = tf.nn.droptout(a_list[-1], keep_prob)
+a_drop = tf.nn.dropout(a_list[-1], keep_prob)
 W_sm = init_weight_variable([size_list[-1], num_classes])
 b_sm = init_bias_variable([num_classes])
 y_sm = tf.matmul(a_drop, W_sm) + b_sm
