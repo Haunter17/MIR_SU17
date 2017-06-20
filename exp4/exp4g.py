@@ -17,6 +17,12 @@ def init_bias_variable(shape):
 	initial = tf.constant(0.1, shape=shape, dtype=tf.float32)
 	return tf.Variable(initial)
 
+def batch_nm(x, eps=1e-5):
+	# batch normalization to have zero mean and unit variance
+	mu, var = tf.nn.moments(x, [0])
+	return tf.nn.batch_normalization(x, mu, var, None, None, eps)
+
+
 # ==============================================
 # ==============================================
 # 					main driver
@@ -93,12 +99,11 @@ W_ae_list = [init_weight_variable([size_list[i], size_list[i + 1]]) \
 	for i in range(num_layers)]
 b_ae_list = [init_bias_variable([size_list[i + 1]])\
 	for i in range(num_layers)]
-a_list = [tf.nn.relu(tf.matmul(x, W_ae_list[0]) + b_ae_list[0])]
+a_list = [batch_nm(tf.nn.relu(tf.matmul(x, W_ae_list[0]) + b_ae_list[0]))]
 for i in range(num_layers - 1):
-	a_i = tf.nn.relu(tf.matmul(a_list[-1], W_ae_list[i + 1]) + b_ae_list[i + 1])
-	mu_i, var_i = tf.nn.moments(a_i, [0])
-	a_normed = tf.nn.batch_normalization(a_i, mu_i, var_i, None, None, 1e-5)
-	a_list.append(a_normed)
+	# batch normalization for
+	a_i = batch_nm(tf.nn.relu(tf.matmul(a_list[-1], W_ae_list[i + 1]) + b_ae_list[i + 1]))
+	a_list.append(a_i)
 
 # dropout
 keep_prob = tf.placeholder(tf.float32)
