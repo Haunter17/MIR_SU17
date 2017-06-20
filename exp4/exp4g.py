@@ -99,10 +99,10 @@ W_ae_list = [init_weight_variable([size_list[i], size_list[i + 1]]) \
 	for i in range(num_layers)]
 b_ae_list = [init_bias_variable([size_list[i + 1]])\
 	for i in range(num_layers)]
-a_list = [batch_nm(tf.nn.relu(tf.matmul(x, W_ae_list[0]) + b_ae_list[0]))]
+a_list = [tf.nn.relu(batch_nm(tf.matmul(x, W_ae_list[0]) + b_ae_list[0]))]
 for i in range(num_layers - 1):
 	# batch normalization for
-	a_i = batch_nm(tf.nn.relu(tf.matmul(a_list[-1], W_ae_list[i + 1]) + b_ae_list[i + 1]))
+	a_i = tf.nn.relu(batch_nm(tf.matmul(a_list[-1], W_ae_list[i + 1]) + b_ae_list[i + 1]))
 	a_list.append(a_i)
 
 # dropout
