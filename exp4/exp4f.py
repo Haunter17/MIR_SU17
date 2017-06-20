@@ -68,7 +68,8 @@ print('-- Decreasing factor = {}'.format(fac))
 print('-- Number of layers = {}'.format(num_layers))
 
 size_list = []
-for num in range(num_layers + 1):
+size_list.append(total_features)
+for num in range(num_layers):
 	size_list.append(int(total_features * fac))
 print('-- Layer sizes = {}'.format(size_list))
 
