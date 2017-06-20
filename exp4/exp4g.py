@@ -7,7 +7,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import sys
 
-FAST_FLAG = 1
+FAST_FLAG = 0
 # Functions for initializing neural nets parameters
 def init_weight_variable(shape):
 	initial = tf.truncated_normal(shape, stddev=0.1, dtype=tf.float32)
@@ -28,7 +28,7 @@ def batch_nm(x, eps=1e-5):
 # 					main driver
 # ==============================================
 # ==============================================
-print('==> Experiment 4g: Batch normalization')
+print('==> Experiment 4g: Batch normalization (Pre-activated)')
 filepath = '/pylon2/ci560sp/haunter/exp3_taylorswift_d15_1s_C1C8.mat'
 if FAST_FLAG:
 	filepath = '/pylon2/ci560sp/haunter/exp3_small.mat'
