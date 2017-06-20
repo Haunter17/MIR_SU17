@@ -8,10 +8,10 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-SMALL_FLAG = 0
+FAST_FLAG = 1
 print('==> Experiment 6a: LSTM memory sizes')
 filepath = '/pylon2/ci560sp/haunter/exp3_taylorswift_d15_1s_C1C8.mat'
-if SMALL_FLAG:
+if FAST_FLAG:
     filepath = '/pylon2/ci560sp/haunter/exp3_small.mat'
 print('==> Loading data from {}...'.format(filepath))
 # benchmark
