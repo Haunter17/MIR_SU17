@@ -45,7 +45,7 @@ num_frames = int(total_features / num_freq)
 
 max_iter = 300
 print_freq = 10
-if SMALL_FLAG:
+if FAST_FLAG:
     max_iter = 10
     print_freq = 1
 
