@@ -60,7 +60,7 @@ try:
     n_hidden = int(sys.argv[1])
 except Exception, e:
     print('-- {}'.format(e))
-print('-- LSTM size: '.format(n_hidden))
+print('-- LSTM size: {}'.format(n_hidden))
 
 # ==============================================
 #               RNN architecture
