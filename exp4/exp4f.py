@@ -161,4 +161,4 @@ plt.legend(loc='best')
 plt.savefig('exp4f_L{}F{}.png'.format(num_layers, fac), format='png')
 plt.close()
 
-print('==> Done.')
+print('==> Finished!')
