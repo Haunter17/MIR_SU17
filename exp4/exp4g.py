@@ -7,7 +7,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import sys
 
-FAST_FLAG = 1
+FAST_FLAG = 0
 # Functions for initializing neural nets parameters
 def init_weight_variable(shape):
 	initial = tf.truncated_normal(shape, stddev=0.1, dtype=tf.float32)
@@ -166,7 +166,7 @@ plt.xlabel('Number of epochs')
 plt.ylabel('Cross-Entropy Error')
 plt.title('Error vs Number of Epochs with {} Layers and Decreasing Factor {}'.format(num_layers, fac))
 plt.legend(loc='best')
-plt.savefig('./out/exp4g_L{}F{}.png'.format(num_layers, fac), format='png')
+plt.savefig('exp4g_L{}F{}.png'.format(num_layers, fac), format='png')
 plt.close()
 
 print('==> Finished!')
