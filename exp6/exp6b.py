@@ -8,7 +8,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-FAST_FLAG = 1
+FAST_FLAG = 0
 print('==> Experiment 6b: Standard RNN memory sizes')
 filepath = '/pylon2/ci560sp/haunter/exp3_taylorswift_d15_1s_C1C8.mat'
 if FAST_FLAG:
