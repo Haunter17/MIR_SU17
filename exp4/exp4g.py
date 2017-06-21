@@ -74,8 +74,7 @@ print('-- Decreasing factor = {}'.format(fac))
 print('-- Number of layers = {}'.format(num_layers))
 
 size_list = []
-size_list.append(total_features)
-for num in range(num_layers):
+for num in range(num_layers + 1):
 	size_list.append(int(total_features * np.power(fac, num)))
 print('-- Layer sizes = {}'.format(size_list))
 
@@ -167,7 +166,7 @@ plt.xlabel('Number of epochs')
 plt.ylabel('Cross-Entropy Error')
 plt.title('Error vs Number of Epochs with {} Layers and Decreasing Factor {}'.format(num_layers, fac))
 plt.legend(loc='best')
-plt.savefig('exp4g_L{}F{}.png'.format(num_layers, fac), format='png')
+plt.savefig('./out/exp4g_L{}F{}.png'.format(num_layers, fac), format='png')
 plt.close()
 
 print('==> Finished!')
