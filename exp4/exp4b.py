@@ -56,7 +56,7 @@ num_classes = int(max(y_train.max(), y_val.max()) + 1)
 ae1_size, ae2_size = 800, 500
 
 batch_size = 1000
-num_epochs = 300
+num_epochs = 800
 print_freq = 10
 
 # Transform labels into on-hot encoding form
@@ -70,11 +70,10 @@ y_val_OHEnc = tf.one_hot(y_val.copy(), num_classes)
 
 # Set-up input and output label
 x = tf.placeholder(tf.float32, [None, total_features])
-h1 = tf.placeholder(tf.float32, [None, total_features]) # decoder output for layer 1
-a1_temp = tf.placeholder(tf.float32, [None, ae1_size]) # autoencoder output for layer 1
 
 # first autoencoder: x -> a1 -> x
 W_ae1 = init_weight_variable([total_features, ae1_size])
+W_ae1 = tf.identity(W_ae1, name='W_ae1')
 b_ae1 = init_bias_variable([ae1_size])
 a1_temp = tf.nn.relu(tf.matmul(x, W_ae1) + b_ae1)
 W_ad1 = init_bias_variable([ae1_size, total_features])
@@ -86,20 +85,31 @@ train_step1 = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(error_ae1)
 # session
 sess = tf.InteractiveSession()
 sess.run(tf.global_variables_initializer())
+
+# debugging session
+debug = 0
+if debug:
+	from tensorflow.python import debug as tf_debug
+	sess = tf_debug.LocalCLIDebugWrapperSession(sess)
+
 y_train = sess.run(y_train_OHEnc)[:, 0, :]
 y_val = sess.run(y_val_OHEnc)[:, 0, :]
 
 print('==> Training the first autoencoder layer...')
-for epoch in range(num_epochs / 6):
+for epoch in range(num_epochs / 4):
 	for i in range(0, num_training_vec, batch_size):
 		batch_end_point = min(i + batch_size, num_training_vec)
 		train_batch_data = X_train[i : batch_end_point]
-		train_step1.run(feed_dict={x: train_batch_data})
+		if batch_end_point == num_training_vec:
+			sess.run(train_step1, feed_dict={x: train_batch_data})
+		else:
+			train_step1.run(feed_dict={x: train_batch_data})
 	if (epoch + 1) % print_freq == 0:
 		train_err = error_ae1.eval(feed_dict={x: X_train})   
 		print("-- epoch: %d, training error %g"%(epoch + 1, train_err))
 
 W_ae1_retrieved, b_ae1_retrieved, a1_retrieved = sess.run([W_ae1, b_ae1, a1_temp], feed_dict={x: X_train})
+
 
 # ==============================================
 # train the second autoencoder
@@ -109,8 +119,6 @@ tf.reset_default_graph()
 
 # second autoencoder: a1 -> a2 -> a1
 a1 = tf.placeholder(tf.float32, [None, ae1_size])
-h2 = tf.placeholder(tf.float32, [None, ae1_size]) # decoder output for layer 2
-
 
 W_ae2 = init_weight_variable([ae1_size, ae2_size])
 b_ae2 = init_bias_variable([ae2_size])
@@ -124,7 +132,7 @@ sess = tf.InteractiveSession()
 sess.run(tf.global_variables_initializer())
 
 print('==> Training the second autoencoder layer...')
-for epoch in range(num_epochs / 3):
+for epoch in range(num_epochs / 4):
 	for i in range(0, num_training_vec, batch_size):
 		batch_end_point = min(i + batch_size, num_training_vec)
 		train_batch_data = a1_retrieved[i : batch_end_point]
@@ -155,7 +163,7 @@ sess = tf.InteractiveSession()
 sess.run(tf.global_variables_initializer())
 
 print('==> Training the output layer...')
-for epoch in range(num_epochs / 3):
+for epoch in range(num_epochs / 4):
 	for i in range(0, num_training_vec, batch_size):
 		batch_end_point = min(i + batch_size, num_training_vec)
 		train_batch_data = a2_retrieved[i : batch_end_point]
@@ -224,9 +232,9 @@ t_end = time.time()
 print('--Time elapsed for training: {t:.2f} \
 		seconds'.format(t = t_end - t_start))
 
-# # ==============================================
-# # ==============================================
-# # ==============================================
+# ==============================================
+# ==============================================
+# ==============================================
 
 
 # Reports

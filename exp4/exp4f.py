@@ -7,6 +7,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import sys
 
+FAST_FLAG = 0
 # Functions for initializing neural nets parameters
 def init_weight_variable(shape):
 	initial = tf.truncated_normal(shape, stddev=0.1, dtype=tf.float32)
@@ -21,9 +22,10 @@ def init_bias_variable(shape):
 # 					main driver
 # ==============================================
 # ==============================================
-print('==> Experiment 4d')
+print('==> Experiment 4f: Layer size')
 filepath = '/pylon2/ci560sp/haunter/exp3_taylorswift_d15_1s_C1C8.mat'
-# filepath = '/pylon2/ci560sp/haunter/exp3_small.mat'
+if FAST_FLAG:
+	filepath = '/pylon2/ci560sp/haunter/exp3_small.mat'
 print('==> Loading data from {}...'.format(filepath))
 # benchmark
 t_start = time.time()
@@ -52,11 +54,32 @@ num_training_vec, total_features = X_train.shape
 num_freq = 169
 num_frames = int(total_features / num_freq)
 num_classes = int(max(y_train.max(), y_val.max()) + 1)
-ae1_size, ae2_size = 800, 500
+
+num_layers = 2
+fac = 0.5
+
+try:
+	fac = float(sys.argv[1])
+	num_layers = int(sys.argv[2])
+	assert(num_layers >= 2 and num_layers <= 4)
+except Exception, e:
+	print('-- {}'.format(e))
+print('-- Decreasing factor = {}'.format(fac))
+print('-- Number of layers = {}'.format(num_layers))
+
+size_list = []
+size_list.append(total_features)
+for num in range(num_layers):
+	size_list.append(int(total_features * fac))
+print('-- Layer sizes = {}'.format(size_list))
 
 batch_size = 1000
-num_epochs = 300
+
+num_epochs = 500
 print_freq = 10
+if FAST_FLAG:
+	num_epochs = 5
+	print_freq = 1
 
 # Transform labels into on-hot encoding form
 y_train_OHEnc = tf.one_hot(y_train.copy(), num_classes)
@@ -66,15 +89,20 @@ y_val_OHEnc = tf.one_hot(y_val.copy(), num_classes)
 x = tf.placeholder(tf.float32, [None, total_features])
 y_ = tf.placeholder(tf.float32, [None, num_classes])
 
-W_ae1 = init_weight_variable([total_features, ae1_size])
-b_ae1 = init_bias_variable([ae1_size])
-a1 = tf.nn.relu(tf.matmul(x, W_ae1) + b_ae1)
-W_ae2 = init_weight_variable([ae1_size, ae2_size])
-b_ae2 = init_bias_variable([ae2_size])
-a2 = tf.nn.relu(tf.matmul(a1, W_ae2) + b_ae2)
-W_sm = init_weight_variable([ae2_size, num_classes])
+W_ae_list = [init_weight_variable([size_list[i], size_list[i + 1]]) \
+	for i in range(num_layers)]
+b_ae_list = [init_bias_variable([size_list[i + 1]])\
+	for i in range(num_layers)]
+a_list = [tf.nn.relu(tf.matmul(x, W_ae_list[0]) + b_ae_list[0])]
+for i in range(num_layers - 1):
+	a_list.append(tf.nn.relu(tf.matmul(a_list[-1], W_ae_list[i + 1]) + b_ae_list[i + 1]))
+
+# dropout
+keep_prob = tf.placeholder(tf.float32)
+a_drop = tf.nn.dropout(a_list[-1], keep_prob)
+W_sm = init_weight_variable([size_list[-1], num_classes])
 b_sm = init_bias_variable([num_classes])
-y_sm = tf.matmul(a2, W_sm) + b_sm
+y_sm = tf.matmul(a_drop, W_sm) + b_sm
 
 cross_entropy = tf.reduce_mean(
 		tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_sm))
@@ -100,15 +128,15 @@ for epoch in range(num_epochs):
 		batch_end_point = min(i + batch_size, num_training_vec)
 		train_batch_data = X_train[i : batch_end_point]
 		train_batch_label = y_train[i : batch_end_point]
-		train_step.run(feed_dict={x: train_batch_data, y_: train_batch_label})
+		train_step.run(feed_dict={x: train_batch_data, y_: train_batch_label, keep_prob: 0.5})
 	if (epoch + 1) % print_freq == 0:
-		train_acc = accuracy.eval(feed_dict={x:X_train, y_: y_train})
+		train_acc = accuracy.eval(feed_dict={x:X_train, y_: y_train, keep_prob: 1.0})
 		train_acc_list.append(train_acc)
-		val_acc = accuracy.eval(feed_dict={x: X_val, y_: y_val})
+		val_acc = accuracy.eval(feed_dict={x: X_val, y_: y_val, keep_prob: 1.0})
 		val_acc_list.append(val_acc)
-		train_err = cross_entropy.eval(feed_dict={x: X_train, y_: y_train})
+		train_err = cross_entropy.eval(feed_dict={x: X_train, y_: y_train, keep_prob: 1.0})
 		train_err_list.append(train_err)
-		val_err = cross_entropy.eval(feed_dict={x: X_val, y_: y_val})
+		val_err = cross_entropy.eval(feed_dict={x: X_val, y_: y_val, keep_prob: 1.0})
 		val_err_list.append(val_err)      
 		print("-- epoch: %d, training error %g"%(epoch + 1, train_err))
 
@@ -125,13 +153,13 @@ print('-- Validation error: {:.4E}'.format(val_err_list[-1]))
 
 print('==> Generating error plot...')
 x_list = range(0, print_freq * len(train_acc_list), print_freq)
-train_err_plot, = plt.plot(x_list, train_err_list, 'b.')
-val_err_plot, = plt.plot(x_list, val_err_list, '.', color='orange')
+train_err_plot = plt.plot(x_list, train_err_list, 'b-', label='training')
+val_err_plot = plt.plot(x_list, val_err_list, '-', color='orange', label='validation')
 plt.xlabel('Number of epochs')
 plt.ylabel('Cross-Entropy Error')
-plt.title('Error vs Number of Epochs with Layer Size {} and {}'.format(ae1_size, ae2_size))
-plt.legend((train_err_plot, val_err_plot), ('training', 'validation'), loc='best')
-plt.savefig('exp4d4layer_{}+{}.png'.format(ae1_size, ae2_size), format='png')
+plt.title('Error vs Number of Epochs with {} Layers and {} Units'.format(num_layers, size_list[-1]))
+plt.legend(loc='best')
+plt.savefig('exp4f_L{}F{}.png'.format(num_layers, fac), format='png')
 plt.close()
 
-print('==> Done.')
+print('==> Finished!')

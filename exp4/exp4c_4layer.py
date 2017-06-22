@@ -21,7 +21,7 @@ def init_bias_variable(shape):
 # 					main driver
 # ==============================================
 # ==============================================
-print('==> Experiment 4d (1 layer)')
+print('==> Experiment 4c')
 filepath = '/pylon2/ci560sp/haunter/exp3_taylorswift_d15_1s_C1C8.mat'
 # filepath = '/pylon2/ci560sp/haunter/exp3_small.mat'
 print('==> Loading data from {}...'.format(filepath))
@@ -52,9 +52,10 @@ num_training_vec, total_features = X_train.shape
 num_freq = 169
 num_frames = int(total_features / num_freq)
 num_classes = int(max(y_train.max(), y_val.max()) + 1)
+ae1_size, ae2_size = 800, 500
 
 batch_size = 1000
-num_epochs = 300
+num_epochs = 800
 print_freq = 10
 
 # Transform labels into on-hot encoding form
@@ -65,9 +66,15 @@ y_val_OHEnc = tf.one_hot(y_val.copy(), num_classes)
 x = tf.placeholder(tf.float32, [None, total_features])
 y_ = tf.placeholder(tf.float32, [None, num_classes])
 
-W_sm = init_weight_variable([total_features, num_classes])
+W_ae1 = init_weight_variable([total_features, ae1_size])
+b_ae1 = init_bias_variable([ae1_size])
+a1 = tf.nn.relu(tf.matmul(x, W_ae1) + b_ae1)
+W_ae2 = init_weight_variable([ae1_size, ae2_size])
+b_ae2 = init_bias_variable([ae2_size])
+a2 = tf.nn.relu(tf.matmul(a1, W_ae2) + b_ae2)
+W_sm = init_weight_variable([ae2_size, num_classes])
 b_sm = init_bias_variable([num_classes])
-y_sm = tf.matmul(x, W_sm) + b_sm
+y_sm = tf.matmul(a2, W_sm) + b_sm
 
 cross_entropy = tf.reduce_mean(
 		tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_sm))
@@ -122,9 +129,9 @@ train_err_plot, = plt.plot(x_list, train_err_list, 'b.')
 val_err_plot, = plt.plot(x_list, val_err_list, '.', color='orange')
 plt.xlabel('Number of epochs')
 plt.ylabel('Cross-Entropy Error')
-plt.title('Error vs Number of Epochs with Output Layer')
+plt.title('Error vs Number of Epochs with Layer Size {} and {}'.format(ae1_size, ae2_size))
 plt.legend((train_err_plot, val_err_plot), ('training', 'validation'), loc='best')
-plt.savefig('exp4d1layer.png', format='png')
+plt.savefig('exp4c_4layer_{}+{}.png'.format(ae1_size, ae2_size), format='png')
 plt.close()
 
 print('==> Done.')
