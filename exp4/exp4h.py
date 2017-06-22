@@ -7,7 +7,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import sys
 
-FAST_FLAG = 0
+FAST_FLAG = 1
 # Functions for initializing neural nets parameters
 def init_weight_variable(shape):
 	initial = tf.truncated_normal(shape, stddev=0.1, dtype=tf.float32)
