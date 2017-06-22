@@ -80,7 +80,7 @@ class Model:
 		self.X_train, self.y_train, self.X_val, self.y_val = X_train, y_train, X_val, y_val
 		
 		# store the parameters sent to init that define our model
-		self.num_freq, self.filter_row, self.filter_col, self.k1, self.learningRate, self.debug = num_freq, filter_row, filter_col, k1, learningRate, debug
+		self.num_freq, self.filter_row, self.filter_col, self.k1, self.pool_rows, self.pool_cols, self.pool_step_rows, self.pool_step_cols, self.learningRate, self.debug = num_freq, filter_row, filter_col, k1, pool_rows, pool_cols, pool_step_rows, pool_step_cols, learningRate, debug
 
 		# find num_training_vec, total_features, num_frames, num_classes, and l from the shape of the data
 		# and store them
