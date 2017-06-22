@@ -167,7 +167,7 @@ class Model:
 
 		# flatten out the output from pooling
 		h_pool1_flat = tf.reshape(h_pool_1, h_pool1_out_rows * h_pool1_out_cols * self.k1)
-		h_pool1_flat = tf.identity(h_conv1_flat, name="h_pool1_flat")
+		h_pool1_flat = tf.identity(h_pool1_flat, name="h_pool1_flat")
 
 
 		# softmax layer parameters
