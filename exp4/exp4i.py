@@ -7,24 +7,31 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import sys
 
-# usage: python exp4i.py 0.5 2 1 1
+# usage: python exp4i.py 0.5 2 0 0 1 0
 # system arg
 num_layers = 2
 fac = 0.5
 SMALL_FLAG = 1
 FAST_FLAG = 1
+BN_FLAG = 1
+SYS_FLAG = 0 # 0 for bridges, 1 for supermic
 try:
 	fac = float(sys.argv[1])
 	num_layers = int(sys.argv[2])
 	assert(num_layers >= 2 and num_layers <= 4)
 	SMALL_FLAG = int(sys.argv[3])
 	FAST_FLAG = int(sys.argv[4])
+	BN_FLAG = int(sys.argv[5])
+	SYS_FLAG = int(sys.argv[6])
 except Exception, e:
 	print('-- {}'.format(e))
+
 print('-- Decreasing factor = {}'.format(fac))
 print('-- Number of layers = {}'.format(num_layers))
 print('-- SMALL FLAG: {}'.format(SMALL_FLAG))
 print('-- FAST FLAG: {}'.format(FAST_FLAG))
+print('-- NORMALIZATION FLAG: {}'.format(BN_FLAG))
+print('-- SYS FLAG: {}'.format(SYS_FLAG))
 
 
 # Functions for initializing neural nets parameters
@@ -48,9 +55,13 @@ def batch_nm(x, eps=1e-5):
 # ==============================================
 # ==============================================
 print('==> Experiment 4i: Early Stopping...')
-filepath = '/pylon2/ci560sp/haunter/exp3_taylorswift_d15_1s_C1C8.mat'
+sys_path = '/pylon2/ci560sp/haunter/'
+if SYS_FLAG:
+	sys_path = '/scratch/zwang3/'
+filename = 'exp3_taylorswift_d15_1s_C1C8.mat'
 if SMALL_FLAG:
-	filepath = '/pylon2/ci560sp/haunter/exp3_small.mat'
+	filename = 'exp3_small.mat'
+filepath = sys_path + filename
 print('==> Loading data from {}...'.format(filepath))
 # benchmark
 t_start = time.time()
@@ -105,10 +116,19 @@ W_ae_list = [init_weight_variable([size_list[i], size_list[i + 1]]) \
 	for i in range(num_layers)]
 b_ae_list = [init_bias_variable([size_list[i + 1]])\
 	for i in range(num_layers)]
-a_list = [tf.nn.relu(batch_nm(tf.matmul(x, W_ae_list[0]) + b_ae_list[0]))]
+a_list = []
+
+if BN_FLAG:
+	a_list.append(tf.nn.relu(batch_nm(tf.matmul(x, W_ae_list[0]) + b_ae_list[0])))
+else:
+	a_list.append(tf.nn.relu(tf.matmul(x, W_ae_list[0]) + b_ae_list[0]))
 for i in range(num_layers - 1):
-	# batch normalization for
-	a_i = tf.nn.relu(batch_nm(tf.matmul(a_list[-1], W_ae_list[i + 1]) + b_ae_list[i + 1]))
+	a_i = 0
+	if BN_FLAG:
+		# batch normalization
+		a_i = tf.nn.relu(batch_nm(tf.matmul(a_list[-1], W_ae_list[i + 1]) + b_ae_list[i + 1]))
+	else:
+		a_i = tf.nn.relu(tf.matmul(a_list[-1], W_ae_list[i + 1]) + b_ae_list[i + 1])
 	a_list.append(a_i)
 
 # dropout
@@ -142,7 +162,7 @@ save_path = '4imodel_{}+{}.ckpt'.format(num_layers, fac)
 opt_val_err = np.inf
 opt_epoch = -1
 step_counter = 0
-max_counter = 100
+max_counter = 50
 
 print('==> Training the full network...')
 t_start = time.time()
@@ -201,15 +221,15 @@ print([float('{:.4E}'.format(x)) for x in train_err_list])
 print('-- Validation error --')
 print([float('{:.4E}'.format(x)) for x in val_err_list])
 
-# print('==> Generating error plot...')
-# x_list = range(0, print_freq * len(train_acc_list), print_freq)
-# train_err_plot = plt.plot(x_list, train_err_list, 'b-', label='training')
-# val_err_plot = plt.plot(x_list, val_err_list, '-', color='orange', label='validation')
-# plt.xlabel('Number of epochs')
-# plt.ylabel('Cross-Entropy Error')
-# plt.title('Error vs Number of Epochs with {} Layers and Decreasing Factor {}'.format(num_layers, fac))
-# plt.legend(loc='best')
-# plt.savefig('exp4i_L{}F{}.png'.format(num_layers, fac), format='png')
-# plt.close()
+print('==> Generating error plot...')
+x_list = range(0, print_freq * len(train_acc_list), print_freq)
+train_err_plot = plt.plot(x_list, train_err_list, 'b-', label='training')
+val_err_plot = plt.plot(x_list, val_err_list, '-', color='orange', label='validation')
+plt.xlabel('Number of epochs')
+plt.ylabel('Cross-Entropy Error')
+plt.title('Error vs Number of Epochs with {} Layers and Decreasing Factor {}'.format(num_layers, fac))
+plt.legend(loc='best')
+plt.savefig('exp4i_L{}F{}BN{}.png'.format(num_layers, fac, BN_FLAG), format='png')
+plt.close()
 
 print('==> Finished!')
