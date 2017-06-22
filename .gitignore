@@ -9,3 +9,5 @@
 *.batch
 *.pyc
 ./exp1/exp1b/*
+*.ckpt*
+checkpoint
