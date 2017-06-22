@@ -161,7 +161,7 @@ class Model:
 		a_1 = tf.nn.relu(tf.matmul(h_conv1_flat, self.W_1) + self.b_1)
 		# dropout on this hidden layer
 		self.keep_prob = tf.placeholder(tf.float32)
-		#a_1_drop = tf.nn.dropout(a_1, self.keep_prob)
+		a_1_drop = tf.nn.dropout(a_1, self.keep_prob)
 
 		# softmax layer parameters
 		self.W_sm = init_weight_variable([self.num_hidden_nodes_one, self.num_classes], "W_sm")
@@ -169,7 +169,7 @@ class Model:
 
 		# the output of the layer - un-normalized and without a non-linearity
 		# since cross_entropy_with_logits takes care of that
-		y_conv = tf.matmul(a_1, self.W_sm) + self.b_sm
+		y_conv = tf.matmul(a_1_drop, self.W_sm) + self.b_sm
 		y_conv = tf.identity(y_conv, name="y_conv")
 		
 		return  y_conv # would want to softmax it to get an actual prediction
@@ -516,7 +516,8 @@ try:
 	numHiddenUnitsOneIn = map(int, numHiddenUnitsOneString.strip('[]').split(','))
 
 	# read in dropout prob
-	keepProb = float(sys.argv[5])
+	keepProbsString = sys.argv[5]
+	keepProbsIn = map(float, keepProbsString.strip('[]').split(','))
 
 	# read in the number of epochs
 	numEpochs = int(sys.argv[6])
@@ -537,6 +538,7 @@ filterCols = filterColsIn
 k1s = k1sIn
 numHiddenUnitsOne = numHiddenUnitsOneIn
 learningRates = [0.0001] * len(filterRows)
+keepProbs = keepProbsIn
 
 # set training parameters
 batchSize = 1000
@@ -563,7 +565,7 @@ for i in range(len(filterRows)):
 	# create the model - this will create the TF graph as well as load the data
 	m = Model(169, X_train, y_train, X_val, y_val, filterRows[i], filterCols[i], k1s[i], numHiddenUnitsOne[i], learningRates[i], False)
 	# actually train the model (on the data it already loaded)
-	[train_acc_list, val_acc_list, train_err_list, val_err_list, epoch_numbers, W_conv1, b_conv1, W_1, b_1, W_sm, b_sm] = m.train(1000, numEpochs, print_freq, keepProb)
+	[train_acc_list, val_acc_list, train_err_list, val_err_list, epoch_numbers, W_conv1, b_conv1, W_1, b_1, W_sm, b_sm] = m.train(1000, numEpochs, print_freq, keepProbs[i])
 
 	# store the new data
 	train_acc_lists.append(train_acc_list)
