@@ -50,7 +50,7 @@ def visualizeColVecs(matrix, numRows, outfile):
 		subplot.set_yticks([])
 		#subplot.axis('off')
 		index = index + 1
-	
+
 	#fig.subplots_adjust(wspace=None, hspace=None)
 	fig.tight_layout()
 	fig.savefig(outfile)
@@ -66,12 +66,21 @@ def visualizeColVecsGroupedByOctave(matrix, numRows, sizeOfOctave, outfile):
 	newMatrix =  matrix[0, :] # take the first row to get the right dimension
 	for noteIndex in range(sizeOfOctave): # for each note in the octave
 		# pull all the rows associated with that note
-		curRows = [matrix[i, :] for i in range(matrix.shape[0]) if (i - noteIndex % sizeOfOctave == 0)]
-		newArray = np.vstack((newArray, curRows))
+		curRows = [matrix[i, :] for i in range(matrix.shape[0]) if ((i - noteIndex) % sizeOfOctave == 0)]
+		print("Cur Rows")
+		print(curRows)
+		newMatrix = np.vstack((newMatrix, curRows))
 
 	# now delete the extra first row that we initialized the new array with (to get the right dimension)
-	newArray = np.delete(newArray, 0, 0)
+	newMatrix = np.delete(newMatrix, 0, 0)
+
 	# fall back on our other visualization code with the matrix re-arranged
 	visualizeColVecs(newMatrix, numRows, outfile)
 
+'''
+import visualizationHelper as vis
+import numpy as np
+x = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12], [13, 14], [15, 16], [17, 18], [19, 20]])
+vis.visualizeColVecsGroupedByOctave(x, 5, 3, 'testvisualizecols_grouped.png')
+'''
 

@@ -8,6 +8,8 @@
 *.out
 *.batch
 *.pyc
-./exp1/exp1b/*
+*.sh
+*.mp3
+./exp0/exp1b/*
 *.ckpt*
 checkpoint

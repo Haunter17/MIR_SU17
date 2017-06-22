@@ -1,0 +1,20 @@
+experiment tracker
+
+Running / need to deal with output:
+1n - 800 epochs, small TS, regularization comparison - None, L1, L2
+1o - 500 epochs, small TS, regularization parameter, L1 0.1, 1, 10
+1o - 500 epochs, small TS, regularization parameter, L2 0.1, 1, 10
+
+redo
+1k_finalVals - batch size, 500 epochs, small TS
+1k_ThroughoutTraining - batch size, 800 epochs, track cost throughout, small TS
+
+done and data gathered
+1i - downsampling, full TS
+1j - across artists, 500 epochs, small datasets
+
+1k - 800 epochs, small TS, training and final values - started 5/26 10:18ish AM
+1g - 2000 epochs, full TS, print errors and accuracy across epoch number (was curious about super high epoch run on the full set)
+
+
+
