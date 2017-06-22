@@ -590,7 +590,7 @@ for i in range(len(filterRows)):
 	del m # clear out the model to avoid huge buildup of memory
 
 	# print what you have so far in case it crashes
-	print("So far after %g models we have:"%(i+1))
+	print("So far after %g models we nhave:"%(i+1))
 	print("Filter Rows: %s"%(filterRows))
 	print("Filter Cols: %s"%(filterCols))
 	print("K1s: %s"%(k1s))
