@@ -609,9 +609,11 @@ print("Epoch number lists: %s"%(str(epoch_number_lists)))
 # plotting
 trainingPlotTitles = ['Single Layer CNN + 1 Dense Layer with dropout with %gx%g kernels, k1=%g, %g hidden nodes'%(filterRows[i], filterCols[i], k1s[i], numHiddenUnitsOne[i]) for i in range(len(filterRows))]
 trainingPlotTitles.append('Exp 3p, Validation Cross-Entropy Cost vs. Epoch')
-trainingPlotFiles = ['exp3p_training_%gx%g_k1=%g_numHiddenUnits=%g_%gEpochs.png'%(filterRows[i], filterCols[i], k1s[i], numHiddenUnitsOne[i], numEpochs) for i in range(len(filterRows))]
+trainingPlotFiles = ['exp3p_training_%gx%g_k1=%g_numHiddenUnits=%g_KeepRate=%f_LR=%f_%gEpochs.png'%(filterRows[i], filterCols[i], k1s[i], numHiddenUnitsOne[i], keepProbs[i], learningRates[i], numEpochs) for i in range(len(filterRows))]
 trainingPlotFiles.append(finalPlotName + 'validationCurves_%gEpochs.png'%(numEpochs))
-makeTrainingPlots(epoch_number_lists[0], zip(zip(filterRows, filterCols), numHiddenUnitsOne), train_err_lists, val_err_lists, "Shape and nodes", "Cross Entropy Cost", trainingPlotTitles, trainingPlotFiles)
+
+trainingPlotLabels = ["Shape: %s, nodes=%s, Keep Prob=%f,"%(str(zip(filterRows[i], filterCols[i], k1s[i])), numHiddenUnitsOne[i], keepProbs[i])for i in range(len(filterRows))]
+makeTrainingPlots(epoch_number_lists[0], trainingPlotLabels, train_err_lists, val_err_lists, "Shape and nodes", "Cross Entropy Cost", trainingPlotTitles, trainingPlotFiles)
 
 
 # makeBestResultPlot(filterRows, train_err_lists, val_err_lists, "Height of Vertical Kernel", "Cross Entropy Cost", 'Best Cost vs. Height of Filter, k1=%g'%k1s[0], finalPlotName)
