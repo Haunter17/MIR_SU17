@@ -510,25 +510,25 @@ try:
 	# map it from a string into a list of ints
 	filterColsIn = map(int, filterColsString.strip('[]').split(','))
 	# k1
-	k1sString = sys.argv[1]
+	k1sString = sys.argv[3]
 	k1sIn = map(int, k1sString.strip('[]').split(','))
 	# pooling rows
-	poolingRowsString = sys.argv[1]
+	poolingRowsString = sys.argv[4]
 	poolingRowsIn = map(int, poolingRowsString.strip('[]').split(','))
 	# pooling cols
-	poolingColsString = sys.argv[1]
+	poolingColsString = sys.argv[5]
 	poolingColsIn = map(int, poolingColsString.strip('[]').split(','))
 	# pooling step rows
-	poolingStepRowsString = sys.argv[1]
+	poolingStepRowsString = sys.argv[6]
 	poolingStepRowsIn = map(int, poolingStepRowsString.strip('[]').split(','))
 	# pooling step cols
-	poolingStepColsString = sys.argv[1]
+	poolingStepColsString = sys.argv[7]
 	poolingStepColsIn = map(int, poolingStepColsString.strip('[]').split(','))
 
 	# read in the number of epochs
-	numEpochs = int(sys.argv[3])
+	numEpochs = int(sys.argv[8])
 
-	finalPlotName = sys.argv[4]
+	finalPlotName = sys.argv[9]
 except Exception, e:
   print('-- {}'.format(e))
 
