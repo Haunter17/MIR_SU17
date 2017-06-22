@@ -7,6 +7,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import sys
 
+# usage: python exp4i.py 0.5 2 1
 # system arg
 num_layers = 2
 fac = 0.5
@@ -134,7 +135,7 @@ val_err_list = []
 # saver setup
 varsave_list = W_ae_list + b_ae_list + [W_sm, b_sm]
 saver = tf.train.Saver(varsave_list)
-save_path = '4imodel_{}+{}.ckpt'
+save_path = '4imodel_{}+{}.ckpt'.format(num_layers, fac)
 opt_val_err = np.inf
 opt_epoch = -1
 earlystop_counter = 0
