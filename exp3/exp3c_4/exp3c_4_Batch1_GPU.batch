@@ -1,0 +1,12 @@
+#!/bin/bash
+#SBATCH --job-name="exp3c_3_150Epochs"
+#SBATCH --output="exp3c_3_150Epochs_k1.out"
+#SBATCH -p GPU-shared --gres=gpu:k80:1
+#SBATCH -N 1
+#SBATCH --export=ALL
+#SBATCH -t 30:00:00
+
+module load tensorflow/1.1.0
+source $TENSORFLOW_ENV/bin/activate
+
+python exp3c_3.py [16,16,16,16,16,16,16,16,16] [1,2,4,8,16,32,64,128,256] [0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001] 150 exp3c_3_K1=1To256_150Epochs

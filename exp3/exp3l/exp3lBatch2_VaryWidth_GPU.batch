@@ -1,0 +1,12 @@
+#!/bin/bash
+#SBATCH --job-name="exp3l70Epochs"
+#SBATCH --output="exp3l_2_VaryWidth_70Epochs.out"
+#SBATCH -p GPU-shared --gres=gpu:k80:1
+#SBATCH -N 1
+#SBATCH --export=ALL
+#SBATCH -t 30:00:00
+
+module load tensorflow/1.1.0
+source $TENSORFLOW_ENV/bin/activate
+# the parameters are the different filter widths to try
+python exp3l.py [1,1,1,1,1] [16,12,8,4,1] [169,169,169,169,169] [1,1,1,1,1] [39,39,39,39,39] [39,39,39,39,39] 70 exp3l_VaryWidth_70Epochs exp3l

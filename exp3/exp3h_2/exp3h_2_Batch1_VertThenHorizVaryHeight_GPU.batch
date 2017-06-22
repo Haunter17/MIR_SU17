@@ -1,0 +1,12 @@
+#!/bin/bash
+#SBATCH --job-name="exp3h_2_50Epochs"
+#SBATCH --output="exp3h_2_50Epochs.out"
+#SBATCH -p GPU-shared --gres=gpu:k80:1
+#SBATCH -N 1
+#SBATCH --export=ALL
+#SBATCH -t 10:00:00
+
+module load tensorflow/1.1.0
+source $TENSORFLOW_ENV/bin/activate
+# the parameters are the different filter widths to try
+python ../exp3h/exp3h.py [169,164,145,24] [1,1,1,1] [1,1,1,1] [16,16,16,16] [39,39,39,39] [39,39,39,39] 50 exp3h_2_fullHeightVaryWidth_50Epochs exp3h_2

@@ -1,0 +1,11 @@
+#!/bin/bash
+#SBATCH --job-name="exp3o_150Epochs"
+#SBATCH --output="exp3o_150Epochs.out"
+#SBATCH -p GPU-shared --gres=gpu:k80:1
+#SBATCH -N 1
+#SBATCH --export=ALL
+#SBATCH -t 30:00:00
+
+module load tensorflow/1.1.0
+source $TENSORFLOW_ENV/bin/activate
+python exp3o.py [1,1,1,1] [16,16,16,16] [169,164,145,24] [1,1,1,1] [39,39,39,39] [39,39,39,39] 150 exp3o_VaryHeight_150Epochs exp3o

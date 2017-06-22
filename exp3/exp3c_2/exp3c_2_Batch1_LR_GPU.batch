@@ -1,0 +1,12 @@
+#!/bin/bash
+#SBATCH --job-name="exp3c_2_400Epochs"
+#SBATCH --output="exp3c_2_400Epochs_LR.out"
+#SBATCH -p GPU-shared --gres=gpu:k80:1
+#SBATCH -N 1
+#SBATCH --export=ALL
+#SBATCH -t 30:00:00
+
+module load tensorflow/1.1.0
+source $TENSORFLOW_ENV/bin/activate
+# the parameters are the different filter heights to try
+python exp3c_2.py [16,16,16,16,16] [0.0005,0.001,0.002,0.005,0.01] 400 exp3c_LR5e-4To1e-2_400Epochs

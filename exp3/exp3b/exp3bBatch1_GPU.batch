@@ -1,0 +1,12 @@
+#!/bin/bash
+#SBATCH --job-name="exp3bBaseline300Epochs"
+#SBATCH --output="exp3bBaseline_300Epochs.out"
+#SBATCH -p GPU-shared --gres=gpu:k80:1
+#SBATCH -N 1
+#SBATCH --export=ALL
+#SBATCH -t 10:00:00
+
+module load tensorflow/1.1.0
+source $TENSORFLOW_ENV/bin/activate
+# the parameters are the different filter heights to try
+python exp3b.py [169,164,145,24] 300 exp3b_height24To169_300Epochs

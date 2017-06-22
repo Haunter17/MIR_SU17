@@ -1,0 +1,12 @@
+#!/bin/bash
+#SBATCH --job-name="exp3dBaseline_Wide_1000Epochs"
+#SBATCH --output="exp3dBaseline_WideFilters_1000Epochs.out"
+#SBATCH -p GPU-shared --gres=gpu:k80:1
+#SBATCH -N 1
+#SBATCH --export=ALL
+#SBATCH -t 30:00:00
+
+module load tensorflow/1.1.0
+source $TENSORFLOW_ENV/bin/activate
+# the parameters are the different filter heights to try
+python exp3d.py [1,2,4,8,16] [16,16,16,16,16] 1000 exp3d_fullWidthHeight1To16_1000Epochs

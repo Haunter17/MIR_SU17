@@ -1,0 +1,12 @@
+#!/bin/bash
+#SBATCH --job-name="exp3j500Epochs"
+#SBATCH --output="exp3j500Epochs.out"
+#SBATCH -p GPU-shared --gres=gpu:k80:1
+#SBATCH -N 1
+#SBATCH --export=ALL
+#SBATCH -t 30:00:00
+
+module load tensorflow/1.1.0
+source $TENSORFLOW_ENV/bin/activate
+# the parameters are the different filter widths to try
+python ../exp3h/exp3h.py [1,1,1,1] [1,1,1,1] [1,1,1,1] [16,16,16,16] [1,4,8,16] [39,39,39,39] 500 exp3j_1x1VaryNumKernels_500Epochs exp3j
