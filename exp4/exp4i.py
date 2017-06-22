@@ -88,7 +88,7 @@ print('-- Layer sizes = {}'.format(size_list))
 batch_size = 1000
 
 num_epochs = 500
-print_freq = 1
+print_freq = 5
 if FAST_FLAG:
 	num_epochs = 5
 	print_freq = 1
@@ -170,6 +170,7 @@ for epoch in range(num_epochs):
 			print('==> New optimal validation error found. Model saved.')
 			opt_val_err, opt_epoch = val_err, epoch + 1
 	if step_counter > max_counter:
+		print('==> Step counter exceeds maximum value. Stop training at epoch {}.'.format(epoch + 1))
 		break
 	step_counter += 1      
 t_end = time.time()
