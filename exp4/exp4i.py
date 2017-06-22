@@ -145,7 +145,10 @@ correct_prediction = tf.equal(tf.argmax(y_sm, 1), tf.argmax(y_, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 sess = tf.InteractiveSession()
-sess.run(tf.global_variables_initializer())
+if SYS_FLAG:
+	sess.run(tf.initialize_all_variables())
+else:
+	sess.run(tf.global_variables_initializer())
 y_train = sess.run(y_train_OHEnc)[:, 0, :]
 y_val = sess.run(y_val_OHEnc)[:, 0, :]
 
