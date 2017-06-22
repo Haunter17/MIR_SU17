@@ -152,13 +152,18 @@ class Model:
 		h_conv1 = tf.identity(h_conv1, name="h_conv_1")
 		
 		# pooling
-		h_pool_1 = tf.nn.max_pool(h_conv1_flat, ksize=[1,self.pool_rows, self.pool_cols,1],
+		h_pool_1 = tf.nn.max_pool(h_conv1, ksize=[1,self.pool_rows, self.pool_cols,1],
 									strides=[1,self.pool_stride_rows, self.pool_stride_cols,1], padding='Valid')
 
 		h_conv1_rows = (self.num_freq - self.filter_row + 1)
 		h_conv1_cols = (self.num_frames - self.filter_col + 1)
 		h_pool1_out_rows = int(h_conv1_rows / self.pool_rows)
 		h_pool1_out_cols = int(h_conv1_cols / self.pool_cols)
+
+		print("h_conv1_rows %g"%(h_conv1_rows))
+		print("h_conv1_cols %g"%(h_conv1_cols))
+		print("h_pool1_out_rows %g"%(h_pool1_out_rows))
+		print("h_pool1_out_cols %g"%(h_pool1_out_cols))
 
 		# flatten out the output from pooling
 		h_pool1_flat = tf.reshape(h_pool_1, h_pool1_out_rows * h_pool1_out_cols * self.k1)
@@ -595,7 +600,7 @@ print("Epoch number lists: %s"%(str(epoch_number_lists)))
 bestValues = [min(curList) for curList in val_err_lists]
 print("Best Values: %s"%str(bestValues))
 # plotting
-trainingPlotTitles = ['Single Layer CNN with %gx%g kernels and k1=%g, LR=%f'%(filterRows[i], filterCols[i], k1s[i], learningRates[i]) for i in range(len(filterRows))]
+trainingPlotTitles = ['Single Layer CNN + pooling with %gx%g kernels, k1=%g, pool shape: (%g, %g), pool steps: (%g, %g) LR=%f'%(filterRows[i], filterCols[i], k1s[i], poolRows[i], poolCols[i], poolStepRows[i], poolStepCols[i], learningRates[i]) for i in range(len(filterRows))]
 trainingPlotTitles.append('Exp 3k, Validation Cross-Entropy Cost vs. Epoch')
 trainingPlotFiles = ['exp3k_training_%gx%g_k1=%g_LR=%f_%gEpochs.png'%(filterRows[i], filterCols[i], k1s[i], learningRates[i], numEpochs) for i in range(len(filterRows))]
 trainingPlotFiles.append('exp3k_validationCurves_%gEpochs'%(numEpochs))
