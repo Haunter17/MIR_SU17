@@ -239,6 +239,9 @@ class Model:
 		Debugging info is written to debug.txt (can add params to have more places to write out
 			to)
 		'''
+
+		print("Training with dropout, keep prob = %f"%(trainingKeepProb))
+
 		evaluationKeepProb = 1.0
 
 		# Starting an interactive session and initializing the parameters
@@ -518,11 +521,15 @@ try:
 	# read in dropout prob
 	keepProbsString = sys.argv[5]
 	keepProbsIn = map(float, keepProbsString.strip('[]').split(','))
+	
+	# read in learning rates
+	learningRatesString = sys.argv[6]
+	learningRatesIn = map(float, learningRatesString.strip('[]').split(','))
 
 	# read in the number of epochs
-	numEpochs = int(sys.argv[6])
+	numEpochs = int(sys.argv[7])
 
-	finalPlotName = sys.argv[7]
+	finalPlotName = sys.argv[8]
 except Exception, e:
   print('-- {}'.format(e))
 
@@ -537,7 +544,7 @@ filterRows = filterRowsIn
 filterCols = filterColsIn
 k1s = k1sIn
 numHiddenUnitsOne = numHiddenUnitsOneIn
-learningRates = [0.0001] * len(filterRows)
+learningRates = learningRatesIn
 keepProbs = keepProbsIn
 
 # set training parameters
