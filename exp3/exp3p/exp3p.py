@@ -549,7 +549,7 @@ keepProbs = keepProbsIn
 
 # set training parameters
 batchSize = 1000
-print_freq = 10
+print_freq = 5
 
 # make lists to store data
 train_acc_lists = []
