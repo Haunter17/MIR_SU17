@@ -1,0 +1,12 @@
+#!/bin/bash
+#SBATCH --job-name="exp3p800Epochs"
+#SBATCH --output="exp3l_1_VaryHeight_800Epochs.out"
+#SBATCH -p GPU-shared --gres=gpu:k80:1
+#SBATCH -N 1
+#SBATCH --export=ALL
+#SBATCH -t 30:00:00
+
+module load tensorflow/1.1.0
+source $TENSORFLOW_ENV/bin/activate
+# the parameters are the different filter widths to try
+python exp3p.py [1,1,1,1] [16,16,16,16] [39,39,39,39] [100,100,100,100] [0.3,0.5,0.7,1.0] [0.0001,0.0001,0.0001,0.0001] 800 exp3p_VaryDropoutRate
