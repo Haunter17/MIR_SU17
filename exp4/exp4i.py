@@ -138,7 +138,7 @@ saver = tf.train.Saver(varsave_list)
 save_path = '4imodel_{}+{}.ckpt'.format(num_layers, fac)
 opt_val_err = np.inf
 opt_epoch = -1
-earlystop_counter = 0
+step_counter = 0
 max_counter = 100
 
 print('==> Training the full network...')
