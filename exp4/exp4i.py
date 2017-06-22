@@ -7,20 +7,23 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import sys
 
-# usage: python exp4i.py 0.5 2 1
+# usage: python exp4i.py 0.5 2 1 1
 # system arg
 num_layers = 2
 fac = 0.5
+SMALL_FLAG = 1
 FAST_FLAG = 1
 try:
 	fac = float(sys.argv[1])
 	num_layers = int(sys.argv[2])
 	assert(num_layers >= 2 and num_layers <= 4)
-	FAST_FLAG = int(sys.argv[3])
+	SMALL_FLAG = int(sys.argv[3])
+	FAST_FLAG = int(sys.argv[4])
 except Exception, e:
 	print('-- {}'.format(e))
 print('-- Decreasing factor = {}'.format(fac))
 print('-- Number of layers = {}'.format(num_layers))
+print('-- SMALL FLAG: {}'.format(SMALL_FLAG))
 print('-- FAST FLAG: {}'.format(FAST_FLAG))
 
 
@@ -46,7 +49,7 @@ def batch_nm(x, eps=1e-5):
 # ==============================================
 print('==> Experiment 4i: Early Stopping...')
 filepath = '/pylon2/ci560sp/haunter/exp3_taylorswift_d15_1s_C1C8.mat'
-if FAST_FLAG:
+if SMALL_FLAG:
 	filepath = '/pylon2/ci560sp/haunter/exp3_small.mat'
 print('==> Loading data from {}...'.format(filepath))
 # benchmark
@@ -85,7 +88,7 @@ print('-- Layer sizes = {}'.format(size_list))
 batch_size = 1000
 
 num_epochs = 500
-print_freq = 10
+print_freq = 1
 if FAST_FLAG:
 	num_epochs = 5
 	print_freq = 1
