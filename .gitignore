@@ -6,6 +6,8 @@
 *.list
 *.png
 *.out
+*.err
+*.script
 *.batch
 *.pyc
 *.sh
