@@ -161,7 +161,7 @@ val_err_list = []
 # saver setup
 varsave_list = W_ae_list + b_ae_list + [W_sm, b_sm]
 saver = tf.train.Saver(varsave_list)
-save_path = './4imodel_{}+{}.ckpt'.format(num_layers, fac)
+save_path = './4imodel_{}_{}_bn{}.ckpt'.format(fac, num_layers, BN_FLAG)
 opt_val_err = np.inf
 opt_epoch = -1
 step_counter = 0
