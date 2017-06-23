@@ -67,7 +67,7 @@ num_frames = int(total_features / num_freq)
 max_iter = 300
 print_freq = 5
 if FAST_FLAG:
-    max_iter = 10
+    max_iter = 5
     print_freq = 1
 
 batch_size = 1000
@@ -198,10 +198,10 @@ with tf.Session() as sess:
     # ==============================================
     saver.restore(sess, save_path)
     print('==> Model restored to epoch {}'.format(opt_epoch))
-    train_acc = accuracy.eval(feed_dict={x:X_train, y_: y_train, keep_prob: 1.0})
-    val_acc = accuracy.eval(feed_dict={x: X_val, y_: y_val, keep_prob: 1.0})
-    train_err = cross_entropy.eval(feed_dict={x: X_train, y_: y_train, keep_prob: 1.0})
-    val_err = cross_entropy.eval(feed_dict={x: X_val, y_: y_val, keep_prob: 1.0})
+    train_acc = accuracy.eval(feed_dict={x:X_train, y: y_train})
+    val_acc = accuracy.eval(feed_dict={x: X_val, y: y_val})
+    train_err = cross_entropy.eval(feed_dict={x: X_train, y: y_train})
+    val_err = cross_entropy.eval(feed_dict={x: X_val, y: y_val})
     print('-- Training accuracy: {:.4f}'.format(train_acc))
     print('-- Validation accuracy: {:.4f}'.format(val_acc))
     print('-- Training error: {:.4E}'.format(train_err))
