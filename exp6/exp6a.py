@@ -138,7 +138,7 @@ val_err_list = []
 # saver setup
 varsave_list = [weights['out'], biases['out']]
 saver = tf.train.Saver(varsave_list)
-save_path = './6amodel_{}.ckpt'.format(n_hidden)
+save_path = './out/6amodel_{}.ckpt'.format(n_hidden)
 opt_val_err = np.inf
 opt_epoch = -1
 step_counter = 0
@@ -226,7 +226,7 @@ plt.xlabel('Number of epochs')
 plt.ylabel('Cross-Entropy Error')
 plt.title('Error vs Number of Epochs with {} Hidden Units'.format(n_hidden))
 plt.legend(loc='best')
-plt.savefig('exp6a_{}.png'.format(n_hidden), format='png')
+plt.savefig('./out/exp6a_{}.png'.format(n_hidden), format='png')
 plt.close()
 
 print('==> Finished!')
