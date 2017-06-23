@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name="exp3p800Epochs"
-#SBATCH --output="exp3l_1_VaryHeight_800Epochs.out"
+#SBATCH --output="exp3p_1_VaryHeight_800Epochs.out"
 #SBATCH -p GPU-shared --gres=gpu:k80:1
 #SBATCH -N 1
 #SBATCH --export=ALL
