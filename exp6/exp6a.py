@@ -105,7 +105,10 @@ def RNN(x, weights, biases):
     # Required shape: 'n_steps' tensors list of shape (batch_size, n_input)
 
     # Unstack to get a list of 'n_steps' tensors of shape (batch_size, n_input)
-    x = tf.unstack(x, n_steps, 1)
+    if not SYS_FLAG:
+        x = tf.unstack(x, n_steps, 1)
+    else:
+        x = tf.reshape(x, [n_steps, -1, n_input])
 
     # Define a lstm cell with tensorflow
     lstm_cell = rnn.BasicLSTMCell(n_hidden, forget_bias=1.0)
