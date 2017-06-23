@@ -193,21 +193,19 @@ with tf.Session() as sess:
     t_end = time.time()
     print('--Time elapsed for training: {t:.2f} \
         seconds'.format(t = t_end - t_start))
-
-# ==============================================
-# Restore model & Evaluations
-# ==============================================
-saver.restore(sess, save_path)
-print('==> Model restored to epoch {}'.format(opt_epoch))
-
-train_acc = accuracy.eval(feed_dict={x:X_train, y_: y_train, keep_prob: 1.0})
-val_acc = accuracy.eval(feed_dict={x: X_val, y_: y_val, keep_prob: 1.0})
-train_err = cross_entropy.eval(feed_dict={x: X_train, y_: y_train, keep_prob: 1.0})
-val_err = cross_entropy.eval(feed_dict={x: X_val, y_: y_val, keep_prob: 1.0})
-print('-- Training accuracy: {:.4f}'.format(train_acc))
-print('-- Validation accuracy: {:.4f}'.format(val_acc))
-print('-- Training error: {:.4E}'.format(train_err))
-print('-- Validation error: {:.4E}'.format(val_err))
+    # ==============================================
+    # Restore model & Evaluations
+    # ==============================================
+    saver.restore(sess, save_path)
+    print('==> Model restored to epoch {}'.format(opt_epoch))
+    train_acc = accuracy.eval(feed_dict={x:X_train, y_: y_train, keep_prob: 1.0})
+    val_acc = accuracy.eval(feed_dict={x: X_val, y_: y_val, keep_prob: 1.0})
+    train_err = cross_entropy.eval(feed_dict={x: X_train, y_: y_train, keep_prob: 1.0})
+    val_err = cross_entropy.eval(feed_dict={x: X_val, y_: y_val, keep_prob: 1.0})
+    print('-- Training accuracy: {:.4f}'.format(train_acc))
+    print('-- Validation accuracy: {:.4f}'.format(val_acc))
+    print('-- Training error: {:.4E}'.format(train_err))
+    print('-- Validation error: {:.4E}'.format(val_err))
 
 print('-- Training accuracy --')
 print([float('{:.4f}'.format(x)) for x in train_acc_list])
