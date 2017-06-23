@@ -16,9 +16,9 @@ FAST_FLAG = 1
 SYS_FLAG = 0 # 0 for bridges, 1 for supermic
 try:
     n_hidden = int(sys.argv[1])
-    SMALL_FLAG = int(sys.argv[3])
-    FAST_FLAG = int(sys.argv[4])
-    SYS_FLAG = int(sys.argv[6])
+    SMALL_FLAG = int(sys.argv[2])
+    FAST_FLAG = int(sys.argv[3])
+    SYS_FLAG = int(sys.argv[4])
 except Exception, e:
     print('-- {}'.format(e))
 
