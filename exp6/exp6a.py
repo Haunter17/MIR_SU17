@@ -125,6 +125,15 @@ accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 # Initializing the variables
 init = tf.global_variables_initializer()
 
+# ==============================================
+#               RNN training
+# ==============================================
+# Launch the graph
+sess = tf.InteractiveSession()
+sess.run(init)
+y_train = sess.run(y_train_OHEnc)[:, 0, :]
+y_val = sess.run(y_val_OHEnc)[:, 0, :]
+
 # evaluation metrics
 train_acc_list = []
 val_acc_list = []
@@ -140,68 +149,59 @@ opt_epoch = -1
 step_counter = 0
 max_counter = 50
 
+print('==> Training the full network...')
+t_start = time.time()
+# Keep training until reach max iterations
+for epoch in range(max_iter):
+    for i in range(0, num_training_vec, batch_size):
+        end_ind = min(i + batch_size, num_training_vec)
+        batch_x = X_train[i : end_ind]
+        batch_y = y_train[i : end_ind]
+        # Reshape data to get 28 seq of 28 elements
+        batch_x = batch_x.reshape((-1, n_steps, n_input))
+        # Run optimization op (backprop)
+        sess.run(optimizer, feed_dict={x: batch_x, y: batch_y})
+    if (epoch + 1) % print_freq == 0:
+        train_acc = accuracy.eval(feed_dict={x: batch_x,\
+         y: batch_y})
+        train_acc_list.append(train_acc)
+        val_acc = accuracy.eval(feed_dict={x: X_val.reshape((-1, n_steps, n_input)),\
+         y: y_val})
+        val_acc_list.append(val_acc)
+        train_err = cost.eval(feed_dict={x: batch_x,\
+         y: batch_y})
+        train_err_list.append(train_err)
+        val_err = cost.eval(feed_dict={x: X_val.reshape((-1, n_steps, n_input)),\
+         y: y_val})
+        val_err_list.append(val_err)      
+        print("-- epoch: %d, training error %g, validation error %g"%(epoch + 1, train_err, val_err))
+        # save screenshot of the model
+        if val_err < opt_val_err:
+            step_counter = 0    
+            saver.save(sess, save_path)
+            print('==> New optimal validation error found. Model saved.')
+            opt_val_err, opt_epoch = val_err, epoch + 1
+    if step_counter > max_counter:
+        print('==> Step counter exceeds maximum value. Stop training at epoch {}.'.format(epoch + 1))
+        break
+    step_counter += 1      
+        
+t_end = time.time()
+print('--Time elapsed for training: {t:.2f} \
+    seconds'.format(t = t_end - t_start))
 # ==============================================
-#               RNN training
+# Restore model & Evaluations
 # ==============================================
-# Launch the graph
-with tf.InteractiveSession() as sess:
-    sess.run(init)
-    y_train = sess.run(y_train_OHEnc)[:, 0, :]
-    y_val = sess.run(y_val_OHEnc)[:, 0, :]
-
-    print('==> Training the full network...')
-    t_start = time.time()
-    # Keep training until reach max iterations
-    for epoch in range(max_iter):
-        for i in range(0, num_training_vec, batch_size):
-            end_ind = min(i + batch_size, num_training_vec)
-            batch_x = X_train[i : end_ind]
-            batch_y = y_train[i : end_ind]
-            # Reshape data to get 28 seq of 28 elements
-            batch_x = batch_x.reshape((-1, n_steps, n_input))
-            # Run optimization op (backprop)
-            sess.run(optimizer, feed_dict={x: batch_x, y: batch_y})
-        if (epoch + 1) % print_freq == 0:
-            train_acc = accuracy.eval(feed_dict={x: batch_x,\
-             y: batch_y})
-            train_acc_list.append(train_acc)
-            val_acc = accuracy.eval(feed_dict={x: X_val.reshape((-1, n_steps, n_input)),\
-             y: y_val})
-            val_acc_list.append(val_acc)
-            train_err = cost.eval(feed_dict={x: batch_x,\
-             y: batch_y})
-            train_err_list.append(train_err)
-            val_err = cost.eval(feed_dict={x: X_val.reshape((-1, n_steps, n_input)),\
-             y: y_val})
-            val_err_list.append(val_err)      
-            print("-- epoch: %d, training error %g, validation error %g"%(epoch + 1, train_err, val_err))
-            # save screenshot of the model
-            if val_err < opt_val_err:
-                step_counter = 0    
-                saver.save(sess, save_path)
-                print('==> New optimal validation error found. Model saved.')
-                opt_val_err, opt_epoch = val_err, epoch + 1
-        if step_counter > max_counter:
-            print('==> Step counter exceeds maximum value. Stop training at epoch {}.'.format(epoch + 1))
-            break
-        step_counter += 1      
-            
-    t_end = time.time()
-    print('--Time elapsed for training: {t:.2f} \
-        seconds'.format(t = t_end - t_start))
-    # ==============================================
-    # Restore model & Evaluations
-    # ==============================================
-    saver.restore(sess, save_path)
-    print('==> Model restored to epoch {}'.format(opt_epoch))
-    train_acc = accuracy.eval(feed_dict={x:X_train.reshape((-1, n_steps, n_input)), y: y_train})
-    val_acc = accuracy.eval(feed_dict={x: X_val.reshape((-1, n_steps, n_input)), y: y_val})
-    train_err = cost.eval(feed_dict={x: X_train.reshape((-1, n_steps, n_input)), y: y_train})
-    val_err = cost.eval(feed_dict={x: X_val.reshape((-1, n_steps, n_input)), y: y_val})
-    print('-- Training accuracy: {:.4f}'.format(train_acc))
-    print('-- Validation accuracy: {:.4f}'.format(val_acc))
-    print('-- Training error: {:.4E}'.format(train_err))
-    print('-- Validation error: {:.4E}'.format(val_err))
+saver.restore(sess, save_path)
+print('==> Model restored to epoch {}'.format(opt_epoch))
+train_acc = accuracy.eval(feed_dict={x:X_train.reshape((-1, n_steps, n_input)), y: y_train})
+val_acc = accuracy.eval(feed_dict={x: X_val.reshape((-1, n_steps, n_input)), y: y_val})
+train_err = cost.eval(feed_dict={x: X_train.reshape((-1, n_steps, n_input)), y: y_train})
+val_err = cost.eval(feed_dict={x: X_val.reshape((-1, n_steps, n_input)), y: y_val})
+print('-- Training accuracy: {:.4f}'.format(train_acc))
+print('-- Validation accuracy: {:.4f}'.format(val_acc))
+print('-- Training error: {:.4E}'.format(train_err))
+print('-- Validation error: {:.4E}'.format(val_err))    
 
 print('-- Training accuracy --')
 print([float('{:.4f}'.format(x)) for x in train_acc_list])
