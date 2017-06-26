@@ -91,12 +91,8 @@ x = tf.placeholder("float", [None, n_steps, n_input])
 y = tf.placeholder("float", [None, n_classes])
 
 # Define weights
-weights = {
-    'out': tf.Variable(tf.random_normal([n_hidden, n_classes]))
-}
-biases = {
-    'out': tf.Variable(tf.random_normal([n_classes]))
-}
+weights = tf.Variable(tf.random_normal([n_hidden, n_classes]))
+biases = tf.Variable(tf.random_normal([n_classes]))
 
 def RNN(x, weights, biases):
 
@@ -114,7 +110,7 @@ def RNN(x, weights, biases):
     outputs, states = rnn.static_rnn(lstm_cell, x, dtype=tf.float32)
 
     # Linear activation, using rnn inner loop last output
-    return tf.matmul(outputs[-1], weights['out']) + biases['out']
+    return tf.matmul(outputs[-1], weights) + biases
 
 pred = RNN(x, weights, biases)
 
@@ -136,7 +132,7 @@ train_err_list = []
 val_err_list = []
 
 # saver setup
-varsave_list = [weights['out'], biases['out']]
+varsave_list = [weights, biases]
 saver = tf.train.Saver(varsave_list)
 save_path = './out/6amodel_{}.ckpt'.format(n_hidden)
 opt_val_err = np.inf
@@ -148,7 +144,7 @@ max_counter = 50
 #               RNN training
 # ==============================================
 # Launch the graph
-with tf.Session() as sess:
+with tf.InteractiveSession() as sess:
     sess.run(init)
     y_train = sess.run(y_train_OHEnc)[:, 0, :]
     y_val = sess.run(y_val_OHEnc)[:, 0, :]
