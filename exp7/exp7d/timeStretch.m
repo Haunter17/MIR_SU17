@@ -1,7 +1,7 @@
 WindowLen = 256;
 AnalysisLen = 64;
-SynthesisLen = 64;
-saveFileName = '../same.wav';
+SynthesisLen = 61;
+saveFileName = 'comp5.wav';
 Hopratio = SynthesisLen/AnalysisLen;
 
 reader = dsp.AudioFileReader('../orig.wav', ...
