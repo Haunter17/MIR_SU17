@@ -58,5 +58,5 @@ end
 
 %% evaluate representations
 pctList = evaluateRepresentation(representations, noisyNameList, rateList);
-reportfile = strcat(outdir, 'hashprint-', num2str(param.m), datestr(now, 'HH-MM-SS-FFF'), '.out');
+reportfile = strcat(outdir, 'hashprint-', num2str(param.m), datestr(now, '_HH-MM-SS-FFF'), '.out');
 generateEvalReport(noisyNameList, pctList, reportfile);
