@@ -44,6 +44,7 @@ if isfield(parameter,'precomputeCQT')==0
     parameter.precomputeCQT = 0;
 end
 
+disp(['-- Number of context frames: ', num2str(parameter.m)]);
 %% Compute accumulated covariance matrix
 fid = fopen(filelist);
 curFileList = '';

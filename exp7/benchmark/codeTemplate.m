@@ -10,13 +10,14 @@ if (isempty(curPool))
     pool = parpool(ceil(numWorkers * 0.75));
 end
 
-%% precompute CQT on filelist
+%% precompute CQT on reflist
 artist = 'taylorswift';
-filelist = strcat(artist, '_ref.list');
+reflist = strcat(artist, '_ref.list');
+noisylist = strcat(artist, '_noisy.list');
 outdir = strcat(artist, '_out/');
 mkdir(outdir)
 
-nameList = {'original', '90% speed', '95% speed', '105% speed', '110% speed',...
+noisyNameList = {'original', '90% speed', '95% speed', '105% speed', '110% speed',...
     'Amplitude scaling -15dB', 'Amplitude scaling -10dB', 'Amplitude scaling -5dB', ...
     'Amplitude scaling 5dB', 'Amplitude scaling 10dB', 'Amplitude scaling 15dB', ...
     'Pitch shift -1', 'Pitch shift -0.5', 'Pitch shift 0.5', 'Pitch shift 1', ...
@@ -31,7 +32,7 @@ nameList = {'original', '90% speed', '95% speed', '105% speed', '110% speed',...
     'AWGN: SNR = 5dB', 'AWGN: SNR = 10dB', 'AWGN: SNR = 15dB', 'AWGN: SNR = 100dB'
     };
 
-rateList = ones(length(nameList));
+rateList = ones(length(noisyNameList));
 rateList(2) = 0.9;
 rateList(3) = 0.95;
 rateList(4) = 1.05;
@@ -39,21 +40,21 @@ rateList(5) = 1.1;
 
 param.precomputeCQT = 1;
 param.precomputeCQTdir = outdir;
-computeQSpecBatch(filelist,outdir);
+computeQSpecBatch(reflist,outdir);
+computeQSpecBatch(noisylist, outdir);
 
 %% learn models and generate representations
 param.m = 20;
-disp(['Number of context frames: ', num2str(param.m)]);
 modelFile = strcat(outdir, 'model.mat');
 
 % switch for different representations
 switch REPFLAG
     case 0
-        learnHashprintModel(filelist,modelFile,param);
-        representations = getHashprintRepresentation(modelFile);
+        learnHashprintModel(reflist, modelFile, param);
+        representations = getHashprintRepresentation(modelFile, noisylist);
     otherwise
         pass
 end
 
 %% evaluate representations
-evaluateRepresentation(representations, nameList, rateList);
+evaluateRepresentation(representations, noisyNameList, rateList);
