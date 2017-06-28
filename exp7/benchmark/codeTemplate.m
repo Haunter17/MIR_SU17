@@ -42,8 +42,8 @@ param.precomputeCQTdir = outdir;
 computeQSpecBatch(filelist,outdir);
 
 %% learn models and generate representations
-param.precomputeCQT = 1;
-param.precomputeCQTdir = outdir;
+param.m = 20;
+disp(['Number of context frames: ', num2str(param.m)]);
 modelFile = strcat(outdir, 'model.mat');
 
 % switch for different representations
