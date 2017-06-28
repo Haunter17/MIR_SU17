@@ -17,7 +17,7 @@ noisylist = strcat(artist, '_noisy.list');
 outdir = strcat(artist, '_out/');
 mkdir(outdir)
 
-noisyNameList = {'original', '90% speed', '95% speed', '105% speed', '110% speed',...
+noisyNameList = string({'original', '90% speed', '95% speed', '105% speed', '110% speed',...
     'Amplitude scaling -15dB', 'Amplitude scaling -10dB', 'Amplitude scaling -5dB', ...
     'Amplitude scaling 5dB', 'Amplitude scaling 10dB', 'Amplitude scaling 15dB', ...
     'Pitch shift -1', 'Pitch shift -0.5', 'Pitch shift 0.5', 'Pitch shift 1', ...
@@ -30,7 +30,7 @@ noisyNameList = {'original', '90% speed', '95% speed', '105% speed', '110% speed
     'Restaurant: SNR = 15dB', 'Restaurant: SNR = 100dB', ...
     'AWGN: SNR = -15dB', 'AWGN: SNR = -10dB', 'AWGN: SNR = -5dB', 'AWGN: SNR = 0dB', ...
     'AWGN: SNR = 5dB', 'AWGN: SNR = 10dB', 'AWGN: SNR = 15dB', 'AWGN: SNR = 100dB'
-    };
+    });
 
 rateList = ones(length(noisyNameList));
 rateList(2) = 0.9;
@@ -57,4 +57,6 @@ switch REPFLAG
 end
 
 %% evaluate representations
-evaluateRepresentation(representations, noisyNameList, rateList);
+pctList = evaluateRepresentation(representations, noisyNameList, rateList);
+reportfile = strcat(outdir, 'hashprint-', num2str(param.m), datestr(now, 'HH-MM-SS-FFF'), '.out');
+generateEvalReport(noisyNameList, pctList, reportfile);
