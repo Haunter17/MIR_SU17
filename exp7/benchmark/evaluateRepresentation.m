@@ -11,7 +11,7 @@ function [pctList] = evaluateRepresentation( representations, nameList, rateList
 %
 
 orig = representations{1};
-pctList = ones(length(representations));
+pctList = ones(1, length(representations));
 for i = 2 : length(representations)
     rep = representations{i};
     pct = compareHashprints(orig, rep, rateList(i));

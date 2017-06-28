@@ -32,7 +32,7 @@ noisyNameList = {'original', '90% speed', '95% speed', '105% speed', '110% speed
     'AWGN: SNR = 5dB', 'AWGN: SNR = 10dB', 'AWGN: SNR = 15dB', 'AWGN: SNR = 100dB'
     };
 
-rateList = ones(length(noisyNameList));
+rateList = ones(1, length(noisyNameList));
 rateList(2) = 0.9;
 rateList(3) = 0.95;
 rateList(4) = 1.05;
