@@ -46,26 +46,32 @@ end
 
 %% Compute accumulated covariance matrix
 fid = fopen(filelist);
+curFileList = '';
+fileIndex = 1;
 curfile = fgetl(fid);
-count = 0;
-covAccum = 0; % dimension is unknown, so initialize as a single value
 while ischar(curfile)
-    tic;
-    disp(['Computing covariance matrix on #',num2str(count+1),': ',curfile]);
+    curFileList{fileIndex} = curfile;
+    curfile = fgetl(fid);
+    fileIndex = fileIndex + 1;
+end
+
+covAccum = 0; % dimension is unknown, so initialize as a single value
+tic;
+parfor index = 1 : length(curFileList)
+    curfile = curFileList{index};
+    disp(['Computing covariance matrix on #',num2str(index),': ',curfile]);
     [cov,nsamples] = getTDECov(curfile,parameter);
     if nsamples > 1
         covAccum = covAccum + cov;
-        count = count + 1;
     end
-    curfile = fgetl(fid);
-    toc
 end
+toc
 fclose(fid);
 
 %% Compute eigenvectors
 tic;
 disp(['Computing eigenvectors on accumulated covariance matrix ... ']);
-avgCovMatrix = covAccum/count;
+avgCovMatrix = covAccum/length(curFileList);
 [eigvecs,eigvals] = eig(avgCovMatrix);
 eigvals = diag(eigvals);
 eigvecs = fliplr(eigvecs); % order from highest eigenvalue to lowest

@@ -1,6 +1,15 @@
 addpath('../../cqt/');
 REPFLAG = 0; % 0 for baseline system
 
+%% Parallel computing setup
+curPool = gcp('nocreate'); 
+if (isempty(curPool))
+    myCluster = parcluster('local');
+    numWorkers = myCluster.NumWorkers;
+    % create a parallel pool with the number of workers in the cluster`
+    pool = parpool(ceil(numWorkers * 0.75));
+end
+
 %% precompute CQT on filelist
 artist = 'taylorswift';
 filelist = strcat(artist, '_ref.list');

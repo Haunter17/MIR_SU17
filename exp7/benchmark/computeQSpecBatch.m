@@ -20,18 +20,34 @@ if nargin < 3
     param = []; % will use default settings
 end
 
+
 fid = fopen(filelist);
+curFileList = '';
+fileIndex = 1;
+
 curfile = fgetl(fid);
 while ischar(curfile)
+    curFileList{fileIndex} = curfile;
+    curfile = fgetl(fid);
+    fileIndex = fileIndex + 1;
+end
+
+parfor index = 1:length(curFileList)
+    curfile = curFileList{index};
     [pathstr,name,ext] = fileparts(curfile);
     disp(['Computing CQT on ',name]);
     savefile = strcat(featDir,'/',name,'.mat');
     if exist(savefile,'file') ~= 2
         Q = computeQSpec(curfile,param);
-        save(savefile,'Q');
+        parSave(savefile, Q);
     end
-    curfile = fgetl(fid);
 end
+
 fclose(fid);
 
 end
+
+function parSave(fname, Q)
+save(fname, 'Q');
+end
+
