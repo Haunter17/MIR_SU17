@@ -1,5 +1,5 @@
 addpath('../../cqt/');
-addpath('../exp
+addpath('../exp7d/');
 REPFLAG = 1; % 1 for baseline system
 repNameList = {'hashprint', 'randomized'};
 %% Parallel computing setup
@@ -54,6 +54,10 @@ switch REPFLAG
         param.m = 20;
         learnHashprintModel(reflist, modelFile, param);
         representations = getHashprintRepresentation(modelFile, noisylist);
+    case 2
+        param.numFiltersList = [256];
+        RandomProjectionModelInit(reflist, modelFile, param);
+        representations = RandomProjectionModelGetRep(modelFile, 0, noisylist);
     otherwise
         pass
 end

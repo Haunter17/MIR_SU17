@@ -8,7 +8,7 @@ raw_value1 = []
 raw_value2 = []
 try:
 	raw_value1 = sys.argv[1]
-	raw_value2 = sys.argv[1]
+	raw_value2 = sys.argv[2]
 except e:
 	raise e
 
