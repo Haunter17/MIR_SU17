@@ -6,7 +6,8 @@ fid = fopen(savePath, 'w');
 for index = 2 : length(nameList)
     fprintf(fid, '--%s : %f \n', nameList{index}, pctList(index));
     for row = 1 : size(corrList, 1)
-        fprintf(fid, '-> %d : %f \n', row, corrList(row, index));
+        fprintf(fid, '-> Bit %d : fraction of bits changed %f \n', ...
+            row, corrList(row, index));
     end
     fprintf(fid, '%s \n', '========================================');
 end
