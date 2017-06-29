@@ -1,4 +1,4 @@
-function [pctList] = evaluateRepresentation( representations, nameList, rateList)
+function [pctList, corrList] = evaluateRepresentation( representations, nameList, rateList)
 %
 % representations - a cell of logical matrix (representations) of each audio file
 % nameList - a list of strings representing the name of each audio file
@@ -12,8 +12,10 @@ function [pctList] = evaluateRepresentation( representations, nameList, rateList
 
 orig = representations{1};
 pctList = ones(1, length(representations));
+corrList = ones(size(orig, 1), length(representations));
 for i = 2 : length(representations)
     rep = representations{i};
     pct = compareHashprints(orig, rep, rateList(i));
     pctList(i) = pct;
+    corrList(:, i) = correlationEval(rep);
 end

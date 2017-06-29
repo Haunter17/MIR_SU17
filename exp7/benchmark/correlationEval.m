@@ -8,10 +8,10 @@ clear rep_pad_back rep_pad_front
 diff = double(diff(:, 2 : size(diff, 2) - 1));
 corr_pct = sum(diff, 2) / size(diff, 2);
 
-for index = 1 : size(corr_pct, 1)
-    disp(['-- Bit #', num2str(index), ' correlation statistics: ',...
-        num2str(corr_pct(index))]);
-end
+% for index = 1 : size(corr_pct, 1)
+%     disp(['-- Bit #', num2str(index), ' correlation statistics: ',...
+%         num2str(corr_pct(index))]);
+% end
 
 end
 
