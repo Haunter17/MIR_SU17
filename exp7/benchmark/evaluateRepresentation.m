@@ -16,5 +16,4 @@ for i = 2 : length(representations)
     rep = representations{i};
     pct = compareHashprints(orig, rep, rateList(i));
     pctList(i) = pct;
-    name = nameList{i};
 end
