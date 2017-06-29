@@ -12,7 +12,7 @@ function [pctList, corrList] = evaluateRepresentation( representations, nameList
 
 orig = representations{1};
 pctList = ones(1, length(representations));
-corrList = ones(size(orig, 1), length(representations));
+corrList = zeros(size(orig, 1), length(representations));
 for i = 2 : length(representations)
     rep = representations{i};
     pct = compareHashprints(orig, rep, rateList(i));
