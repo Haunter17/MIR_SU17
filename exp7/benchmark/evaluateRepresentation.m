@@ -11,11 +11,13 @@ function [pctList, corrList] = evaluateRepresentation( representations, nameList
 %
 
 orig = representations{1};
+%% correlation analysis
+corrList = correlationEval(orig);
+
+%% comparison analysis
 pctList = ones(1, length(representations));
-corrList = zeros(size(orig, 1), length(representations));
 for i = 2 : length(representations)
     rep = representations{i};
     pct = compareHashprints(orig, rep, rateList(i));
-    pctList(i) = pct;
-    corrList(:, i) = correlationEval(rep);
+    pctList(i) = pct; 
 end
