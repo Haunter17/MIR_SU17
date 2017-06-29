@@ -12,6 +12,6 @@ for index = 2 : length(nameList)
 end
 
 fprintf(fid, '%s \n', 'matching percentage:');
-fprintf(fid, '%f ', pctList);
+fprintf(fid, '%f, ', pctList);
 fprintf(fid, '%s \n', '');
 fclose(fid);
