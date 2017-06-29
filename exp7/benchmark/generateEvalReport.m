@@ -6,13 +6,12 @@ fid = fopen(savePath, 'w');
 for index = 1 : length(nameList)
     fprintf(fid, '--%s : %f \n', nameList{index}, pctList(index));
     for row = 1 : size(corrList, 1)
-        fprintf(fid, '%s%d %s : %f \n', 'Bit #', num2str(row), ...
-            'fraction of bits changed', corrList(row, index));
+        fprintf(fid, '%s%d %s : %f \n', 'Bit #', num2str(row), 'fraction of bits changed', corrList(row, index));
     end
     fprintf(fid, '%s \n', '========================================');
 end
 
 fprintf(fid, '%s \n', 'matching percentage:');
 fprintf(fid, '%f ', pctList);
-
+fprintf(fid, '%s \n', '');
 fclose(fid);
