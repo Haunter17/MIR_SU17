@@ -1,5 +1,5 @@
 addpath('../../cqt/');
-REPFLAG = 0; % 0 for baseline system
+REPFLAG = 1; % 1 for baseline system
 repNameList = {'hashprint', 'randomized'};
 %% Parallel computing setup
 curPool = gcp('nocreate'); 
@@ -49,7 +49,7 @@ modelFile = strcat(outdir, 'model.mat');
 
 % switch for different representations
 switch REPFLAG
-    case 0
+    case 1
         param.m = 20;
         learnHashprintModel(reflist, modelFile, param);
         representations = getHashprintRepresentation(modelFile, noisylist);
