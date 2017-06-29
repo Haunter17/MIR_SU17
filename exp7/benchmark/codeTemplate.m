@@ -1,6 +1,6 @@
 addpath('../../cqt/');
 REPFLAG = 0; % 0 for baseline system
-
+repNameList = {'hashprint', 'randomized'};
 %% Parallel computing setup
 curPool = gcp('nocreate'); 
 if (isempty(curPool))
@@ -44,12 +44,13 @@ computeQSpecBatch(reflist,outdir);
 computeQSpecBatch(noisylist, outdir);
 
 %% learn models and generate representations
-param.m = 20;
+param.m = -1;
 modelFile = strcat(outdir, 'model.mat');
 
 % switch for different representations
 switch REPFLAG
     case 0
+        param.m = 20;
         learnHashprintModel(reflist, modelFile, param);
         representations = getHashprintRepresentation(modelFile, noisylist);
     otherwise
@@ -57,6 +58,6 @@ switch REPFLAG
 end
 
 %% evaluate representations
-pctList = evaluateRepresentation(representations, noisyNameList, rateList);
-reportfile = strcat(outdir, 'hashprint-', num2str(param.m), datestr(now, '_HH-MM-SS-FFF'), '.out');
-generateEvalReport(noisyNameList, pctList, reportfile);
+[pctList, corrList] = evaluateRepresentation(representations, noisyNameList, rateList);
+reportfile = strcat(outdir, repNameList{REPFLAG}, '-', num2str(param.m), datestr(now, '_HH-MM-SS-FFF'), '.out');
+generateEvalReport(noisyNameList, pctList, corrList, reportfile);
