@@ -1,4 +1,5 @@
 addpath('../../cqt/');
+addpath('../exp
 REPFLAG = 1; % 1 for baseline system
 repNameList = {'hashprint', 'randomized'};
 %% Parallel computing setup
