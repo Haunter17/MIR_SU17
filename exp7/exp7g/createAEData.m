@@ -70,4 +70,6 @@ end
 toc
 fclose(fid);
 
+data = cell2mat(data);
+
 save(savename, 'data', '-v7.3');
