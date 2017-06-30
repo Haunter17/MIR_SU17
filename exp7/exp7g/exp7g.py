@@ -69,6 +69,7 @@ t_start = time.time()
 train_frac = 0.8
 f = h5py.File(filepath)
 X = np.array(f.get('data'))
+t_end = time.time()
 print('--Time elapsed for loading data: {t:.2f} \
 		seconds'.format(t = t_end - t_start))
 del f
@@ -77,7 +78,7 @@ np.random.shuffle(X)
 total_samples, total_features = X.shape
 X_train = X[:int(train_frac * total_samples), :]
 X_val = X[int(train_frac):, :]
-t_end = time.time()
+
 num_training_vec = X_train.shape[0]
 num_val_vec = X_val.shape[0]
 print('-- Number of training samples: {}'.format(num_training_vec))
