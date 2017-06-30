@@ -29,14 +29,15 @@ xLabels = [
 ]
 
 nsuites = 7
-bar_width = 0.1
+bar_width = 0.5 / num_comp
 for i in range(nsuites):
 	plt.subplot(4, 2, i + 1)
 	plt.ylim([0, 1])
 	fac = np.arange(num_comp) - num_comp / 2
 	for j in range(num_comp):
-		pos = np.arange(len(values[j]))
-		plt.bar(pos + fac[j] * bar_width, values[j], align='center', \
+		curr_val = values[j][splitIndex[i]:splitIndex[i + 1]]
+		pos = np.arange(len(curr_val))
+		plt.bar(pos + fac[j] * bar_width, curr_val, align='center', \
 		width=bar_width, alpha=0.5, color=colors[j])
 	plt.xticks(pos, xLabels[i])
 	plt.title(groupName[i])
