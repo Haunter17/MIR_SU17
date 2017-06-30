@@ -1,6 +1,15 @@
 addpath('../../cqt/');
 addpath('../benchmark/');
 
+%% Parallel computing setup
+curPool = gcp('nocreate'); 
+if (isempty(curPool))
+    myCluster = parcluster('local');
+    numWorkers = myCluster.NumWorkers;
+    % create a parallel pool with the number of workers in the cluster`
+    pool = parpool(ceil(numWorkers * 0.75));
+end
+
 %% config
 artist = 'taylorswift';
 reflist = strcat('../benchmark/', artist, '_ref.list');
@@ -43,17 +52,19 @@ end
 
 %% merge data
 windowSize = parameter.m;
-data = [];
+data = {};
 tic;
-for index = 1 : length(curFileList)
+parfor index = 1 : length(curFileList)
     curfile = curFileList{index};
     disp(['Generating data on #',num2str(index),': ',curfile]);
-    Q = computeQSpec(filename,parameter); % struct
+    Q = computeQSpec(curfile,parameter); % struct
     logQ = preprocessQspec(Q);
-    for col = 1 : size(logQ, 2) - windowSize
+    currBlock = [];
+    for col = 1 : parameter.hop : size(logQ, 2) - windowSize
         sample = logQ(:, col : col + windowSize - 1);
-        data.cat(2, sample(:));
+        currBlock = [currBlock sample(:)];
     end
+    data{index} = currBlock;
 end
     
 toc
