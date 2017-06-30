@@ -5,8 +5,8 @@ addpath('../benchmark/');
 artist = 'taylorswift';
 reflist = strcat('../benchmark/', artist, '_ref.list');
 outdir = strcat('../benchmark/', artist, '_out/');
-param.precomputeCQT = 1;
-param.precomputeCQTdir = outdir;
+parameter.precomputeCQT = 1;
+parameter.precomputeCQTdir = outdir;
 savename = strcat(outdir, 'AEdata.mat');
 
 %% param setup
