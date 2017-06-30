@@ -42,7 +42,7 @@ while ischar(curfile)
 end
 
 %% merge data
-windowSize = 20;
+windowSize = parameter.m;
 data = [];
 tic;
 for index = 1 : length(curFileList)
