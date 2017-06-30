@@ -35,6 +35,7 @@ for i in range(nsuites):
 	plt.ylim([0, 1])
 	fac = np.arange(num_comp) - num_comp / 2
 	for j in range(num_comp):
+		pos = np.arange(len(values[j]))
 		plt.bar(pos + fac[j] * bar_width, values[j], align='center', \
 		width=bar_width, alpha=0.5, color=colors[j])
 	plt.xticks(pos, xLabels[i])
