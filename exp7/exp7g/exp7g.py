@@ -136,9 +136,9 @@ for epoch in range(num_epochs):
 		train_step.run(feed_dict={x: train_batch_data})
 	if (epoch + 1) % print_freq == 0:
 		# evaluate metrics
-		train_err = cross_entropy.eval(feed_dict={x: train_batch_data})
+		train_err = error.eval(feed_dict={x: train_batch_data})
 		train_err_list.append(train_err)
-		val_err = cross_entropy.eval(feed_dict={x: X_val})
+		val_err = error.eval(feed_dict={x: X_val})
 		val_err_list.append(val_err)
 		print("-- epoch: %d, training error %g, validation error %g"%(epoch + 1, train_err, val_err))
 		# save screenshot of the model
@@ -161,8 +161,8 @@ print('--Time elapsed for training: {t:.2f} \
 saver.restore(sess, save_path)
 print('==> Model restored to epoch {}'.format(opt_epoch))
 
-train_err = cross_entropy.eval(feed_dict={x: X_train})
-val_err = cross_entropy.eval(feed_dict={x: X_val})
+train_err = error.eval(feed_dict={x: X_train})
+val_err = error.eval(feed_dict={x: X_val})
 print('-- Training error: {:.4E}'.format(train_err))
 print('-- Validation error: {:.4E}'.format(val_err))
 
