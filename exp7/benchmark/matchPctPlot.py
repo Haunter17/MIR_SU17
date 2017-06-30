@@ -1,3 +1,10 @@
+
+'''
+	usage:
+	python3 matchPctPlot.py <#systems> <name list> <list 1> <list 2> ... <list n>
+	Notice that each list has to be in a string format, i.e., '1.0, 0.9, 0.8 ... 0.0'
+'''
+
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
@@ -7,13 +14,14 @@ plt.style.use('ggplot')
 values = []
 try:
 	num_comp = int(sys.argv[1])
+	nameList = sys.argv[2].split(',')
 	for i in range(num_comp):
-		raw_value = sys.argv[i + 2]
+		raw_value = sys.argv[i + 3]
 		values.append([float(x) for x in raw_value.split(',')])
 except e:
 	raise e
 
-colors = ['r', 'g', 'b', 'gold', 'black']
+colors = ['r', 'orange', 'yellow', 'g', 'b']
 splitIndex = [1, 5, 11, 15, 20, 28, 36, 44]
 groupName = ['Stretch/Compress', 'Amplitude', 'Pitch Shift', 'Reverberation', \
 'Crowd Noise', 'Restaurant Noise', 'AWGN']
@@ -30,6 +38,10 @@ xLabels = [
 
 nsuites = 7
 bar_width = 0.5 / num_comp
+fig = plt.figure()
+
+cache = [None for i in range(num_comp)]
+
 for i in range(nsuites):
 	plt.subplot(4, 2, i + 1)
 	plt.ylim([0, 1])
@@ -37,12 +49,13 @@ for i in range(nsuites):
 	for j in range(num_comp):
 		curr_val = values[j][splitIndex[i]:splitIndex[i + 1]]
 		pos = np.arange(len(curr_val))
-		plt.bar(pos + fac[j] * bar_width, curr_val, align='center', \
-		width=bar_width, alpha=0.5, color=colors[j])
+		cache[j] = plt.bar(pos + fac[j] * bar_width, curr_val, align='center', \
+		width=bar_width, alpha=0.7, color=colors[j], label='hhh')
 	plt.xticks(pos, xLabels[i])
 	plt.title(groupName[i])
 	plt.autoscale(tight=True, axis='x')
 
 plt.tight_layout()
+fig.legend(cache, nameList, 'lower right')
 plt.savefig('./taylorswift_out/pct.png', format='png')
 plt.close()
