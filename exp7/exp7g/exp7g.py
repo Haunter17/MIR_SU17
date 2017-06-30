@@ -100,9 +100,7 @@ x = tf.placeholder(tf.float32, [None, total_features])
 
 # autoencoder: x -> a1 -> x
 W_ae = init_weight_variable([total_features, nhidden])
-W_ae = tf.identity(W_ae, name='W_ae')
 b_ae = init_bias_variable([nhidden])
-b_ae = tf.identity(b_ae, name='b_ae')
 a1 = tf.nn.relu(tf.matmul(x, W_ae) + b_ae)
 W_ad = init_bias_variable([nhidden, total_features])
 b_ad = init_bias_variable([total_features])
