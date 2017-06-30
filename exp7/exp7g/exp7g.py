@@ -121,7 +121,7 @@ val_err_list = []
 # saver setup
 varsave_list = [W_ae, b_ae, W_ad, b_ad]
 saver = tf.train.Saver(varsave_list)
-save_path = './7gmodel_{}_bn{}.ckpt'.format(nhidden, BN_FLAG)
+save_path = './out/7gmodel_{}_bn{}.ckpt'.format(nhidden, BN_FLAG)
 opt_val_err = np.inf
 opt_epoch = -1
 step_counter = 0
@@ -160,6 +160,12 @@ print('--Time elapsed for training: {t:.2f} \
 # ==============================================
 saver.restore(sess, save_path)
 print('==> Model restored to epoch {}'.format(opt_epoch))
+
+model_path = './out/7gmodel_{}_bn{}'.format(nhidden, BN_FLAG)
+W, b = sess.run([W_ae, b_ae], feed_dict={x: X_train})
+from scipy.io import savemat
+savemat(model_path, {'W': W, 'b': b})
+print('==> Autoencoder weights saved to {}.mat'.format(model_path))
 
 train_err = error.eval(feed_dict={x: X_train})
 val_err = error.eval(feed_dict={x: X_val})
