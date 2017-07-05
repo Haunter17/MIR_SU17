@@ -116,7 +116,11 @@ if ACTV_STR == 'sigm':
 	h1 = tf.nn.sigmoid(tf.matmul(a1, W_ad + b_ad))
 else:
 	h1 = tf.nn.relu(tf.matmul(a1, W_ad + b_ad))
-error = tf.losses.mean_squared_error(x, h1)
+error = None
+if SYS_FLAG:
+	error = tf.square(x - h1) / tf.constant(x.get_shape().as_list()[0])
+else:
+	error = tf.losses.mean_squared_error(x, h1)
 train_step = tf.train.AdamOptimizer(learning_rate=1e-3).minimize(error)
 
 sess = tf.InteractiveSession()
