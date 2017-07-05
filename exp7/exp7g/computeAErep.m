@@ -15,17 +15,34 @@ end
 if isfield(parameter,'numFeatures')==0
     parameter.numFeatures=size(W,2);
 end
+if isfield(parameter, 'useDelta')==0
+    parameter.delta = 0;
+end
 if isfield(parameter,'deltaDelay')==0
     parameter.deltaDelay=16;
 end
+if isfield(parameter, 'medianThreshold')==0
+    parameter.threshold = 0;
+end
 
-F = zeros(parameter.numFeatures, ceil((size(spec, 2) - parameter.m) / ...
+features = zeros(parameter.numFeatures, ceil((size(spec, 2) - parameter.m) / ...
     parameter.hop));
 for col = 1 : parameter.hop : size(spec, 2) - parameter.m
     X = spec(:, col : col + parameter.m - 1);
     X = X(:)';
-    feature = X * W + b;
-    F(:, ceil(col / parameter.hop)) = feature;    
+    f = X * W + b;
+    features(:, ceil(col / parameter.hop)) = f;    
 end
-F = F > median(F, 2);
+
+F = features;
+if parameter.useDelta
+    deltas = features(:,1:(size(features,2)-parameter.deltaDelay)) - features(:,(1+parameter.deltaDelay):end);
+    F = deltas;
+end
+    
+if parameter.medianThreshold
+    F = F > median(F, 2);
+else
+    F = F > 0;
+end
 end

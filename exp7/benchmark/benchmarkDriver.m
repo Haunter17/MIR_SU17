@@ -67,6 +67,8 @@ switch REPFLAG
     case 3
         param.numFeatures = 64;
         param.m = 20;
+        param.medianThreshold = 0;
+        param.useDelta = 0;
         representations = getAERepresentation(modelFile, noisylist, param);
     otherwise
         pass
