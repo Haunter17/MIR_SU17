@@ -118,10 +118,10 @@ else:
 	h1 = tf.nn.relu(tf.matmul(a1, W_ad + b_ad))
 error = None
 if SYS_FLAG:
-	error = tf.reduce_sum(tf.square(x - h1))
+	error = tf.reduce_mean(tf.square(x - h1))
 else:
 	error = tf.losses.mean_squared_error(x, h1)
-train_step = tf.train.AdamOptimizer(learning_rate=1e-3).minimize(error)
+train_step = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(error)
 
 sess = tf.InteractiveSession()
 if SYS_FLAG:
