@@ -141,6 +141,8 @@ opt_val_err = np.inf
 opt_epoch = -1
 step_counter = 0
 max_counter = 50
+if ACTV_STR == 'sigm':
+	max_counter = 200
 
 print('==> Training the full network...')
 t_start = time.time()
@@ -188,7 +190,7 @@ print('-- Training error: {:.4E}'.format(train_err))
 print('-- Validation error: {:.4E}'.format(val_err))
 
 print('-- Training error --')
-print([float('{:.4E}'.format(x)) for x in train_err_list])
+print([float('{:.6E}'.format(x)) for x in train_err_list])
 print('-- Validation error --')
-print([float('{:.4E}'.format(x)) for x in val_err_list])
+print([float('{:.6E}'.format(x)) for x in val_err_list])
 print('==> Finished!')
