@@ -1,7 +1,7 @@
 addpath('../../cqt/');
 addpath('../exp7d/');
 addpath('../exp7g/');
-prompt = 'What is the system flag index?\n';
+prompt = 'What is the system flag index?\n (1 = hashprint, 2 = randomized, 3 = AE)';
 REPFLAG = input(prompt); %
 prompt = 'What is the name of the model file? (Do not include ".mat" in the input)\n';
 modelName = input(prompt, 's');
@@ -73,6 +73,7 @@ switch REPFLAG
 end
 
 %% evaluate representations
-[pctList, corrList, oneList] = evaluateRepresentation(representations, noisyNameList, rateList);
+[pctList, corrList, oneList] = evaluateRepresentation(representations, ...
+    noisyNameList, rateList);
 reportfile = strcat(outdir, reportName, '-', datestr(now, '_HH-MM-SS-FFF'), '.out');
 generateEvalReport(noisyNameList, pctList, corrList, oneList, reportfile);
