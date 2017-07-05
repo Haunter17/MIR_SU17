@@ -47,7 +47,8 @@ Notice that the lists have to be passed in as strings, with each element separat
 The python script [matchPctPlot.py](https://github.com/Haunter17/MIR_SU17/blob/master/exp7/benchmark/matchPctPlot.py) helps visualize the bit matching statistics between the clean and different distorted versions. Enter the following command in terminal to generate plots for bit matching:
 
 ```
-  python3 matchPctPlot.py <number_of_representations> <list_of_representation_names> <list_1> <list_2> ... <list_n>
+  python3 matchPctPlot.py <number_of_representations> <list_of_representation_names> <list_1> <list_2>
+  ... <list_n>
 ```
 where
 *  `<number_of_representations>` is the number of different representations to include in the plot
@@ -61,5 +62,6 @@ Notice that
 For example, we can compare three different representations with
 
 ```
-  python3 matchPctPlot.py 3 'hashprint, randomized, AE' '0.65, 0.47, ..., 0.99' '0.68, 0.44, ..., 0.96' '0.66, 0.49, ..., 0.98'
+  python3 matchPctPlot.py 3 'hashprint, randomized, AE' '0.65, 0.47, ..., 0.99' 
+  '0.68, 0.44, ..., 0.96' '0.66, 0.49, ..., 0.98'
 ```
