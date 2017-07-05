@@ -73,6 +73,6 @@ switch REPFLAG
 end
 
 %% evaluate representations
-[pctList, corrList] = evaluateRepresentation(representations, noisyNameList, rateList);
+[pctList, corrList, oneList] = evaluateRepresentation(representations, noisyNameList, rateList);
 reportfile = strcat(outdir, reportName, '-', datestr(now, '_HH-MM-SS-FFF'), '.out');
-generateEvalReport(noisyNameList, pctList, corrList, reportfile);
+generateEvalReport(noisyNameList, pctList, corrList, oneList, reportfile);
