@@ -1,6 +1,11 @@
 addpath('../../cqt/');
 addpath('../exp7d/');
-REPFLAG = 1; % 1 for baseline system
+prompt = 'What is the system flag index?';
+REPFLAG = input(prompt); %
+prompt = 'What is the name of the model file? (Do not include ".mat" in the input)';
+modelName = input(prompt, 's');
+prompt = 'What is the name of the output report file? (Do not include ".out" in the input)';
+reportName = input(prompt, 's');
 repNameList = {'hashprint', 'randomized', 'AE'};
 %% Parallel computing setup
 curPool = gcp('nocreate'); 
@@ -46,7 +51,7 @@ computeQSpecBatch(noisylist, outdir);
 
 %% learn models and generate representations
 param.m = -1;
-modelFile = strcat(outdir, 'model.mat');
+modelFile = strcat(outdir, modelName, '.mat');
 
 % switch for different representations
 switch REPFLAG
@@ -68,5 +73,5 @@ end
 
 %% evaluate representations
 [pctList, corrList] = evaluateRepresentation(representations, noisyNameList, rateList);
-reportfile = strcat(outdir, repNameList{REPFLAG}, '-', num2str(param.m), datestr(now, '_HH-MM-SS-FFF'), '.out');
+reportfile = strcat(outdir, reportName, '-', datestr(now, '_HH-MM-SS-FFF'), '.out');
 generateEvalReport(noisyNameList, pctList, corrList, reportfile);
