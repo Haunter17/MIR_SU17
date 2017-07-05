@@ -7,20 +7,23 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import sys
 
-# usage: python exp7g.py 64 0 0 0 0
+# usage: python exp7g.py 64 relu 0 0 0 0
 # system arg
 nhidden = 64
+ACTV_STR = 'relu'
 SMALL_FLAG = 1
 FAST_FLAG = 1
-BN_FLAG = 1
+BN_FLAG = 0
 SYS_FLAG = 0 # 0 for bridges, 1 for supermic
 
 try:
 	nhidden = int(sys.argv[1])
-	SMALL_FLAG = int(sys.argv[2])
-	FAST_FLAG = int(sys.argv[3])
-	BN_FLAG = int(sys.argv[4])
-	SYS_FLAG = int(sys.argv[5])
+	ACTV_STR = sys.argv[2]
+	SMALL_FLAG = int(sys.argv[3])
+	FAST_FLAG = int(sys.argv[4])
+	BN_FLAG = int(sys.argv[5])
+	SYS_FLAG = int(sys.argv[6])
+	
 except Exception, e:
 	print('-- {}'.format(e))
 
@@ -101,12 +104,20 @@ x = tf.placeholder(tf.float32, [None, total_features])
 # autoencoder: x -> a1 -> x
 W_ae = init_weight_variable([total_features, nhidden])
 b_ae = init_bias_variable([nhidden])
-a1 = tf.nn.relu(tf.matmul(x, W_ae) + b_ae)
+a1 = None
+if ACTV_STR == 'sigm':
+	a1 = tf.nn.sigmoid(tf.matmul(x, W_ae) + b_ae)
+else:
+	a1 = tf.nn.relu(tf.matmul(x, W_ae) + b_ae)
 W_ad = init_bias_variable([nhidden, total_features])
 b_ad = init_bias_variable([total_features])
-h1 = tf.nn.relu(tf.matmul(a1, W_ad + b_ad))
+h1 = None
+if ACTV_STR == 'sigm':
+	h1 = tf.nn.sigmoid(tf.matmul(a1, W_ad + b_ad))
+else:
+	h1 = tf.nn.relu(tf.matmul(a1, W_ad + b_ad))
 error = tf.losses.mean_squared_error(x, h1)
-train_step = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(error)
+train_step = tf.train.AdamOptimizer(learning_rate=1e-3).minimize(error)
 
 sess = tf.InteractiveSession()
 if SYS_FLAG:
@@ -121,7 +132,7 @@ val_err_list = []
 # saver setup
 varsave_list = [W_ae, b_ae, W_ad, b_ad]
 saver = tf.train.Saver(varsave_list)
-save_path = './out/7gmodel_{}_bn{}.ckpt'.format(nhidden, BN_FLAG)
+save_path = './out/7gmodel_{}_{}_bn{}.ckpt'.format(nhidden, ACTV_STR,BN_FLAG)
 opt_val_err = np.inf
 opt_epoch = -1
 step_counter = 0
@@ -161,7 +172,7 @@ print('--Time elapsed for training: {t:.2f} \
 saver.restore(sess, save_path)
 print('==> Model restored to epoch {}'.format(opt_epoch))
 
-model_path = './out/7gmodel_{}_bn{}'.format(nhidden, BN_FLAG)
+model_path = './out/7gmodel_{}_{}_bn{}'.format(nhidden, ACTV_STR,BN_FLAG)
 W, b = sess.run([W_ae, b_ae], feed_dict={x: X_train})
 from scipy.io import savemat
 savemat(model_path, {'W': W, 'b': b})
@@ -176,16 +187,4 @@ print('-- Training error --')
 print([float('{:.4E}'.format(x)) for x in train_err_list])
 print('-- Validation error --')
 print([float('{:.4E}'.format(x)) for x in val_err_list])
-
-# print('==> Generating error plot...')
-# x_list = range(0, print_freq * len(train_acc_list), print_freq)
-# train_err_plot = plt.plot(x_list, train_err_list, 'b-', label='training')
-# val_err_plot = plt.plot(x_list, val_err_list, '-', color='orange', label='validation')
-# plt.xlabel('Number of epochs')
-# plt.ylabel('Cross-Entropy Error')
-# plt.title('Error vs Number of Epochs with {} Layers and Decreasing Factor {}'.format(num_layers, fac))
-# plt.legend(loc='best')
-# plt.savefig('exp4i_L{}F{}BN{}.png'.format(num_layers, fac, BN_FLAG), format='png')
-# plt.close()
-
 print('==> Finished!')
