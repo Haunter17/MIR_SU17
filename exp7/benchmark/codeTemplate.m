@@ -1,7 +1,7 @@
 addpath('../../cqt/');
 addpath('../exp7d/');
 REPFLAG = 1; % 1 for baseline system
-repNameList = {'hashprint', 'randomized'};
+repNameList = {'hashprint', 'randomized', 'AE'};
 %% Parallel computing setup
 curPool = gcp('nocreate'); 
 if (isempty(curPool))
@@ -58,6 +58,10 @@ switch REPFLAG
         param.numFiltersList = [256];
         RandomProjectionModelInit(reflist, modelFile, param);
         representations = RandomProjectionModelGetRep(modelFile, 0, noisylist);
+    case 3
+        param.numFeatures = 64;
+        param.m = 20;
+        representations = getAErep(modelFile, noisylist);
     otherwise
         pass
 end
