@@ -24,7 +24,7 @@ F = zeros(parameter.numFeatures, ceil((size(spec, 2) - parameter.m) / ...
 for col = 1 : parameter.hop : size(spec, 2) - parameter.m
     X = spec(:, col : col + parameter.m - 1);
     X = X(:)';
-    feature = poslin(X * W + b);        
+    feature = poslin(X * W + b);
     F(:, ceil(col / parameter.hop)) = feature;    
 end
 F = F > 0;

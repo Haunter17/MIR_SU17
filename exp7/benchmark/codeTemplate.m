@@ -1,10 +1,11 @@
 addpath('../../cqt/');
 addpath('../exp7d/');
-prompt = 'What is the system flag index?';
+addpath('../exp7g/');
+prompt = 'What is the system flag index?\n';
 REPFLAG = input(prompt); %
-prompt = 'What is the name of the model file? (Do not include ".mat" in the input)';
+prompt = 'What is the name of the model file? (Do not include ".mat" in the input)\n';
 modelName = input(prompt, 's');
-prompt = 'What is the name of the output report file? (Do not include ".out" in the input)';
+prompt = 'What is the name of the output report file? (Do not include ".out" in the input)\n';
 reportName = input(prompt, 's');
 repNameList = {'hashprint', 'randomized', 'AE'};
 %% Parallel computing setup
@@ -66,7 +67,7 @@ switch REPFLAG
     case 3
         param.numFeatures = 64;
         param.m = 20;
-        representations = getAErep(modelFile, noisylist);
+        representations = getAERepresentation(modelFile, noisylist, param);
     otherwise
         pass
 end

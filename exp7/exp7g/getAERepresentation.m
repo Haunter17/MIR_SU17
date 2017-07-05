@@ -1,8 +1,6 @@
-function [fingerprints] = getAERepresentation(modelFile, flist)
+function [fingerprints] = getAERepresentation(modelFile, flist, parameter)
 % note that flist is different from filelist, which is loaded by modelFile
 load(modelFile); % loads W, b
-W = double(W);
-b = double(b);
 
 if nargin < 2
     flist = filelist;
