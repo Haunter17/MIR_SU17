@@ -41,7 +41,7 @@ if parameter.useDelta
 end
     
 if parameter.medianThreshold
-    F = F > median(F, 2);
+    F = F > repmat(median(F, 2), 1, size(F, 2));
 else
     F = F > 0;
 end
