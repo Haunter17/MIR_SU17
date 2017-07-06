@@ -1,8 +1,12 @@
-function F = computeAErep(spec, W, b, parameter)
+function F = computeAErep(spec, model, parameter)
 
-if nargin < 4
+if nargin < 3
     parameter=[];
 end
+
+W = model.W;
+b = model.b;
+
 if isfield(parameter,'m')==0
     parameter.m=20;
 end

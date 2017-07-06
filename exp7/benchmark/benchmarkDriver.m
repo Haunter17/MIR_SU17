@@ -53,26 +53,29 @@ computeQSpecBatch(noisylist, outdir);
 %% learn models and generate representations
 param.m = -1;
 modelFile = strcat(outdir, modelName, '.mat');
-
+computeFcn = 0;
 % switch for different representations
 switch REPFLAG
     case 1
         param.m = 20;
         learnHashprintModel(reflist, modelFile, param);
-        representations = getHashprintRepresentation(modelFile, noisylist);
+        computeFcn = @computeHashprints;
     case 2
         param.numFiltersList = [256];
         RandomProjectionModelInit(reflist, modelFile, param);
-        representations = RandomProjectionModelGetRep(modelFile, 0, noisylist);
     case 3
         param.numFeatures = 64;
         param.m = 20;
         param.medianThreshold = 1;
         param.useDelta = 0;
-        representations = getAERepresentation(modelFile, noisylist, param);
+        initAEModel(reflist, param);
+        computeFcn = @computeAErep;
     otherwise
         pass
 end
+
+%% get representations
+representations = getRepresentations(modelFile, computeFcn, noisylist);
 
 %% evaluate representations
 [pctList, corrList, oneList, xbMat] = evaluateRepresentation(representations, ...

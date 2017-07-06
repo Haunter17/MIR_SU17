@@ -1,4 +1,4 @@
-function F = computeHashprints(spec,filters,parameter)
+function F = computeHashprints(spec,model,parameter)
 % F = computeHashprints(spec,filters,parameter)
 % 
 %   Computes a sequence of hashprints on the given preprocessed CQT coefficients.
@@ -30,6 +30,9 @@ function F = computeHashprints(spec,filters,parameter)
 if nargin < 3
     parameter=[];
 end
+
+filters = model.eigvecs;
+
 if isfield(parameter,'m')==0
     parameter.m=20;
 end
