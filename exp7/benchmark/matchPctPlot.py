@@ -1,13 +1,13 @@
 
 '''
 	usage:
-	python3 matchPctPlot.py <#systems> <name list> <list 1> <list 2> ... <list n>
-	Notice that each list has to be in a string format, i.e., '1.0, 0.9, 0.8 ... 0.0'
+	python3 matchPctPlot.py <#systems> <name list> <file 1> <file 2> ...
 '''
 
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+from scipy import io
 
 plt.style.use('ggplot')
 
@@ -16,8 +16,10 @@ try:
 	num_comp = int(sys.argv[1])
 	nameList = sys.argv[2].split(',')
 	for i in range(num_comp):
-		raw_value = sys.argv[i + 3]
-		values.append([float(x) for x in raw_value.split(',')])
+		mat_path = sys.argv[i + 3]
+		D = io.loadmat(mat_path)
+		temp = D.get('pctList')
+		values.append(temp.flatten())
 except e:
 	raise e
 
