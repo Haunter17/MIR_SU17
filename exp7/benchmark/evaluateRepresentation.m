@@ -1,4 +1,4 @@
-function [pctList, corrList, oneList] = evaluateRepresentation( representations, nameList, rateList)
+function [pctList, corrList, oneList, xbCorrMat] = evaluateRepresentation( representations, rateList)
 %
 % representations - a cell of logical matrix (representations) of each audio file
 % nameList - a list of strings representing the name of each audio file
@@ -11,11 +11,14 @@ function [pctList, corrList, oneList] = evaluateRepresentation( representations,
 %
 
 orig = representations{1};
-%% correlation analysis
+%% single bit correlation analysis
 corrList = correlationEval(orig);
 
 %% bit percentage analysis
 oneList = bitPctEval(orig);
+
+%% cross bit correlation analysis
+xbCorrMat = crossBitCorrEval(orig);
 
 %% comparison analysis
 pctList = ones(1, length(representations));

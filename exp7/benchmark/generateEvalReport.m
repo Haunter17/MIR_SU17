@@ -1,8 +1,9 @@
-function generateEvalReport( nameList, pctList, corrList, oneList, savePath )
+function generateEvalReport( nameList, pctList, corrList, oneList, xbMat, ...
+    outPath, saveMatPath )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
-disp(['==> Generating report for ', savePath]);
-fid = fopen(savePath, 'w');
+disp(['==> Generating report for ', outPath]);
+fid = fopen(outPath, 'w');
 
 %% correlation report
 for row = 1 : size(corrList, 1)
@@ -23,14 +24,7 @@ for index = 2 : length(nameList)
     fprintf(fid, '--%s : %f \n', nameList{index}, pctList(index));    
 end
 
-%% data printout
-fprintf(fid, '%s \n', 'correlation percentage:');
-fprintf(fid, '%f, ', corrList);
-fprintf(fid, '%s \n', '');
-fprintf(fid, '%s \n', 'ones percentage:');
-fprintf(fid, '%f, ', oneList);
-fprintf(fid, '%s \n', '');
-fprintf(fid, '%s \n', 'matching percentage:');
-fprintf(fid, '%f, ', pctList);
-fprintf(fid, '%s \n', '');
+%% saving data
+fprintf(fid, '-> Saving data into %s \n', saveMatPath);
+save(saveMatPath, 'pctList', 'corrList', 'oneList', 'xbMat');
 fclose(fid);
