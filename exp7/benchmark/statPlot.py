@@ -1,26 +1,29 @@
 # ================================================
 # ================================================
-# usage: python3 statPlot.py '0.5, 0.3, 0.8...' '0.6, 0.2, 0.3...'
+# usage: python3 statPlot.py <file.mat>
 # ================================================
 # ================================================
 
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+from scipy import io
 plt.style.use('ggplot')
 
-raw_corr_value = []
-raw_ones_value = []
+mat_path = ''
 try:
-	raw_corr_value = sys.argv[1]
-	raw_ones_value = sys.argv[2]
+	mat_path = sys.argv[1]
 except e:
 	raise e
 
-corr_value = [float(x) for x in raw_corr_value.split(',')]
-ones_value = [float(x) for x in raw_ones_value.split(',')]
+D = io.loadmat(mat_path)
+corr_value = D.get('corrList').flatten()
+ones_value = D.get('oneList').flatten()
+xb_mat = D.get('xbMat')
 
+# figure 1: single bit statistics
 pos = np.arange(len(corr_value))
+plt.figure()
 plt.subplot(211)
 plt.ylim([0, 1.0])
 plt.bar(pos, corr_value, align='center', alpha=0.5)
@@ -28,7 +31,6 @@ plt.title('Correlation Statistics for Original Track: Bits Unchanged')
 plt.xlabel('Bit #')
 plt.ylabel('fraction of bits unchanged')
 plt.autoscale(tight=True, axis='x')
-
 plt.subplot(212)
 plt.ylim([0, 1.0])
 plt.bar(pos, ones_value, align='center', alpha=0.5)
@@ -36,8 +38,14 @@ plt.title('Bit Statistics for Original Track: Pct of Ones')
 plt.xlabel('Bit #')
 plt.ylabel('fraction of one bits')
 plt.autoscale(tight=True, axis='x')
-
 plt.tight_layout()
+plt.savefig('./taylorswift_out/sb_stat.png', format='png')
+plt.close()
 
-plt.savefig('./taylorswift_out/stat.png', format='png')
+# figure 2: cross bit statistics
+plt.figure()
+plt.imshow(xb_mat, cmap='seismic', interpolation='nearest')
+plt.colorbar()
+plt.title('Cross Bit Correlation')
+plt.savefig('./taylorswift_out/xb_stat.png', format='png')
 plt.close()
