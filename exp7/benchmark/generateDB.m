@@ -21,12 +21,20 @@ parameter = model.parameter;
 
 fingerprints = {};
 idx2file = {};
-fid = fopen(flist);
-count = 1;
+
+fid = fopen(filelist);
+curFileList = '';
+fileIndex = 1;
 curfile = fgetl(fid);
 while ischar(curfile)
-    tic;
-    disp(['Computing fingerprints on file ',num2str(count),': ',curfile]);
+    curFileList{fileIndex} = curfile;
+    curfile = fgetl(fid);
+    fileIndex = fileIndex + 1;
+end
+
+parfor index = 1 : length(curFileList)
+    curfile = curFileList{index};
+    disp(['Computing fingerprints on file ',num2str(index),': ',curfile]);
     Q = computeQSpec(curfile,parameter);
     logQspec = preprocessQspec(Q);
     
@@ -45,17 +53,13 @@ while ischar(curfile)
         fpseqs(:,:,i+1+maxPitchShift) = computeFcn(...
             logQspec,model,parameter);
     end
+    fingerprints{index} = fpseqs;
+    idx2file{index} = curfile;
     
-    fingerprints{count} = fpseqs;
-    idx2file{count} = curfile;
-    count = count + 1;
-    curfile = fgetl(fid);
-    toc
+    % compute hop size -- hack!
+    hopsize = Q.xlen/(22050*size(Q.c,2))*3*parameter.hop;
 end
 fclose(fid);
-
-% compute hop size -- hack!
-hopsize = Q.xlen/(22050*size(Q.c,2))*3*parameter.hop;
 
 disp(['Saving fingerprint database to file']);
 save(saveFilename,'flist','parameter','model',...
