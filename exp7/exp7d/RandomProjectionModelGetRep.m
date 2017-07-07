@@ -8,7 +8,10 @@ function reps = RandomProjectionModelGetReps(modelfile, maxPitchShift, filesToRe
 	%
 	%%%
 
-	load(modelfile); % loads filelist, parameter, and filterArray. In our case we didn't use filelist to make our filters
+	model = load(modelfile); % loads filelist, parameter, and filterArray. In our case we didn't use filelist to make our filters
+	parameter = model.parameter;
+	filterArray = model.filterArray;
+
 	fingerprints = {};
 	idx2file = {};
 
@@ -26,7 +29,7 @@ function reps = RandomProjectionModelGetReps(modelfile, maxPitchShift, filesToRe
         fprintf('Time for CQT: %f\n', toc(preQ));
 
         hashTic = tic;
-        origfpseq = computeAlphaHashprints(logQspec, filterArray, parameter);
+        origfpseq = computeAlphaHashprints(logQspec, model, parameter);
         fprintf('Single hash takes: %f\n', toc(hashTic));
         % store all the pitch shifted versions
     	fpseqs = false(parameter.numFiltersList(end),size(origfpseq,2),2*maxPitchShift+1);
@@ -36,12 +39,12 @@ function reps = RandomProjectionModelGetReps(modelfile, maxPitchShift, filesToRe
         for i=1:maxPitchShift % shift up
     	    logQspec = preprocessQspec(pitchShiftCQT(Q,i), parameter.DownsamplingRate);
             fpseqs(:,:,i+1) = computeAlphaHashprints(...
-                logQspec,filterArray ,parameter);
+                logQspec, model,parameter);
         end
         for i=1:maxPitchShift % shift down
     	    logQspec = preprocessQspec(pitchShiftCQT(Q,-1*i), parameter.DownsamplingRate);
             fpseqs(:,:,i+1+maxPitchShift) = computeAlphaHashprints(...
-                logQspec,filterArray,parameter);
+                logQspec,model,parameter);
         end
         
         fingerprints{count} = fpseqs;
