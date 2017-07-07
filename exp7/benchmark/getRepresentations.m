@@ -1,6 +1,7 @@
 function [fingerprints] = getRepresentations(modelFile, computeFcn, flist)
 % note that flist is different from filelist, which is loaded by modelFile
 model = load(modelFile); % loads parameter and weight variables
+parameter = model.parameter;
 
 if nargin < 3
     flist = model.filelist;

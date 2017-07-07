@@ -68,7 +68,7 @@ switch REPFLAG
         param.m = 20;
         param.medianThreshold = 1;
         param.useDelta = 0;
-        initAEModel(reflist, param);
+        initAEModel(modelFile, param);
         computeFcn = @computeAErep;
     otherwise
         pass
