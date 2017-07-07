@@ -26,6 +26,7 @@ fid = fopen(flist);
 curFileList = '';
 fileIndex = 1;
 curfile = fgetl(fid);
+tmpfile = curfile;
 while ischar(curfile)
     curFileList{fileIndex} = curfile;
     curfile = fgetl(fid);
@@ -56,11 +57,14 @@ parfor index = 1 : length(curFileList)
     fingerprints{index} = fpseqs;
     idx2file{index} = curfile;
     
-    % compute hop size -- hack!
-    hopsize = Q.xlen/(22050*size(Q.c,2))*3*parameter.hop;
+
 end
 fclose(fid);
 
+% compute hop size -- hack!
+Q = computeQSpec(tmpfile,parameter);
+hopsize = Q.xlen/(22050*size(Q.c,2))*3*parameter.hop;
+    
 disp(['Saving fingerprint database to file']);
 save(saveFilename,'flist','parameter','model',...
     'fingerprints','idx2file','hopsize');
