@@ -31,6 +31,9 @@ while ischar(curfile)
     disp(['Processing query ',num2str(count),': ',name]);
     
     % compute hashprints
+    curfile
+    qparam
+    
     Q = computeQSpec(curfile,qparam);
     logQ = preprocessQspec(Q);
     fpseq = computeFcn(logQ,model,parameter);

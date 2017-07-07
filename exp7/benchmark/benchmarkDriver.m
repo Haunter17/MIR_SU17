@@ -95,7 +95,9 @@ end
 if MRRFLAG
     %% generate database
     dbFile = strcat(outdir, modelName, '_db.mat');
-    generateDB(modelFile, computeFcn, reflist, dbFile);
+    if exist(dbFile, 'file') == 0
+        generateDB(modelFile, computeFcn, reflist, dbFile);
+    end
     
     %% run queries
     queryList = strcat(artist, '_query.list');
