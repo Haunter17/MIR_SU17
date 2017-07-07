@@ -29,7 +29,6 @@ if isfield(parameter, 'medianThreshold')==0
     parameter.threshold = 0;
 end
 
-parameter.numFeatures
 features = zeros(parameter.numFeatures, ceil((size(spec, 2) - parameter.m) / ...
     parameter.hop));
 for col = 1 : parameter.hop : size(spec, 2) - parameter.m
