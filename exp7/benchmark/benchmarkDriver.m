@@ -1,6 +1,6 @@
 addpath('../../cqt/');
 addpath('../exp7d/');
-addpath('../exp7g/');
+addpath('../autoencoder/');
 prompt = 'What is the system flag index?\n (1 = hashprint, 2 = randomized, 3 = AE)\n';
 REPFLAG = input(prompt); %
 prompt = 'What is the name of the model file? (Do not include ".mat" in the input)\n';
@@ -65,7 +65,6 @@ switch REPFLAG
         RandomProjectionModelInit(reflist, modelFile, param);
         computeFcn = @computeAlphaHashprints;
     case 3
-        param.numFeatures = 64;
         param.m = 20;
         param.medianThreshold = 1;
         param.useDelta = 0;
