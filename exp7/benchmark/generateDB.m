@@ -62,7 +62,6 @@ toc
 fclose(fid);
 
 % compute hop size -- hack!
-parameter
 Q = computeQSpec(tmpfile,parameter);
 hopsize = Q.xlen/(22050*size(Q.c,2))*3*parameter.hop;
     
