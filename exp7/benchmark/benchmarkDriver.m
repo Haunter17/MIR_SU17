@@ -98,6 +98,7 @@ if MRRFLAG
     if exist(dbFile, 'file') == 0
         generateDB(modelFile, computeFcn, reflist, dbFile);
     end
+    disp(['Database saved at ', dbFile]);
     
     %% run queries
     queryList = strcat(artist, '_query.list');
