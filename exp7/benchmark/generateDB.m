@@ -22,7 +22,7 @@ parameter = model.parameter;
 fingerprints = {};
 idx2file = {};
 
-fid = fopen(filelist);
+fid = fopen(flist);
 curFileList = '';
 fileIndex = 1;
 curfile = fgetl(fid);
