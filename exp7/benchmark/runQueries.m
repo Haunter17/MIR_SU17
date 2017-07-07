@@ -22,31 +22,32 @@ if nargin < 5
 end
 
 load(dbfile); % contains fingerprints, parameter, model, hopsize
+
 fid = fopen(queriesFilelist);
+curFileList = '';
+fileIndex = 1;
 curfile = fgetl(fid);
-count = 1;
 while ischar(curfile)
-    tic;
+    curFileList{fileIndex} = curfile;
+    curfile = fgetl(fid);
+    fileIndex = fileIndex + 1;
+end
+
+tic;
+parfor index = 1 : length(curFileList)
+    curfile = curFileList{index};
     [pathstr,name,ext] = fileparts(curfile);
-    disp(['Processing query ',num2str(count),': ',name]);
-    
-    % compute hashprints
-    curfile
-    qparam
-    
+    disp(['Processing query ',num2str(index),': ',name]);   
+    % compute hashprints    
     Q = computeQSpec(curfile,qparam);
     logQ = preprocessQspec(Q);
-    fpseq = computeFcn(logQ,model,parameter);
-    
+    fpseq = computeFcn(logQ,model,parameter);    
     % get match scores
     R = matchFingerprintSequence(fpseq,fingerprints);
     R(:,3) = R(:,3) * hopsize; % offsets in sec instead of hops
-    
     % write to file
     outfile = strcat(outdir,'/',name,'.hyp');
     dlmwrite(outfile,R,'\t');
-    curfile = fgetl(fid);
-    count = count + 1;
-    toc
 end
+toc
 fclose(fid);

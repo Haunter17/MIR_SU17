@@ -33,6 +33,7 @@ while ischar(curfile)
     fileIndex = fileIndex + 1;
 end
 
+tic;
 parfor index = 1 : length(curFileList)
     curfile = curFileList{index};
     disp(['Computing fingerprints on file ',num2str(index),': ',curfile]);
@@ -56,9 +57,8 @@ parfor index = 1 : length(curFileList)
     end
     fingerprints{index} = fpseqs;
     idx2file{index} = curfile;
-    
-
 end
+toc
 fclose(fid);
 
 % compute hop size -- hack!
