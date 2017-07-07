@@ -1,17 +1,6 @@
 addpath('../../cqt/');
 addpath('../exp7d/');
 addpath('../autoencoder/');
-prompt = 'What is the system flag index?\n (1 = hashprint, 2 = randomized, 3 = AE)\n';
-REPFLAG = input(prompt); %
-prompt = 'What is the name of the model file? (Do not include ".mat" in the input)\n';
-modelName = input(prompt, 's');
-prompt = 'What is the name of the output report file? (Do not include ".out" in the input)\n';
-reportName = input(prompt, 's');
-repNameList = {'hashprint', 'randomized', 'AE'};
-prompt = 'Do you want to run the minibenchmark?\n 0 = no, 1 = yes\n';
-MINIFLAG = input(prompt);
-prompt = 'Do you want to run the MRR benchmark?\n 0 = no, 1 = yes\n';
-MRRFLAG = input(prompt);
 %% Parallel computing setup
 curPool = gcp('nocreate'); 
 if (isempty(curPool))
@@ -20,6 +9,23 @@ if (isempty(curPool))
     % create a parallel pool with the number of workers in the cluster`
     pool = parpool(ceil(numWorkers * 0.75));
 end
+
+%% input setup
+prompt = 'Do you want to turn on the minibenchmark?\n (0 = no, 1 = yes)\n';
+MINIFLAG = input(prompt);
+prompt = 'Do you want to turn on the MRR benchmark?\n (0 = no, 1 = yes)\n';
+MRRFLAG = input(prompt);
+prompt = 'What is the system flag index?\n (1 = hashprint, 2 = randomized, 3 = AE)\n';
+REPFLAG = input(prompt); %
+prompt = 'What is the name of the model file? (Do not include ".mat" in the input)\n';
+modelName = input(prompt, 's');
+
+if MINIFLAG
+    prompt = 'What is the name of the output report file? (Do not include ".out" in the input)\n';
+    reportName = input(prompt, 's');
+end
+
+repNameList = {'hashprint', 'randomized', 'AE'};
 
 %% precompute CQT on reflist
 artist = 'taylorswift';
@@ -88,7 +94,7 @@ if MINIFLAG
         rateList);
     report_prefix = strcat(outdir, reportName);
     outfile = strcat(report_prefix, datestr(now, '_HH-MM-SS-FFF'), '.out');
-    matfile = strcat(report_prefix, '.mat');
+    matfile = strcat(report_prefix, '_out.mat');
     generateEvalReport(noisyNameList, pctList, corrList, oneList, xbMat, ...
         outfile, matfile);
 end
