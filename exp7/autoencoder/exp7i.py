@@ -176,6 +176,12 @@ print('--Time elapsed for training: {t:.2f} \
 saver.restore(sess, save_path)
 print('==> Model restored to epoch {}'.format(opt_epoch))
 
+model_path = './out/7h_{}_{}'.format(nhidden, nlayer)
+W, b = sess.run([W_ad, b_ad], feed_dict={x: X_train})
+from scipy.io import savemat
+savemat(model_path, {'W': W, 'b': b, 'num_layer': nlayer})
+print('==> Autoencoder weights saved to {}.mat'.format(model_path))
+
 train_err = error.eval(feed_dict={x: X_train})
 val_err = error.eval(feed_dict={x: X_val})
 print('-- Training error: {:.4E}'.format(train_err))
@@ -189,15 +195,15 @@ print([float('{:.6E}'.format(x)) for x in val_err_list])
 # ==============================================
 # Saving weights
 # ==============================================
-model_path = './out/7i_{}_{}'.format(nhidden, nlayer)
-W_data = []
-b_data = []
-for i in range(nlayer):
-	W, b = sess.run([W_list[i], b_list[i]], feed_dict={x: X_train})
-	W_data.append(W)
-	b_data.append(b)
-from scipy.io import savemat
-savemat(model_path, {'W_list': W_data, 'b_list': b_data, 'num_layer': nlayer})
-print('==> Autoencoder weights saved to {}.mat'.format(model_path))
+# model_path = './out/7i_{}_{}'.format(nhidden, nlayer)
+# W_data = []
+# b_data = []
+# for i in range(nlayer):
+# 	W, b = sess.run([W_list[i], b_list[i]], feed_dict={x: X_train})
+# 	W_data.append(W)
+# 	b_data.append(b)
+# from scipy.io import savemat
+# savemat(model_path, {'W_list': W_data, 'b_list': b_data, 'num_layer': nlayer})
+# print('==> Autoencoder weights saved to {}.mat'.format(model_path))
 
 print('==> Finished!')
