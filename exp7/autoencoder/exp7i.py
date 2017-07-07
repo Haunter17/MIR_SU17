@@ -7,7 +7,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import sys
 
-# usage: python exp7i.py 64 0 0 0
+# usage: python exp7i.py 64 4 0 0 0
 # system arg
 nhidden = 64
 nlayer = 1
@@ -189,10 +189,15 @@ print([float('{:.6E}'.format(x)) for x in val_err_list])
 # ==============================================
 # Saving weights
 # ==============================================
-# model_path = './out/7imodel_{}_{}'.format(nhidden, nlayer)
-# W, b = sess.run([W_ae, b_ae], feed_dict={x: X_train})
-# from scipy.io import savemat
-# savemat(model_path, {'W': W, 'b': b})
-# print('==> Autoencoder weights saved to {}.mat'.format(model_path))
+model_path = './out/7i_{}_{}'.format(nhidden, nlayer)
+W_data = []
+b_data = []
+for i in range(nlayer):
+	W, b = sess.run(W_list[i], b_list[i], feed_dict={x: X_train})
+	W_data.append(W)
+	b_data.append(b)
+from scipy.io import savemat
+savemat(model_path, {'W_list': W_data, 'b_list': b_data, 'num_layer': nlayer})
+print('==> Autoencoder weights saved to {}.mat'.format(model_path))
 
 print('==> Finished!')
