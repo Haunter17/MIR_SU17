@@ -66,6 +66,6 @@ For example, we can compare three different representations with
   python3 matchPctPlot.py 3 'hashprint, randomized, AE' hashprint.mat randomized.mat AE.mat
 ```
 
-# Notes for Developers
-## Adding more representations
+## Notes for Developers
+### Adding more representations
 TODO
