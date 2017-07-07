@@ -8,6 +8,10 @@ modelName = input(prompt, 's');
 prompt = 'What is the name of the output report file? (Do not include ".out" in the input)\n';
 reportName = input(prompt, 's');
 repNameList = {'hashprint', 'randomized', 'AE'};
+prompt = 'Do you want to run the minibenchmark?\n 0 = no, 1 = yes\n';
+MINIFLAG = input(prompt);
+prompt = 'Do you want to run the MRR benchmark?\n 0 = no, 1 = yes\n';
+MRRFLAG = input(prompt);
 %% Parallel computing setup
 curPool = gcp('nocreate'); 
 if (isempty(curPool))
@@ -74,14 +78,32 @@ switch REPFLAG
         pass
 end
 
-%% get representations
-representations = getRepresentations(modelFile, computeFcn, noisylist);
+if MINIFLAG
+    %% get representations
+    representations = getRepresentations(modelFile, computeFcn, noisylist);
 
-%% evaluate representations
-[pctList, corrList, oneList, xbMat] = evaluateRepresentation(representations, ...
-    rateList);
-report_prefix = strcat(outdir, reportName);
-outfile = strcat(report_prefix, datestr(now, '_HH-MM-SS-FFF'), '.out');
-matfile = strcat(report_prefix, '.mat');
-generateEvalReport(noisyNameList, pctList, corrList, oneList, xbMat, ...
-    outfile, matfile);
+    %% evaluate representations
+    [pctList, corrList, oneList, xbMat] = evaluateRepresentation(representations, ...
+        rateList);
+    report_prefix = strcat(outdir, reportName);
+    outfile = strcat(report_prefix, datestr(now, '_HH-MM-SS-FFF'), '.out');
+    matfile = strcat(report_prefix, '.mat');
+    generateEvalReport(noisyNameList, pctList, corrList, oneList, xbMat, ...
+        outfile, matfile);
+end
+
+if MRRFLAG
+    %% generate database
+    dbFile = strcat(outdir, modelName, '_db.mat');
+    generateDB(modelFile, computeFcn, reflist, dbFile);
+    
+    %% run queries
+    queryList = strcat(artist, '_query.list');
+    runQueries(queryList, dbFile, computeFcn, outdir);
+    
+    %% run MRR
+    q2rList = strcat(artist, '_querytoref.list');
+    disp(['Calculating MRR for ', artist, ' queries']);
+    MRR = calculateMRR(q2rList, strcat(artist, '_query'), outdir);
+    disp(['MRR is ', num2str(MRR)]);
+end
