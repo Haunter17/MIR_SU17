@@ -17,3 +17,5 @@
 ./exp0/exp1b/*
 *.ckpt*
 checkpoint
+*.hyp
+*.mexa64
