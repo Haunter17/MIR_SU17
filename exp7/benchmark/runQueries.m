@@ -12,7 +12,7 @@ function runQueries(queriesFilelist,dbfile,computeFcn, outdir,qparam)
 %      precomputeQspec!)
 %
 %   2016-07-08 TJ Tsai ttsai@g.hmc.edu
-if nargin < 4
+if nargin < 5
     qparam.targetsr = 22050;
     qparam.B = 24;
     qparam.fmin = 130.81;
