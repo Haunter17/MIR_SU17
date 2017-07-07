@@ -21,7 +21,11 @@ if nargin < 5
     qparam.precomputeCQT = 0;
 end
 
-load(dbfile); % contains fingerprints, parameter, model, hopsize
+db = load(dbfile); % contains fingerprints, parameter, model, hopsize
+fingerprints = db.fingerprints;
+parameter = db.parameter;
+model = db.model;
+hopsize = db.hopsize;
 
 fid = fopen(queriesFilelist);
 curFileList = '';
