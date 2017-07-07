@@ -42,7 +42,7 @@ parfor index = 1 : length(curFileList)
     
     % compute hashprints on original studio track
     origfpseq = computeFcn(logQspec,model,parameter);
-    fpseqs = false(parameter.numFeatures,size(origfpseq,2),2*maxPitchShift+1);
+    fpseqs = false(size(origfpseq, 1),size(origfpseq,2),2*maxPitchShift+1);
     fpseqs(:,:,1) = origfpseq;
     
     % compute hashprints on pitch-shifted versions
