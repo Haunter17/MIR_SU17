@@ -59,5 +59,5 @@ for i in range(nsuites):
 
 plt.tight_layout()
 fig.legend(cache, nameList, 'lower right')
-plt.savefig('./taylorswift_out/pct.png', format='png')
+plt.savefig('./out/pct.png', format='png')
 plt.close()
