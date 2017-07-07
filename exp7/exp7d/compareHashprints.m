@@ -13,8 +13,7 @@ if nargin < 3
 end
 
 numMismatch = 0;
-size(fpseq1)
-size(fpseq2)
+
 % same tempo
 if rate == 1
     XORBlock = xor(fpseq1, fpseq2);
