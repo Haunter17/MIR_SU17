@@ -21,7 +21,7 @@ function reps = RandomProjectionModelGetReps(modelfile, maxPitchShift, filesToRe
     	disp(['==> Computing fingerprints on file ',num2str(count),': ',curfile]);
         
         Q = computeQSpec(curfile,parameter);
-        logQspec = preprocessQspec(Q);
+        logQspec = preprocessQspec(Q, parameter.DownsamplingRate);
 
         fprintf('Time for CQT: %f\n', toc(preQ));
 
@@ -34,12 +34,12 @@ function reps = RandomProjectionModelGetReps(modelfile, maxPitchShift, filesToRe
 
         % compute hashprints on pitch-shifted versions
         for i=1:maxPitchShift % shift up
-    	    logQspec = preprocessQspec(pitchShiftCQT(Q,i));
+    	    logQspec = preprocessQspec(pitchShiftCQT(Q,i), parameter.DownsamplingRate);
             fpseqs(:,:,i+1) = computeAlphaHashprints(...
                 logQspec,filterArray ,parameter);
         end
         for i=1:maxPitchShift % shift down
-    	    logQspec = preprocessQspec(pitchShiftCQT(Q,-1*i));
+    	    logQspec = preprocessQspec(pitchShiftCQT(Q,-1*i), parameter.DownsamplingRate);
             fpseqs(:,:,i+1+maxPitchShift) = computeAlphaHashprints(...
                 logQspec,filterArray,parameter);
         end
@@ -53,7 +53,7 @@ function reps = RandomProjectionModelGetReps(modelfile, maxPitchShift, filesToRe
 	reps = fingerprints;
 end
 
-function F = computeAlphaHashprints(spec,filterArray,parameter)
+function F = computeAlphaHashprints(spec,model,parameter)
 	% if nargin < 3
 	%     parameter=[];
 	% end
@@ -62,6 +62,8 @@ function F = computeAlphaHashprints(spec,filterArray,parameter)
 	% [~, numColFilter, numFilters] = size(filters);
 	% numColFeatures = numColSpec - numColFilter + 1;
 	% features = zeros(numFilters, numColFeatures);
+
+	filterArray = model.filterArray;
 
 	filterInput = spec;
 	for layerIndex = 1:length(filterArray)
@@ -77,14 +79,40 @@ function F = computeAlphaHashprints(spec,filterArray,parameter)
 		numColInput = size(filterInput, 2);
 		numColOutput =  filterInputCols - filterCols + 1;
 		layerOutput = zeros(numFilters, numColOutput);
-		for filterIndex = 1:numFilters
-			filt = filters(:, :, filterIndex);
-			layerOutput(filterIndex, :) = conv2(filterInput, filt, 'valid'); % for now assume leads to a row vector from the conv (filter has the same height as its input)
+		% deal with issues if there is no third dimension in filters
+		if (numFilters == 1)
+			layerOutput(1, :) = conv2(filterInput, filters, 'valid'); % for now assume leads to a row vector from the conv (filter has the same height as its input)
+		else
+			for filterIndex = 1:numFilters
+				filt = filters(:, :, filterIndex);
+				layerOutput(filterIndex, :) = conv2(filterInput, filt, 'valid'); % for now assume leads to a row vector from the conv (filter has the same height as its input)
+			end
+		end
+		% apply the non-linearity except in the last layer
+		if layerIndex < length(filterArray)
+			if (strcmp(parameter.nonlinearity, 'relu'))
+				layerOutput = relu(layerOutput);
+			elseif (strcmp(parameter.nonlinearity, 'sigmoid'))
+				layerOutput = sigmoid(layerOutput);
+			end
 		end
 		filterInput = layerOutput;
 	end
-	% threshold the final layer's output at 0 and return
-	F = layerOutput > 0;
+
+	% deal with delta features if need be
+	if (parameter.DeltaFeatures)
+		layerOutput = layerOutput(:, 1:(size(layerOutput, 2) - parameter.DeltaDelay)) - layerOutput(:, (1 + parameter.DeltaDelay):end);
+	else
+
+	end
+	% threshold the final layer's output for each column by its median and return
+	% do this by subtracting off the median then thresholding at 0
+	if (strcmp(parameter.ThresholdStrategy, 'zero'))
+		F = layerOutput > 0;
+
+	elseif (strcmp(parameter.ThresholdStrategy, 'median'))
+		F = (bsxfun(@minus, layerOutput, median(layerOutput, 2))) > 0;
+	end
 
 
 	% way of thinking about it generally as convolutions - not sure how to get this
@@ -125,6 +153,14 @@ function F = computeAlphaHashprints(spec,filterArray,parameter)
 
 end
 
+function y = relu(x)
+	y = x;
+	y(y < 0) = 0;
+end
+
+function y = sigmoid(x)
+	y = 1./(1 + exp(-1 * x));
+end
 
 
 

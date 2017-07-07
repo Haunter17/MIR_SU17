@@ -63,6 +63,7 @@ switch REPFLAG
     case 2
         param.numFiltersList = [256];
         RandomProjectionModelInit(reflist, modelFile, param);
+        computeFcn = @computeAlphaHashprints;
     case 3
         param.numFeatures = 64;
         param.m = 20;
