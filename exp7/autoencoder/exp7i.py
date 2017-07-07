@@ -179,7 +179,7 @@ print('==> Model restored to epoch {}'.format(opt_epoch))
 # ==============================================
 # Saving weights
 # ==============================================
-model_path = './out/7h_{}_{}'.format(nhidden, nlayer)
+model_path = './out/7i_{}_{}'.format(nhidden, nlayer)
 W_data = []
 b_data = []
 for i in range(nlayer):
