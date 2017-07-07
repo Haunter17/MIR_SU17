@@ -193,7 +193,7 @@ model_path = './out/7i_{}_{}'.format(nhidden, nlayer)
 W_data = []
 b_data = []
 for i in range(nlayer):
-	W, b = sess.run(W_list[i], b_list[i], feed_dict={x: X_train})
+	W, b = sess.run([W_list[i], b_list[i]], feed_dict={x: X_train})
 	W_data.append(W)
 	b_data.append(b)
 from scipy.io import savemat
