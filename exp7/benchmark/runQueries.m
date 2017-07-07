@@ -47,7 +47,7 @@ parfor index = 1 : length(curFileList)
     logQ = preprocessQspec(Q);
     fpseq = computeFcn(logQ,model,parameter);    
     % get match scores
-    R = matchFingerprintSequence(fpseq,fingerprints);
+    R = fastMatchFpSeq(fpseq,fingerprints);
     R(:,3) = R(:,3) * hopsize; % offsets in sec instead of hops
     % write to file
     outfile = strcat(outdir,'/',name,'.hyp');
