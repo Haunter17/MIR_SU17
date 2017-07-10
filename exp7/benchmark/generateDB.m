@@ -46,13 +46,13 @@ parfor index = 1 : length(curFileList)
     
     % compute hashprints on pitch-shifted versions
     for i=1:maxPitchShift % shift up
-	    Q = pitchShiftCQT(Q,i);
-        fpseqs(:,:,i+1) = computeFcn(Q,model,parameter);
+	    shiftQ = pitchShiftCQT(Q,i);
+        fpseqs(:,:,i+1) = computeFcn(shiftQ,model,parameter);
     end
     for i=1:maxPitchShift % shift down
-	    Q = pitchShiftCQT(Q,-1*i);
+	    shiftQ = pitchShiftCQT(Q,-1*i);
         fpseqs(:,:,i+1+maxPitchShift) = computeFcn(...
-            Q,model,parameter);
+            shiftQ,model,parameter);
     end
     fingerprints{index} = fpseqs;
     idx2file{index} = curfile;
