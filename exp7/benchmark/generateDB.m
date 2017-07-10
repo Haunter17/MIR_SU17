@@ -66,4 +66,4 @@ hopsize = Q.xlen/(22050*size(Q.c,2))*3*parameter.hop;
     
 disp(['Saving fingerprint database to file']);
 save(saveFilename,'flist','parameter','model',...
-    'fingerprints','idx2file','hopsize');
+    'fingerprints','idx2file','hopsize', '-v7.3');

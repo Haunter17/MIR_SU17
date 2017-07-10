@@ -4,13 +4,12 @@ function initAEModel( saveFilename, parameter )
 model = load(saveFilename);
 W = model.W;
 b = model.b;
-parameter = model.parameter;
 
 %% param config
-param.m = 20;
-param.medianThreshold = 1;
-param.useDelta = 0;
-param.hop = 5;
+parameter.m = 20;
+parameter.medianThreshold = 1;
+parameter.useDelta = 0;
+parameter.hop = 5;
 
 %% Save to file
 disp(['Saving AE models to file']);
