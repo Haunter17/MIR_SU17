@@ -31,8 +31,8 @@ repNameList = {'hashprint', 'randomized', 'AE'};
 
 %% precompute CQT on reflist
 artist = 'taylorswift';
-reflist = strcat(artist, '_ref.list');
-noisylist = strcat(artist, '_noisy.list');
+reflist = strcat('./audio/', artist, '_ref.list');
+noisylist = strcat('./audio/', artist, '_noisy.list');
 outdir = strcat(artist, '_out/');
 mkdir(outdir)
 
@@ -108,11 +108,11 @@ if TESTFLAG
     disp(['Database saved at ', dbFile]);
     
     %% run test queries
-    queryList = strcat(artist, '_query.list');
+    queryList = strcat('./audio/', artist, '_query.list');
     runQueries(queryList, dbFile, computeFcn, outdir);
     
     %% run MRR
-    q2rList = strcat(artist, '_querytoref.list');
+    q2rList = strcat('./audio/', artist, '_querytoref.list');
     disp(['Calculating MRR for ', artist, ' test queries']);
     MRR = calculateMRR(q2rList, strcat(artist, '_query'), outdir);
     disp(['MRR is ', num2str(MRR)]);
@@ -127,11 +127,11 @@ if VALFLAG
     disp(['Database saved at ', dbFile]);
     
     %% run validation queries
-    queryList = strcat(artist, '_val.list');
+    queryList = strcat('./audio/', artist, '_val.list');
     runQueries(queryList, dbFile, computeFcn, outdir);
     
     %% run MRR
-    q2rList = strcat(artist, '_valtoref.list');
+    q2rList = strcat('./audio/', artist, '_valtoref.list');
     disp(['Calculating MRR for ', artist, ' validation queries']);
     MRR = calculateMRR(q2rList, strcat(artist, '_val'), outdir);
     disp(['MRR is ', num2str(MRR)]);
