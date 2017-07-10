@@ -1,4 +1,4 @@
-function F = computeHashprints(spec,model,parameter)
+function F = computeHashprints(Q,model,parameter)
 % F = computeHashprints(spec,filters,parameter)
 % 
 %   Computes a sequence of hashprints on the given preprocessed CQT coefficients.
@@ -49,6 +49,7 @@ if isfield(parameter,'deltaDelay')==0
     parameter.deltaDelay=16;
 end
 
+spec = preprocessQspec(Q);
 A = getTDE(spec,parameter);
 features = (A.'*filters(:,1:parameter.numFeatures)).';
 deltas = features(:,1:(size(features,2)-parameter.deltaDelay)) - features(:,(1+parameter.deltaDelay):end);

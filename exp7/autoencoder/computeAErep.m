@@ -1,4 +1,4 @@
-function F = computeAErep(spec, model, parameter)
+function F = computeAErep(Q, model, parameter)
 
 if nargin < 3
     parameter=[];
@@ -29,6 +29,7 @@ if isfield(parameter, 'medianThreshold')==0
     parameter.threshold = 0;
 end
 
+spec = preprocessQspec(Q);
 features = zeros(parameter.numFeatures, ceil((size(spec, 2) - parameter.m) / ...
     parameter.hop));
 for col = 1 : parameter.hop : size(spec, 2) - parameter.m

@@ -38,22 +38,21 @@ parfor index = 1 : length(curFileList)
     curfile = curFileList{index};
     disp(['Computing fingerprints on file ',num2str(index),': ',curfile]);
     Q = computeQSpec(curfile,parameter);
-    logQspec = preprocessQspec(Q);
     
     % compute hashprints on original studio track
-    origfpseq = computeFcn(logQspec,model,parameter);
+    origfpseq = computeFcn(Q,model,parameter);
     fpseqs = false(size(origfpseq, 1),size(origfpseq,2),2*maxPitchShift+1);
     fpseqs(:,:,1) = origfpseq;
     
     % compute hashprints on pitch-shifted versions
     for i=1:maxPitchShift % shift up
-	    logQspec = preprocessQspec(pitchShiftCQT(Q,i));
-        fpseqs(:,:,i+1) = computeFcn(logQspec,model,parameter);
+	    Q = pitchShiftCQT(Q,i);
+        fpseqs(:,:,i+1) = computeFcn(Q,model,parameter);
     end
     for i=1:maxPitchShift % shift down
-	    logQspec = preprocessQspec(pitchShiftCQT(Q,-1*i));
+	    Q = pitchShiftCQT(Q,-1*i);
         fpseqs(:,:,i+1+maxPitchShift) = computeFcn(...
-            logQspec,model,parameter);
+            Q,model,parameter);
     end
     fingerprints{index} = fpseqs;
     idx2file{index} = curfile;

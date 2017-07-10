@@ -16,11 +16,9 @@ curfile = fgetl(fid);
 while ischar(curfile)
     tic;
     disp(['==> Computing fingerprints on file ',num2str(count),': ',curfile]);
-    Q = computeQSpec(curfile,parameter);
-    logQspec = preprocessQspec(Q);
-    
+    Q = computeQSpec(curfile,parameter); 
     % compute hashprints on original studio track
-    fpseq = computeFcn(logQspec,model,parameter);
+    fpseq = computeFcn(Q,model,parameter);
     fingerprints{count} = fpseq;
     
     % compare bit match
