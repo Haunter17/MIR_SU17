@@ -70,6 +70,8 @@ computeFcn = 0;
 switch REPFLAG
     case 1
         param.m = 20;
+	prompt = 'Enter the number of context frames (default is 20): \n';
+	param.m = input(prompt);
         learnHashprintModel(reflist, modelFile, param);
         computeFcn = @computeHashprints;
     case 2
