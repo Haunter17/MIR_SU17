@@ -11,12 +11,14 @@ if (isempty(curPool))
 end
 
 %% input setup
-prompt = 'Do you want to turn on the minibenchmark?\n (0 = no, 1 = yes)\n';
+prompt = 'Do you want to run the minibenchmark?\n (0 = no, 1 = yes)\n';
 MINIFLAG = input(prompt);
-prompt = 'Do you want to turn on the MRR benchmark?\n (0 = no, 1 = yes)\n';
-MRRFLAG = input(prompt);
+prompt = 'Do you want to run the test benchmark?\n (0 = no, 1 = yes)\n';
+TESTFLAG = input(prompt);
+prompt = 'Do you want to run the validation benchmark\n (0 = no, 1 = yes)\n';
+VALFLAG = input(prompt);
 prompt = 'What is the system flag index?\n (1 = hashprint, 2 = randomized, 3 = AE)\n';
-REPFLAG = input(prompt); %
+REPFLAG = input(prompt);
 prompt = 'What is the name of the model file? (Do not include ".mat" in the input)\n';
 modelName = input(prompt, 's');
 
@@ -99,7 +101,7 @@ if MINIFLAG
         outfile, matfile);
 end
 
-if MRRFLAG
+if TESTFLAG
     %% generate database
     dbFile = strcat(outdir, modelName, '_db.mat');
     if exist(dbFile, 'file') == 0
@@ -107,13 +109,32 @@ if MRRFLAG
     end
     disp(['Database saved at ', dbFile]);
     
-    %% run queries
+    %% run test queries
     queryList = strcat(artist, '_query.list');
     runQueries(queryList, dbFile, computeFcn, outdir);
     
     %% run MRR
     q2rList = strcat(artist, '_querytoref.list');
-    disp(['Calculating MRR for ', artist, ' queries']);
+    disp(['Calculating MRR for ', artist, ' test queries']);
     MRR = calculateMRR(q2rList, strcat(artist, '_query'), outdir);
+    disp(['MRR is ', num2str(MRR)]);
+end
+
+if VALFLAG
+    %% generate database
+    dbFile = strcat(outdir, modelName, '_db.mat');
+    if exist(dbFile, 'file') == 0
+        generateDB(modelFile, computeFcn, reflist, dbFile);
+    end
+    disp(['Database saved at ', dbFile]);
+    
+    %% run validation queries
+    queryList = strcat(artist, '_val.list');
+    runQueries(queryList, dbFile, computeFcn, outdir);
+    
+    %% run MRR
+    q2rList = strcat(artist, '_valtoref.list');
+    disp(['Calculating MRR for ', artist, ' validation queries']);
+    MRR = calculateMRR(q2rList, strcat(artist, '_val'), outdir);
     disp(['MRR is ', num2str(MRR)]);
 end
