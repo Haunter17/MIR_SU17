@@ -4,8 +4,13 @@ if nargin < 3
     parameter=[];
 end
 
-W = model.W;
-b = model.b;
+W_list = model.W_list;
+b_list = model.b_list;
+
+if model.num_layer == 1
+    W_list = reshape(W_list, size(W_list, 2), size(W_list, 3));
+    W_list = mat2cell(W_list, size(W_list, 1));
+end
 
 if isfield(parameter,'m')==0
     parameter.m=20;
@@ -17,7 +22,7 @@ if isfield(parameter,'hop')==0
     parameter.hop=5;
 end
 if isfield(parameter,'numFeatures')==0
-    parameter.numFeatures=size(W,2);
+    parameter.numFeatures=size(b_list,2);
 end
 if isfield(parameter, 'useDelta')==0
     parameter.delta = 0;
@@ -28,6 +33,8 @@ end
 if isfield(parameter, 'medianThreshold')==0
     parameter.threshold = 0;
 end
+
+b_list = mat2cell(b_list, ones(num_layer, 1), parameter.numFeatures);
 
 spec = preprocessQspec(Q);
 features = zeros(parameter.numFeatures, ceil((size(spec, 2) - parameter.m) / ...
