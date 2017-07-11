@@ -38,7 +38,7 @@ def init_weight_variable(shape):
 	return tf.Variable(initial)
 
 def init_bias_variable(shape):
-	initial = tf.constant(0.1, shape=shape, dtype=tf.float32)
+	initial = tf.constant(1.0, shape=shape, dtype=tf.float32)
 	return tf.Variable(initial)
 
 def batch_nm(x, eps=1e-5):
