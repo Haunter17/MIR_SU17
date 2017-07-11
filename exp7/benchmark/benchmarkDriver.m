@@ -11,22 +11,6 @@ if (isempty(curPool))
 end
 
 %% input setup
-prompt = 'Do you want to run the minibenchmark?\n (0 = no, 1 = yes)\n';
-MINIFLAG = input(prompt);
-prompt = 'Do you want to run the test benchmark?\n (0 = no, 1 = yes)\n';
-TESTFLAG = input(prompt);
-prompt = 'Do you want to run the validation benchmark\n (0 = no, 1 = yes)\n';
-VALFLAG = input(prompt);
-prompt = 'What is the system flag index?\n (1 = hashprint, 2 = randomized, 3 = AE)\n';
-REPFLAG = input(prompt);
-prompt = 'What is the name of the model file? (Do not include ".mat" in the input)\n';
-modelName = input(prompt, 's');
-
-if MINIFLAG
-    prompt = 'What is the name of the output report file? (Do not include ".out" in the input)\n';
-    reportName = input(prompt, 's');
-end
-
 repNameList = {'hashprint', 'randomized', 'AE'};
 
 %% precompute CQT on reflist
@@ -59,8 +43,8 @@ rateList(5) = 1.1;
 
 param.precomputeCQT = 1;
 param.precomputeCQTdir = outdir;
-computeQSpecBatch(reflist,outdir);
-computeQSpecBatch(noisylist, outdir);
+computeQSpecBatch(reflist,outdir, param);
+computeQSpecBatch(noisylist, outdir, param);
 
 %% learn models and generate representations
 param.m = -1;
