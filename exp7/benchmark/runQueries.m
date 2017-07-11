@@ -1,5 +1,6 @@
-function runQueries(queriesFilelist,dbfile,computeFcn, outdir,parameter)
-
+function runQueries(queriesFilelist,dbfile,computeFcn, outdir,qparam)
+% function runQueries(queriesFilelist,dbfile,outdir,qparam)
+%
 %   Runs a set of queries on a given database, and then dumps the
 %   hypothesis to file.
 %
@@ -7,17 +8,17 @@ function runQueries(queriesFilelist,dbfile,computeFcn, outdir,parameter)
 %   dbfile is a .mat file containing the fingerprint database.  This file
 %      is the output of generateDB
 %   outdir is the directory to dump hypothesis files
-%   parameter specifies settings for CQT (must match settings in
+%   qparam specifies settings for CQT (must match settings in
 %      precomputeQspec!)
 %
 %   2016-07-08 TJ Tsai ttsai@g.hmc.edu
 if nargin < 5
-    parameter.targetsr = 22050;
-    parameter.B = 24;
-    parameter.fmin = 130.81;
-    parameter.fmax = 4186.01;
-    parameter.gamma = 0;
-    parameter.precomputeCQT = 0;
+    qparam.targetsr = 22050;
+    qparam.B = 24;
+    qparam.fmin = 130.81;
+    qparam.fmax = 4186.01;
+    qparam.gamma = 0;
+    qparam.precomputeCQT = 0;
 end
 
 db = load(dbfile); % contains fingerprints, parameter, model, hopsize
@@ -42,7 +43,7 @@ parfor index = 1 : length(curFileList)
     [pathstr,name,ext] = fileparts(curfile);
     disp(['Processing query ',num2str(index),': ',name]);   
     % compute hashprints    
-    Q = computeQSpec(curfile,parameter);
+    Q = computeQSpec(curfile,qparam);
     fpseq = computeFcn(Q,model,parameter);    
     % get match scores
     R = fastMatchFpSeq(fpseq,fingerprints);
