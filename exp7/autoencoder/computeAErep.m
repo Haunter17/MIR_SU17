@@ -1,4 +1,4 @@
-function F = computeAErep(spec, model, parameter)
+function F = computeAErep(Q, model, parameter)
 
 if nargin < 3
     parameter=[];
@@ -41,9 +41,10 @@ end
 
 b_list = mat2cell(b_list, ones(num_layer, 1), parameter.numFeatures);
 
-% spec = preprocessQspec(Q);
+spec = preprocessQspec(Q);
 features = zeros(parameter.numFeatures, ceil((size(spec, 2) - parameter.m) / ...
     parameter.hop));
+
 for col = 1 : parameter.hop : size(spec, 2) - parameter.m
     X = spec(:, col : col + parameter.m - 1);
     X = X(:)';
@@ -61,6 +62,7 @@ for col = 1 : parameter.hop : size(spec, 2) - parameter.m
 end
 
 F = features;
+
 if parameter.useDelta
     deltas = features(:,1:(size(features,2)-parameter.deltaDelay)) - features(:,(1+parameter.deltaDelay):end);
     F = deltas;
