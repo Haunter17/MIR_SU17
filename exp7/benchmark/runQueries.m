@@ -1,4 +1,4 @@
-function runQueries(queriesFilelist,dbfile,computeFcn, outdir,qparam)
+function runQueries(queriesFilelist,dbfile,computeFcn, outdir,parameter)
 % function runQueries(queriesFilelist,dbfile,outdir,qparam)
 %
 %   Runs a set of queries on a given database, and then dumps the
@@ -13,12 +13,7 @@ function runQueries(queriesFilelist,dbfile,computeFcn, outdir,qparam)
 %
 %   2016-07-08 TJ Tsai ttsai@g.hmc.edu
 if nargin < 5
-    qparam.targetsr = 22050;
-    qparam.B = 24;
-    qparam.fmin = 130.81;
-    qparam.fmax = 4186.01;
-    qparam.gamma = 0;
-    qparam.precomputeCQT = 0;
+    parameter = [];
 end
 
 db = load(dbfile); % contains fingerprints, parameter, model, hopsize
@@ -26,6 +21,20 @@ fingerprints = db.fingerprints;
 parameter = db.parameter;
 model = db.model;
 hopsize = db.hopsize;
+
+if isfield(parameter, 'targetsr') == 0
+    parameter.targetsr = 22050;
+end
+if isfield(parameter, 'B') == 0
+    parameter.B = 24;
+end
+if isfield(parameter, 'fmin') == 0
+    parameter.fmin = 130.81;
+end
+if isfield(parameter, 'fmax') == 0
+    parameter.fmax = 4186.01;
+end
+parameter.precomputeCQT = 0;
 
 fid = fopen(queriesFilelist);
 curFileList = '';
@@ -43,7 +52,7 @@ parfor index = 1 : length(curFileList)
     [pathstr,name,ext] = fileparts(curfile);
     disp(['Processing query ',num2str(index),': ',name]);   
     % compute hashprints    
-    Q = computeQSpec(curfile,qparam);
+    Q = computeQSpec(curfile,parameter);
     fpseq = computeFcn(Q,model,parameter);    
     % get match scores
     R = fastMatchFpSeq(fpseq,fingerprints);
