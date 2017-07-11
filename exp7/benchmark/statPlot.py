@@ -8,7 +8,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 from scipy import io
-plt.style.use('ggplot')
 
 mat_path = ''
 try:
