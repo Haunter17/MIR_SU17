@@ -12,10 +12,15 @@ end
 
 %% config
 artist = 'taylorswift';
-reflist = strcat('../benchmark/', artist, '_ref.list');
+prompt = 'What is the name of the artist?\n';
+artist = input(prompt, 's');
+reflist = strcat('../benchmark/audio/', artist, '_ref.list');
 outdir = strcat('../benchmark/', artist, '_out/');
-parameter.precomputeCQT = 1;
+mkdir(outdir);
+parameter.precomputeCQT = 0;
 parameter.precomputeCQTdir = outdir;
+computeQSpecBatch(reflist, outdir, parameter);
+
 savename = strcat(outdir, 'AEdata.mat');
 
 %% param setup
