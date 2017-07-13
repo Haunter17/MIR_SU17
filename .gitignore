@@ -5,6 +5,7 @@
 *.txt
 *.mat
 *.wav
+*.csv
 *.list
 *.png
 *.out

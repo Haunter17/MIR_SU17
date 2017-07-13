@@ -52,5 +52,4 @@ valLabelFile = strcat('../exp7/benchmark/audio/', ...
     artist, '_fullvaltoref.csv');
 valLabels = csvread(valLabelFile);
 DVal = CNNDataHelper(vallist, parameter, valLabels);
-
-save(savename, 'data', '-v7.3');
+save(savename, 'DTrain', 'Dval', '-v7.3');

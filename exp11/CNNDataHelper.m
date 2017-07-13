@@ -37,7 +37,6 @@ end
     
 toc
 fclose(fid);
-
 data = cell2mat(data);
 
 
