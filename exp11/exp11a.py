@@ -84,7 +84,7 @@ print('-- Number of validation samples: {}'.format(X_val.shape[0]))
 # Neural-network model set-up
 # ==============================================
 
-num_train_features = X_train.shape
+num_train, total_features = X_train.shape
 num_freq = 121
 num_frames = int(total_features / num_freq)
 num_classes = int(max(y_train.max(), y_val.max()) + 1)
@@ -148,10 +148,7 @@ correct_prediction = tf.equal(tf.argmax(y_sm, 1), tf.argmax(y_, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 sess = tf.InteractiveSession()
-if SYS_FLAG:
-	sess.run(tf.initialize_all_variables())
-else:
-	sess.run(tf.global_variables_initializer())
+sess.run(tf.global_variables_initializer())
 y_train = sess.run(y_train_OHEnc)[:, 0, :]
 y_val = sess.run(y_val_OHEnc)[:, 0, :]
 
