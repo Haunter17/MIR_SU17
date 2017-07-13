@@ -1,4 +1,4 @@
-function B = preprocessQspec(Q)
+function B = preprocessQspec(Q, param)
 % B = preprocessQspec(Q)
 %
 %  Preprocesses the struct returned from the cqt command.
@@ -8,8 +8,15 @@ function B = preprocessQspec(Q)
 %
 % 2016-07-08 TJ Tsai ttsai@g.hmc.edu
 
+if nargin < 2:
+	param = [];
+end
 
-downsample = 3; % average over this many frames (3 --> approx 12.4ms per hop)
+if isfield(param, 'downsample') == 0
+	param.downsample = 3;
+end
+
+downsample = param.downsample; % average over this many frames (3 --> approx 12.4ms per hop)
 groupSize = 1; % group consecutive frames into one chunk
 numPitches = size(Q.c,1);
 numChunks = floor(size(Q.c,2)/(downsample*groupSize));
