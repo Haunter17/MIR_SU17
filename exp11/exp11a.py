@@ -44,7 +44,7 @@ def batch_nm(x, eps=1e-5):
 
 def max_pool(x, p):
   return tf.nn.max_pool(x, ksize=[1, p, p, 1],
-                        strides=[1, p, p, 1], padding='SAME')
+                        strides=[1, p, p, 1], padding='VALID')
 
 
 # ==============================================
@@ -73,6 +73,7 @@ y_train = D_train[:, -1]
 X_val = D_val[:, :-1]
 y_val = D_val[:, -1]
 
+print(y_train)
 t_end = time.time()
 print('--Time elapsed for loading data: {t:.2f} \
 		seconds'.format(t = t_end - t_start))
@@ -89,8 +90,7 @@ num_freq = 121
 num_frames = int(total_features / num_freq)
 num_classes = int(max(y_train.max(), y_val.max()) + 1)
 
-batch_size = 1000
-
+batch_size = 100
 num_epochs = 500
 print_freq = 5
 if FAST_FLAG:
@@ -114,7 +114,7 @@ b_conv1 = init_bias_variable([k1])
 x_image = tf.reshape(x, [-1, num_freq, num_frames, 1])
 h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
 h_pool1 = max_pool(h_conv1, 2)
-h1r, h1c = num_freq - r1 + 1, num_frames - c1 + 1
+h1r, h1c = (num_freq - r1 + 1) / 2, (num_frames - c1 + 1) / 2
 # ==============================================
 # Second layer
 # ==============================================
@@ -123,7 +123,7 @@ W_conv2 = init_weight_variable([r2, c2, k1, k2])
 b_conv2 = init_bias_variable([k2])
 h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
 h_pool2 = max_pool(h_conv2, 2)
-h2r, h2c = h1r - r2 + 1, h1c - c2 + 1
+h2r, h2c = (h1r - r2 + 1) / 2, (h1c - c2 + 1) / 2
 h_pool2_flat = tf.reshape(h_pool2, [-1, h2r * h2c * k2])
 
 # ==============================================
@@ -143,14 +143,14 @@ y_sm = tf.matmul(h_fc1_drop, W_sm) + b_sm
 
 cross_entropy = tf.reduce_mean(
 		tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_sm))
-train_step = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cross_entropy)
+train_step = tf.train.AdamOptimizer(learning_rate=1e-3).minimize(cross_entropy)
 correct_prediction = tf.equal(tf.argmax(y_sm, 1), tf.argmax(y_, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 sess = tf.InteractiveSession()
 sess.run(tf.global_variables_initializer())
-y_train = sess.run(y_train_OHEnc)[:, 0, :]
-y_val = sess.run(y_val_OHEnc)[:, 0, :]
+y_train = sess.run(y_train_OHEnc)
+y_val = sess.run(y_val_OHEnc)
 
 # evaluation metrics
 train_acc_list = []
@@ -208,18 +208,9 @@ print('==> Model restored to epoch {}'.format(opt_epoch))
 
 from scipy.io import savemat
 model_path = './out/11a_{}'.format(artist)
-W1, W2 = sess.run([W_conv1, W_conv2], feed_dict={x: X_train, y: y_train, keep_prob: 1.0})
+W1, W2 = sess.run([W_conv1, W_conv2], feed_dict={x: X_train, y_: y_train, keep_prob: 1.0})
 savemat(model_path, {'W1': W1, 'W2': W2})
-print('==> Autoencoder weights saved to {}.mat'.format(model_path))
-
-train_acc = accuracy.eval(feed_dict={x:X_train, y_: y_train, keep_prob: 1.0})
-val_acc = accuracy.eval(feed_dict={x: X_val, y_: y_val, keep_prob: 1.0})
-train_err = cross_entropy.eval(feed_dict={x: X_train, y_: y_train, keep_prob: 1.0})
-val_err = cross_entropy.eval(feed_dict={x: X_val, y_: y_val, keep_prob: 1.0})
-print('-- Training accuracy: {:.4f}'.format(train_acc))
-print('-- Validation accuracy: {:.4f}'.format(val_acc))
-print('-- Training error: {:.4E}'.format(train_err))
-print('-- Validation error: {:.4E}'.format(val_err))
+print('==> CNN filters saved to {}.mat'.format(model_path))
 
 print('-- Training accuracy --')
 print([float('{:.4f}'.format(x)) for x in train_acc_list])
