@@ -3,13 +3,13 @@
 % param.fmax = ?;
 
 %% flag setup
-MINIFLAG = 1;
-TESTFLAG = 0;
-VALFLAG = 0;
-REPFLAG = 3;
-modelName = '7imodel_4';
-reportName = '7i_L4';
-
+MINIFLAG = 0;
+TESTFLAG = 1;
+VALFLAG = 1;
+REPFLAG = 1;
+modelName = 'hp_1';
+reportName = 'hp_1';
+artist = 'deathcabforcutie';
 
 %% call driver
 benchmarkDriver

@@ -14,7 +14,6 @@ end
 repNameList = {'hashprint', 'randomized', 'AE'};
 
 %% precompute CQT on reflist
-artist = 'taylorswift';
 reflist = strcat('./audio/', artist, '_ref.list');
 noisylist = strcat('./audio/', artist, '_noisy.list');
 outdir = strcat(artist, '_out/');
@@ -41,10 +40,12 @@ rateList(3) = 0.95;
 rateList(4) = 1.05;
 rateList(5) = 1.1;
 
-param.precomputeCQT = 1;
+param.precomputeCQT = 0;
 param.precomputeCQTdir = outdir;
 computeQSpecBatch(reflist,outdir, param);
-computeQSpecBatch(noisylist, outdir, param);
+if MINIFLAG
+    computeQSpecBatch(noisylist, outdir, param);
+end
 
 %% learn models and generate representations
 param.m = -1;
@@ -98,8 +99,8 @@ if TESTFLAG
     %% run MRR
     q2rList = strcat('./audio/', artist, '_querytoref.list');
     disp(['Calculating MRR for ', artist, ' test queries']);
-    MRR = calculateMRR(q2rList, strcat(artist, '_query'), outdir);
-    disp(['MRR is ', num2str(MRR)]);
+    testMRR = calculateMRR(q2rList, strcat(artist, '_query'), outdir);
+    disp(['Test MRR is ', num2str(testMRR)]);
 end
 
 if VALFLAG
@@ -117,6 +118,6 @@ if VALFLAG
     %% run MRR
     q2rList = strcat('./audio/', artist, '_valtoref.list');
     disp(['Calculating MRR for ', artist, ' validation queries']);
-    MRR = calculateMRR(q2rList, strcat(artist, '_val'), outdir);
-    disp(['MRR is ', num2str(MRR)]);
+    valMRR = calculateMRR(q2rList, strcat(artist, '_val'), outdir);
+    disp(['Validation MRR is ', num2str(valMRR)]);
 end
