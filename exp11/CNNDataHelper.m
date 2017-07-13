@@ -14,7 +14,7 @@ while ischar(curfile)
 end
 
 if nargin < 3
-    labels = 1 : length(curFileList);
+    labels = 0 : length(curFileList) - 1;
 end
 
 %% merge data

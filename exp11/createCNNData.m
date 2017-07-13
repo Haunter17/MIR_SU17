@@ -1,4 +1,4 @@
-addpath('../../cqt/');
+addpath('../cqt/');
 addpath('../exp7/benchmark/');
 
 %% Parallel computing setup
@@ -10,6 +10,8 @@ if (isempty(curPool))
     pool = parpool(ceil(numWorkers * 0.75));
 end
 
+parameter.downsample = 12;
+parameter.m = floor(483 / (parameter.downsample / 3));
 %% param setup
 if isfield(parameter,'m')==0
     parameter.m=20;
@@ -30,9 +32,6 @@ if isfield(parameter,'precomputeCQT')==0
     parameter.precomputeCQT = 0;
 end
 
-parameter.downsample = 12;
-parameter.m = floor(483 / (parameter.downsample / 3));
-
 %% config
 artist = 'taylorswift';
 prompt = 'Please enter the name of the artist.\n';
@@ -50,6 +49,6 @@ DTrain = CNNDataHelper(reflist, parameter);
 %% validation data
 valLabelFile = strcat('../exp7/benchmark/audio/', ...
     artist, '_fullvaltoref.csv');
-valLabels = csvread(valLabelFile);
+valLabels = csvread(valLabelFile) - 1;
 DVal = CNNDataHelper(vallist, parameter, valLabels);
-save(savename, 'DTrain', 'Dval', '-v7.3');
+save(savename, 'DTrain', 'DVal', '-v7.3');

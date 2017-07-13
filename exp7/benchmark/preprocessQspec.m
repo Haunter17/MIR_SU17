@@ -8,11 +8,11 @@ function B = preprocessQspec(Q, param)
 %
 % 2016-07-08 TJ Tsai ttsai@g.hmc.edu
 
-if nargin < 2:
+if nargin < 2
 	param = [];
 end
 
-if isfield(param, 'downsample') == 0
+if isfield(param, 'downsample')==0
 	param.downsample = 3;
 end
 
