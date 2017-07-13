@@ -7,7 +7,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import sys
 
-# usage: python exp11a.py 0.5 2 0 0 1 0
+# usage: python exp11a.py bigk.r.i.t 0 0
 # system arg
 
 artist = ''
@@ -54,9 +54,9 @@ def max_pool(x, p):
 # ==============================================
 print('==> Experiment 11a: MNIST Mirror on Full Window...')
 sys_path = '/pylon2/ci560sp/haunter/'
-filename = 'exp3_taylorswift_d15_1s_C1C8.mat'
+filename = artist + '_data.mat'
 if SMALL_FLAG:
-	filename = 'exp3_small.mat'
+	filename = artist + '_data_small.mat'
 filepath = sys_path + filename
 print('==> Loading data from {}...'.format(filepath))
 # benchmark
@@ -164,7 +164,7 @@ val_err_list = []
 # saver setup
 varsave_list = [W_conv1, b_conv1, W_conv2, b_conv2, W_fc1, b_fc1, W_sm, b_sm]
 saver = tf.train.Saver(varsave_list)
-save_path = './11amodel_{}.ckpt'.format(artist)
+save_path = './out/11amodel_{}.ckpt'.format(artist)
 opt_val_err = np.inf
 opt_epoch = -1
 step_counter = 0
@@ -209,6 +209,12 @@ print('--Time elapsed for training: {t:.2f} \
 saver.restore(sess, save_path)
 print('==> Model restored to epoch {}'.format(opt_epoch))
 
+from scipy.io import savemat
+model_path = './out/11a_{}'.format(artist)
+W1, W2 = sess.run([W_conv1, W_conv2], feed_dict={x: X_train, y: y_train, keep_prob: 1.0})
+savemat(model_path, {'W1': W1, 'W2': W2})
+print('==> Autoencoder weights saved to {}.mat'.format(model_path))
+
 train_acc = accuracy.eval(feed_dict={x:X_train, y_: y_train, keep_prob: 1.0})
 val_acc = accuracy.eval(feed_dict={x: X_val, y_: y_val, keep_prob: 1.0})
 train_err = cross_entropy.eval(feed_dict={x: X_train, y_: y_train, keep_prob: 1.0})
@@ -229,13 +235,13 @@ print([float('{:.4E}'.format(x)) for x in val_err_list])
 
 print('==> Generating error plot...')
 x_list = range(0, print_freq * len(train_acc_list), print_freq)
-train_err_plot = plt.plot(x_list, train_err_list, 'b-', label='training')
-val_err_plot = plt.plot(x_list, val_err_list, '-', color='orange', label='validation')
+train_err_plot = plt.plot(x_list, train_err_list, 'b', label='training')
+val_err_plot = plt.plot(x_list, val_err_list , color='orange', label='validation')
 plt.xlabel('Number of epochs')
 plt.ylabel('Cross-Entropy Error')
-plt.title('Error vs Number of Epochs with {} Layers and Decreasing Factor {}'.format(num_layers, fac))
+plt.title('Error vs Number of Epochs for {}'.format(artist))
 plt.legend(loc='best')
-plt.savefig('exp4i_L{}F{}BN{}.png'.format(num_layers, fac, BN_FLAG), format='png')
+plt.savefig('./out/exp11a_{}.png'.format(artist), format='png')
 plt.close()
 
 print('==> Finished!')
