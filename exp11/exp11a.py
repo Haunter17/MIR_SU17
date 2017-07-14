@@ -223,6 +223,9 @@ W1, W2 = sess.run([W_conv1, W_conv2], feed_dict={x: X_train, y_: y_train, keep_p
 savemat(model_path, {'W1': W1, 'W2': W2})
 print('==> CNN filters saved to {}.mat'.format(model_path))
 
+print('-- Final Validation accuracy: {:.3f}'.format(batch_eval(X_val, y_val, accuracy)))
+print('-- Final Validation error: {:.4E}'.format(batch_eval(X_val, y_val, cross_entropy)))
+
 print('-- Training accuracy --')
 print([float('{:.4f}'.format(x)) for x in train_acc_list])
 print('-- Validation accuracy --')
@@ -231,9 +234,6 @@ print('-- Training error --')
 print([float('{:.4E}'.format(x)) for x in train_err_list])
 print('-- Validation error --')
 print([float('{:.4E}'.format(x)) for x in val_err_list])
-
-print('-- Final Validation accuracy: {:.3f}'.format(batch_eval(X_val, y_val, accuracy)))
-print('-- Final Validation error: {:.4E}'.format(batch_eval(X_val, y_val, cross_entropy)))
 
 print('==> Generating error plot...')
 x_list = range(0, print_freq * len(train_acc_list), print_freq)
