@@ -202,31 +202,35 @@ if FAST_FLAG:
 print('==> Training the full network...')
 t_start = time.time()
 for epoch in range(max_epochs):
-	for i in range(0, num_train, batch_size):
-		batch_end_point = min(i + batch_size, num_train)
-		train_batch_data = X_train[i : batch_end_point]
-		train_batch_label = y_train[i : batch_end_point]
-		train_step.run(feed_dict={x: train_batch_data, y_: train_batch_label, keep_prob: 0.5})
-		if (num_iter + 1) % print_freq == 0:
-			# evaluate metrics
-			train_err = cross_entropy.eval(feed_dict={x: train_batch_data, y_: train_batch_label, keep_prob: 1.0})
-			train_err_list.append(train_err)
-			val_err = batch_eval(X_val, y_val, cross_entropy)
-			val_err_list.append(val_err)
-			val_mrr = MRR_batch(X_val, y_val)
-			val_mrr_list.append(val_mrr)
-			print("-- epoch %d, iter %d, training error %g, validation error %g"%(epoch + 1, num_iter + 1, train_err, val_err))
-			# save screenshot of the model
-			if val_err < opt_val_err:
-				step_counter = 0	
-				saver.save(sess, save_path)
-				print('==> New optimal validation error found. Model saved.')
-				opt_val_err, opt_epoch, opt_iter = val_err, epoch + 1, num_iter + 1
-		if step_counter > max_counter:
-			print('==> Step counter exceeds maximum value. Stop training at epoch {}, iter {}.'.format(epoch + 1, num_iter + 1))
-			break
-		step_counter += 1
-		num_iter += 1      
+	if step_counter <= max_counter:
+		for i in range(0, num_train, batch_size):
+			batch_end_point = min(i + batch_size, num_train)
+			train_batch_data = X_train[i : batch_end_point]
+			train_batch_label = y_train[i : batch_end_point]
+			train_step.run(feed_dict={x: train_batch_data, y_: train_batch_label, keep_prob: 0.5})
+			if (num_iter + 1) % print_freq == 0:
+				# evaluate metrics
+				train_err = cross_entropy.eval(feed_dict={x: train_batch_data, y_: train_batch_label, keep_prob: 1.0})
+				train_err_list.append(train_err)
+				val_err = batch_eval(X_val, y_val, cross_entropy)
+				val_err_list.append(val_err)
+				val_mrr = MRR_batch(X_val, y_val)
+				val_mrr_list.append(val_mrr)
+				print("-- epoch %d, iter %d, training error %g, validation error %g"%(epoch + 1, num_iter + 1, train_err, val_err))
+				# save screenshot of the model
+				if val_err < opt_val_err:
+					step_counter = 0	
+					saver.save(sess, save_path)
+					print('==> New optimal validation error found. Model saved.')
+					opt_val_err, opt_epoch, opt_iter = val_err, epoch + 1, num_iter + 1
+			if step_counter > max_counter:
+				print('==> Step counter exceeds maximum value. Stop training at epoch {}, iter {}.'.format(epoch + 1, num_iter + 1))
+				break
+			step_counter += 1
+			num_iter += 1
+	else:
+		break    
+
 t_end = time.time()
 print('--Time elapsed for training: {t:.2f} \
 		seconds'.format(t = t_end - t_start))
