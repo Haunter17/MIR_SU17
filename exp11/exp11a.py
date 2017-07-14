@@ -189,11 +189,11 @@ save_path = './out/11amodel_{}.ckpt'.format(artist)
 opt_val_err = np.inf
 opt_epoch = -1
 step_counter = 0
-max_counter = 25
+max_counter = 10000
 
 batch_size = 256
 max_epochs = 500
-print_freq = 1000
+print_freq = 500
 num_iter = 0
 
 if FAST_FLAG:
@@ -207,25 +207,26 @@ for epoch in range(max_epochs):
 		train_batch_data = X_train[i : batch_end_point]
 		train_batch_label = y_train[i : batch_end_point]
 		train_step.run(feed_dict={x: train_batch_data, y_: train_batch_label, keep_prob: 0.5})
-	if (epoch + 1) % print_freq == 0:
-		# evaluate metrics
-		train_err = cross_entropy.eval(feed_dict={x: train_batch_data, y_: train_batch_label, keep_prob: 1.0})
-		train_err_list.append(train_err)
-		val_err = batch_eval(X_val, y_val, cross_entropy)
-		val_err_list.append(val_err)
-		val_mrr = MRR_batch(X_val, y_val)
-		val_mrr_list.append(val_mrr)
-		print("-- epoch: %d, training error %g, validation error %g"%(epoch + 1, train_err, val_err))
-		# save screenshot of the model
-		if val_err < opt_val_err:
-			step_counter = 0	
-			saver.save(sess, save_path)
-			print('==> New optimal validation error found. Model saved.')
-			opt_val_err, opt_epoch = val_err, epoch + 1
-	if step_counter > max_counter:
-		print('==> Step counter exceeds maximum value. Stop training at epoch {}.'.format(epoch + 1))
-		break
-	step_counter += 1      
+		if (num_iter + 1) % print_freq == 0:
+			# evaluate metrics
+			train_err = cross_entropy.eval(feed_dict={x: train_batch_data, y_: train_batch_label, keep_prob: 1.0})
+			train_err_list.append(train_err)
+			val_err = batch_eval(X_val, y_val, cross_entropy)
+			val_err_list.append(val_err)
+			val_mrr = MRR_batch(X_val, y_val)
+			val_mrr_list.append(val_mrr)
+			print("-- epoch %d, iter %d, training error %g, validation error %g"%(epoch + 1, num_iter + 1, train_err, val_err))
+			# save screenshot of the model
+			if val_err < opt_val_err:
+				step_counter = 0	
+				saver.save(sess, save_path)
+				print('==> New optimal validation error found. Model saved.')
+				opt_val_err, opt_epoch, opt_iter = val_err, epoch + 1, num_iter + 1
+		if step_counter > max_counter:
+			print('==> Step counter exceeds maximum value. Stop training at epoch {}, iter {}.'.format(epoch + 1, num_iter + 1))
+			break
+		step_counter += 1
+		num_iter += 1      
 t_end = time.time()
 print('--Time elapsed for training: {t:.2f} \
 		seconds'.format(t = t_end - t_start))
@@ -234,7 +235,7 @@ print('--Time elapsed for training: {t:.2f} \
 # Restore model & Evaluations
 # ==============================================
 saver.restore(sess, save_path)
-print('==> Model restored to epoch {}'.format(opt_epoch))
+print('==> Model restored to epoch {}, iter {}'.format(opt_epoch, opt_iter))
 
 from scipy.io import savemat
 model_path = './out/11a_{}'.format(artist)
@@ -256,7 +257,7 @@ print('==> Generating error plot...')
 x_list = range(0, print_freq * len(train_err_list), print_freq)
 train_err_plot = plt.plot(x_list, train_err_list, 'b', label='training')
 val_err_plot = plt.plot(x_list, val_err_list , color='orange', label='validation')
-plt.xlabel('Number of epochs')
+plt.xlabel('Number of Iterations')
 plt.ylabel('Cross-Entropy Error')
 plt.title('Error vs Number of Epochs for {}'.format(artist))
 plt.legend(loc='best')
