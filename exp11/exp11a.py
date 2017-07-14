@@ -46,15 +46,36 @@ def max_pool(x, p):
   return tf.nn.max_pool(x, ksize=[1, p, p, 1],
                         strides=[1, p, p, 1], padding='VALID')
 
-def batch_eval(data, label, metric, batch_size=100):
+def batch_eval(data, label, metric, batch_size=256):
 	value = 0.
 	for i in range(0, data.shape[0], batch_size):
 		batch_end_point = min(i + batch_size, data.shape[0])
 		batch_data = data[i : batch_end_point]
 		batch_label = label[i : batch_end_point]
-		value += (batch_end_point - i) * metric.eval(feed_dict={x: batch_data, y_: batch_label, keep_prob: 1.0})
+		value += batch_data.shape[0] * metric.eval(feed_dict={x: batch_data, y_: batch_label, keep_prob: 1.0})
 	value = value / data.shape[0]
 	return value
+
+def MRR_batch(data, label, batch_size=256):
+	value = 0.
+	for i in range(0, data.shape[0], batch_size):
+		batch_end_point = min(i + batch_size, data.shape[0])
+		batch_data = data[i : batch_end_point]
+		batch_label = label[i : batch_end_point]
+		batch_pred = sess.run(y_sm, feed_dict={x: batch_data, y_: batch_label, keep_prob: 1.0})
+		value += batch_data.shape[0] * MRR(batch_pred, batch_label)
+	value = value / data.shape[0]
+	return value
+
+def MRR(pred, label):
+	'''
+		pred, label are np arrays with dimension m x k
+	'''
+	pred_rank = np.argsort(-pred, axis=1)
+	groundtruth = np.argmax(label, axis=1)
+	rank = np.array([np.where(pred_rank[index] == groundtruth[index])[0].item(0) + 1 \
+		for index in range(label.shape[0])])
+	return np.mean(1. / rank)
 		
 
 # ==============================================
@@ -101,7 +122,7 @@ num_freq = 121
 num_frames = int(total_features / num_freq)
 num_classes = int(max(y_train.max(), y_val.max()) + 1)
 
-batch_size = 200
+batch_size = 256
 num_epochs = 500
 print_freq = 2
 if FAST_FLAG:
@@ -176,7 +197,7 @@ save_path = './out/11amodel_{}.ckpt'.format(artist)
 opt_val_err = np.inf
 opt_epoch = -1
 step_counter = 0
-max_counter = 20
+max_counter = 25
 
 print('==> Training the full network...')
 t_start = time.time()
@@ -188,14 +209,12 @@ for epoch in range(num_epochs):
 		train_step.run(feed_dict={x: train_batch_data, y_: train_batch_label, keep_prob: 0.5})
 	if (epoch + 1) % print_freq == 0:
 		# evaluate metrics
-		train_acc = accuracy.eval(feed_dict={x:train_batch_data, y_: train_batch_label, keep_prob: 1.0})
-		train_acc_list.append(train_acc)
-		val_acc = batch_eval(X_val, y_val, accuracy)
-		val_acc_list.append(val_acc)
 		train_err = cross_entropy.eval(feed_dict={x: train_batch_data, y_: train_batch_label, keep_prob: 1.0})
 		train_err_list.append(train_err)
 		val_err = batch_eval(X_val, y_val, cross_entropy)
 		val_err_list.append(val_err)
+		val_mrr = MRR_batch(X_val, y_val)
+		val_mrr_list.append(val_mrr)
 		print("-- epoch: %d, training error %g, validation error %g"%(epoch + 1, train_err, val_err))
 		# save screenshot of the model
 		if val_err < opt_val_err:
@@ -223,17 +242,15 @@ W1, W2 = sess.run([W_conv1, W_conv2], feed_dict={x: X_train, y_: y_train, keep_p
 savemat(model_path, {'W1': W1, 'W2': W2})
 print('==> CNN filters saved to {}.mat'.format(model_path))
 
-print('-- Final Validation accuracy: {:.3f}'.format(batch_eval(X_val, y_val, accuracy)))
 print('-- Final Validation error: {:.4E}'.format(batch_eval(X_val, y_val, cross_entropy)))
+print('-- Final Validation MRR: {:.3f}'.format(MRR_batch(X_val, y_val)))
 
-print('-- Training accuracy --')
-print([float('{:.4f}'.format(x)) for x in train_acc_list])
-print('-- Validation accuracy --')
-print([float('{:.4f}'.format(x)) for x in val_acc_list])
 print('-- Training error --')
-print([float('{:.4E}'.format(x)) for x in train_err_list])
+print([float('{:.4E}'.format(e)) for e in train_err_list])
 print('-- Validation error --')
-print([float('{:.4E}'.format(x)) for x in val_err_list])
+print([float('{:.4E}'.format(e)) for e in val_err_list])
+print('-- Validaiton MRR --')
+print([float('{:.3f}'.format(e)) for e in val_mrr_list])
 
 print('==> Generating error plot...')
 x_list = range(0, print_freq * len(train_acc_list), print_freq)
