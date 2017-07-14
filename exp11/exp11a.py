@@ -122,12 +122,6 @@ num_freq = 121
 num_frames = int(total_features / num_freq)
 num_classes = int(max(y_train.max(), y_val.max()) + 1)
 
-batch_size = 256
-num_epochs = 500
-print_freq = 2
-if FAST_FLAG:
-	num_epochs = 5
-	print_freq = 1
 
 # Transform labels into on-hot encoding form
 y_train_OHEnc = tf.one_hot(y_train.copy(), num_classes)
@@ -175,9 +169,8 @@ y_sm = tf.matmul(h_fc1_drop, W_sm) + b_sm
 
 cross_entropy = tf.reduce_mean(
 		tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_sm))
-train_step = tf.train.AdamOptimizer(learning_rate=5e-4).minimize(cross_entropy)
+train_step = tf.train.AdamOptimizer(learning_rate=2.5e-4).minimize(cross_entropy)
 correct_prediction = tf.equal(tf.argmax(y_sm, 1), tf.argmax(y_, 1))
-accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 sess = tf.InteractiveSession()
 sess.run(tf.global_variables_initializer())
@@ -185,10 +178,9 @@ y_train = sess.run(y_train_OHEnc)
 y_val = sess.run(y_val_OHEnc)
 
 # evaluation metrics
-train_acc_list = []
-val_acc_list = []
 train_err_list = []
 val_err_list = []
+val_mrr_list = []
 
 # saver setup
 varsave_list = [W_conv1, b_conv1, W_conv2, b_conv2, W_fc1, b_fc1, W_sm, b_sm]
@@ -199,9 +191,17 @@ opt_epoch = -1
 step_counter = 0
 max_counter = 25
 
+batch_size = 256
+max_epochs = 500
+print_freq = 1000
+num_iter = 0
+
+if FAST_FLAG:
+	max_epochs = 1
+	print_freq = 10
 print('==> Training the full network...')
 t_start = time.time()
-for epoch in range(num_epochs):
+for epoch in range(max_epochs):
 	for i in range(0, num_train, batch_size):
 		batch_end_point = min(i + batch_size, num_train)
 		train_batch_data = X_train[i : batch_end_point]
@@ -253,7 +253,7 @@ print('-- Validaiton MRR --')
 print([float('{:.3f}'.format(e)) for e in val_mrr_list])
 
 print('==> Generating error plot...')
-x_list = range(0, print_freq * len(train_acc_list), print_freq)
+x_list = range(0, print_freq * len(train_err_list), print_freq)
 train_err_plot = plt.plot(x_list, train_err_list, 'b', label='training')
 val_err_plot = plt.plot(x_list, val_err_list , color='orange', label='validation')
 plt.xlabel('Number of epochs')
