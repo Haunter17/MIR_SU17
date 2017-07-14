@@ -189,11 +189,11 @@ save_path = './out/11amodel_{}.ckpt'.format(artist)
 opt_val_err = np.inf
 opt_epoch = -1
 step_counter = 0
-max_counter = 10000
+max_counter = 5000
 
 batch_size = 256
 max_epochs = 500
-print_freq = 500
+print_freq = 200
 num_iter = 0
 
 if FAST_FLAG:
