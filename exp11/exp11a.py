@@ -68,12 +68,13 @@ t_start = time.time()
 f = h5py.File(filepath)
 D_train = np.array(f.get('DTrain'))
 D_val = np.array(f.get('DVal'))
+np.random.shuffle(D_train)
+np.random.shuffle(D_val)
 X_train = D_train[:, :-1]
 y_train = D_train[:, -1]
 X_val = D_val[:, :-1]
 y_val = D_val[:, -1]
 
-print(y_train)
 t_end = time.time()
 print('--Time elapsed for loading data: {t:.2f} \
 		seconds'.format(t = t_end - t_start))
