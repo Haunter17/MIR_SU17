@@ -52,7 +52,7 @@ def batch_eval(data, label, metric, batch_size=100):
 		batch_end_point = min(i + batch_size, data.shape[0])
 		batch_data = data[i : batch_end_point]
 		batch_label = label[i : batch_end_point]
-		value += (batch_end_point - i ) * metric.eval(feed_dict={x: batch_data, y_: batch_label, keep_prob: 1.0})
+		value += (batch_end_point - i) * metric.eval(feed_dict={x: batch_data, y_: batch_label, keep_prob: 1.0})
 	value = value / data.shape[0]
 	return value
 		
@@ -101,9 +101,9 @@ num_freq = 121
 num_frames = int(total_features / num_freq)
 num_classes = int(max(y_train.max(), y_val.max()) + 1)
 
-batch_size = 100
+batch_size = 200
 num_epochs = 500
-print_freq = 5
+print_freq = 2
 if FAST_FLAG:
 	num_epochs = 5
 	print_freq = 1
@@ -154,7 +154,7 @@ y_sm = tf.matmul(h_fc1_drop, W_sm) + b_sm
 
 cross_entropy = tf.reduce_mean(
 		tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_sm))
-train_step = tf.train.AdamOptimizer(learning_rate=1e-3).minimize(cross_entropy)
+train_step = tf.train.AdamOptimizer(learning_rate=5e-4).minimize(cross_entropy)
 correct_prediction = tf.equal(tf.argmax(y_sm, 1), tf.argmax(y_, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
@@ -176,7 +176,7 @@ save_path = './out/11amodel_{}.ckpt'.format(artist)
 opt_val_err = np.inf
 opt_epoch = -1
 step_counter = 0
-max_counter = 50
+max_counter = 20
 
 print('==> Training the full network...')
 t_start = time.time()
@@ -231,6 +231,9 @@ print('-- Training error --')
 print([float('{:.4E}'.format(x)) for x in train_err_list])
 print('-- Validation error --')
 print([float('{:.4E}'.format(x)) for x in val_err_list])
+
+print('-- Final Validation accuracy: {:.3f}'.format(batch_eval(X_val, y_val, accuracy)))
+print('-- Final Validation error: {:.4E}'.format(batch_eval(X_val, y_val, cross_entropy)))
 
 print('==> Generating error plot...')
 x_list = range(0, print_freq * len(train_acc_list), print_freq)
