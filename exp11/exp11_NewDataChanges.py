@@ -32,9 +32,7 @@ def preprocessQ(Q, downsamplingRate):
 	numCols = np.shape(Q)[1]
 	# keep only 1 out of every downRate cols
 	Q = Q[:,range(0, numCols, downsamplingRate)]
-	return Q
-
-
+	return
 
 def loadData(filepath, datapath, downsamplingRate):
 	'''
@@ -43,7 +41,7 @@ def loadData(filepath, datapath, downsamplingRate):
 
 	datapath: gives a path to the folder containing the raw
 			  CQT data (which the filepaths retrieved from the 'filepath' file)
-				will descend from
+				will descend from)
 
 	Load and return four variables from the file with path filepath
 	X_train: input data for training, a stack of CQT matrices, already pre-processed
@@ -51,8 +49,7 @@ def loadData(filepath, datapath, downsamplingRate):
 	X_val: input data for validation, a stack of CQT matrices, already pre-processed
 	y_val: labels for X_val
 	'''
-	print('==> Experiment 11 =D')
-	print('==> Loading data from {}'.format(filepath))
+	print('==> Loading raw cqt data from {}'.format(filepath))
 	# benchmark
 	t_start = time.time()
 
@@ -71,8 +68,6 @@ def loadData(filepath, datapath, downsamplingRate):
 		print('Loading training data: file %d from %s'%(i, datapath + trainFileList[i]))
 		data = sp.loadmat(datapath + trainFileList[i])
 		rawQ = data['Q']['c'][0][0]
-		print(np.shape(rawQ))
-		print(np.shape(preprocessQ(rawQ, downsamplingRate)))
 		X_train.append(preprocessQ(rawQ, downsamplingRate)) # not sure why so nested
 
 	X_val = []
@@ -82,7 +77,6 @@ def loadData(filepath, datapath, downsamplingRate):
 		data = sp.loadmat(datapath + valFileList[i])
 		rawQ = data['Q']['c'][0][0]
 		X_val.append(preprocessQ(rawQ, downsamplingRate))
-
 
 	t_end = time.time()
 	print('--Time elapsed for loading data: {t:.2f} \
@@ -95,19 +89,21 @@ def loadReverbSamples(filepath):
 	data = sp.loadmat(filepath)
 	return data['reverbSamples']
 
-def getMiniBatch(cqtList, labelMatrix, batchNum, batchWidth, makeNoisy, reverbMatrix=[]):
+def getMiniBatch(cqtList, labelMatrix, batch_size, batchWidth, makeNoisy, reverbMatrix=[]):
 	'''
 	Inputs
 		cqtList: a list, where each element is a cqt matrix
-		batchNum: the number to get in this batch
+		batch_size: the number to get in this batch
+		labelMatrix: a one-hot encoding of the labels, where the nth row corresponds to the label 
+					 for the nth cqt matrix in cqtList
 		labelList: nxk matrix of labels
 	'''
-	# pick batchNum random songs to sample one sample from (allow repeats)
-	songNums = [randint(0,len(cqtList) - 1) for i in range(batchNum)]
+	# pick batch_size random songs to sample one sample from (allow repeats)
+	songNums = np.random.randint(0, len(cqtList), size=batch_size)#[randint(0,len(cqtList) - 1) for i in range(batch_size)]
 	labels = (np.array(labelMatrix))[songNums, :] # grab the labels for each random song
 	batch = np.array([])
 	# for each song, pull out a single sample
-	for i in range(batchNum):
+	for i in range(batch_size):
 		songNum = songNums[i]
 		curCQT = cqtList[songNum]
 		startCol = randint(0, np.shape(curCQT)[1] - batchWidth)
@@ -121,18 +117,11 @@ def getMiniBatch(cqtList, labelMatrix, batchNum, batchWidth, makeNoisy, reverbMa
 		batch = np.vstack((batch, curSample)) if batch.size else curSample # if and else to deal the first loop through when batch is empty
 	return [batch, labels]
 
-# x = np.array([[1,2,3,4],[5,6,7,8]])
-# y = np.array([[9,10,11,12], [15,17,18,23]])
-# [z,l] = getMiniBatch([x,y],[[0,1],[1,0]], 10, 3, False)
-
 def addReverbNoise(Q, reverbMatrix):
 	# pick a random column and add it to each column of Q
 	randCol = randint(0, np.shape(reverbMatrix)[1] - 1)
 	col = np.reshape(reverbMatrix[:, randCol], (-1, 1)) # reshape because it converts to a row
 	return Q + col
-
-
-#self, X_train, y_train, X_val, y_val, num_freq, filter_row, filter_col, k1, k2, learningRate, pooling_strategy):
 
 # set up property that makes it only be set once
 # we'll use this to avoid adding tensors to the graph multiple times
@@ -148,7 +137,6 @@ def lazy_property(function):
         return getattr(self, attribute)
 
     return decorator
-
 
 class Model:
 	def __init__(self, num_frames, X_train, y_train, X_val, y_val, reverbSamples, filter_row, filter_col, k1, learningRate, debug):
@@ -341,7 +329,6 @@ class Model:
 		bestValidationError = self.evalByBatch(self.cross_entropy, val_batch_data, val_batch_label, 5000);
 
 		for batchNum in range(num_batches):
-			print('Batch %g'%(batchNum))
 			batchStart = time.time()
 			fetchMiniStart = time.time()
 			[train_batch_data, train_batch_label] = getMiniBatch(X_train, y_trainOH, batch_size, self.num_frames, True, self.reverbSamples) 
@@ -349,17 +336,13 @@ class Model:
 			self.train_step.run(feed_dict={self.x: train_batch_data, self.y_: train_batch_label})
 			batchEnd = time.time()
 
-			print(batchEnd - batchStart)
 			# print and record data now that we've trained on our full training set
 			if (batchNum + 1) % print_freq == 0:
 				# timing for the measurements of cost and accuracy
 				evaluationStart = time.time()
-
 				# val batch for evaluation
 				[val_batch_data, val_batch_label] = getMiniBatch(X_val, y_valOH, valStatisticBatchSize, self.num_frames, False)
-
 				# evaluate training error and accuracy only on the most recent batch
-
 				# start with accuracy
 				train_acc = self.evalByBatch(self.accuracy, train_batch_data, train_batch_label, 5000)
 				train_acc_list.append(train_acc)
@@ -378,7 +361,7 @@ class Model:
 					bestValidationError = val_err
 					best_weights = [self.W_conv1.eval(), self.W_sm.eval()]
 					best_biases = [self.b_conv1.eval(), self.b_sm.eval()]
-
+				
 				# keep track of which epochs we have data for
 				batch_numbers += [batchNum]    
 				# this marks the end of our evaluation
@@ -609,7 +592,7 @@ except Exception, e:
 
 # filepath to the data you want to laod
 filepath = '/pylon2/ci560sp/cstrong/exp11/new_data/deathcabforcutie_out/FilesAndLabels.mat'
-datapath = '/pylon2/ci560sp/cstrong/exp11/'
+datapath = '/pylon2/ci560sp/cstrong/exp11/new_data/deathcabforcutie_out/'
 reverbPath = '/pylon2/ci560sp/cstrong/exp11/new_data/deathcabforcutie_out/reverbSamples_dcfc.mat'
 
 # define the configurations we're going to be looking at
