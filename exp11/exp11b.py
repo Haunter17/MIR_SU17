@@ -1,6 +1,5 @@
 import numpy as np
 import tensorflow as tf
-import h5py
 import time
 import matplotlib
 matplotlib.use('Agg')
@@ -9,23 +8,19 @@ import sys
 from scipy.io import loadmat
 from scipy.io import savemat
 
-# usage: python exp11a.py bigk.r.i.t 0 0
-# system arg
+# usage: python exp11b.py deathcabforcutie 0
 
+# ================ Sys arg ==========================
 artist = ''
-SMALL_FLAG = 1
 FAST_FLAG = 1
 try:
 	artist = sys.argv[1]
-	SMALL_FLAG = int(sys.argv[2])
-	FAST_FLAG = int(sys.argv[3])
+	FAST_FLAG = int(sys.argv[2])
 except Exception, e:
 	print('-- {}'.format(e))
 
 print('-- Artist: {}'.format(artist))
-print('-- SMALL FLAG: {}'.format(SMALL_FLAG))
 print('-- FAST FLAG: {}'.format(FAST_FLAG))
-
 
 # ================ Functions for preprocessing data ==========================
 def preprocessQ(Q, downsamplingRate):
@@ -95,7 +90,7 @@ def loadReverbSamples(filepath):
 	data = loadmat(filepath)
 	return data['reverbSamples']
 
-def getMiniBatch(cqtList, labelMatrix, batchNum, batchWidth, makeNoisy=True, reverbMatrix=[]):
+def getMiniBatch(cqtList, labelMatrix, batchNum, batchWidth, makeNoisy=False, reverbMatrix=[]):
 	'''
 	Inputs
 		cqtList: a list, where each element is a cqt matrix
@@ -178,20 +173,17 @@ def MRR(pred, label):
 	rank = np.array([np.where(pred_rank[index] == groundtruth[index])[0].item(0) + 1 \
 		for index in range(label.shape[0])])
 	return np.mean(1. / rank)
-		
 
 # ==============================================
 # ==============================================
 # 					main driver
 # ==============================================
 # ==============================================
-print('==> Experiment 11a: MNIST Mirror on Full Window...')
-sys_path = '/pylon2/ci560sp/haunter/'
-filename = artist + '_data.mat'
-if SMALL_FLAG:
-	filename = artist + '_data_small.mat'
-filepath = sys_path + filename
-print('==> Loading data from {}...'.format(filepath))
+
+print('==> Experiment 11b: CNN on Full Window with Delta Reverb...')
+datapath = '/pylon2/ci560sp/cstrong/exp11/new_data/' + artist + '_out/'
+filepath = dataPath + 'FilesAndLabels.mat'
+reverbpath = dataPath + 'reverbSamples.mat'
 
 # ==============================================
 # 				reading data
@@ -201,7 +193,7 @@ t_start = time.time()
 print("==> Loading Training and Validation Data")
 [X_train, y_train, X_val, y_val] = loadData(filepath, datapath, downsamplingRate)
 print("==> Loading Reverb Data")
-reverbSamples = loadReverbSamples(reverbPath)
+reverbSamples = loadReverbSamples(reverbpath)
 t_end = time.time()
 print('--Time elapsed for loading data: {t:.2f} \
 		seconds'.format(t = t_end - t_start))
@@ -209,10 +201,11 @@ print('--Time elapsed for loading data: {t:.2f} \
 # ==============================================
 # Neural-network model set-up
 # ==============================================
-
-num_train, total_features = X_train.shape
-num_freq = 121
-num_frames = int(total_features / num_freq)
+downsamplingRate = 12
+sixSecFull = 1449
+num_frames = np.floor(sixSecFull / downsamplingRate)
+num_freq = X_train[0].shape[0]
+total_features = num_frames * num_freq
 num_classes = int(max(y_train.max(), y_val.max()) + 1)
 
 # Transform labels into on-hot encoding form
@@ -270,8 +263,10 @@ correct_prediction = tf.equal(tf.argmax(y_sm, 1), tf.argmax(y_, 1))
 
 sess = tf.InteractiveSession()
 sess.run(tf.global_variables_initializer())
-y_train = sess.run(y_train_OHEnc)
-y_val = sess.run(y_val_OHEnc)
+y_train = sess.run(y_train_OHEnc)[:, 0, :]
+y_val = sess.run(y_val_OHEnc)[:, 0, :]
+
+[X_val, y_val] = getMiniBatch(X_val, y_val, 1000, num_frames)
 
 # evaluation metrics
 train_err_list = []
@@ -281,53 +276,43 @@ val_mrr_list = []
 # saver setup
 varsave_list = [W_conv1, b_conv1, W_conv2, b_conv2, W_fc1, b_fc1, W_sm, b_sm]
 saver = tf.train.Saver(varsave_list)
-save_path = './out/11amodel_{}.ckpt'.format(artist)
+save_path = './out/11bmodel_{}.ckpt'.format(artist)
 opt_val_err = np.inf
-opt_epoch = -1
+opt_iter = -1
 step_counter = 0
 max_counter = 5000
-
 batch_size = 256
-max_epochs = 500
 print_freq = 200
-num_iter = 0
+max_iter = 200000
 
 if FAST_FLAG:
-	max_epochs = 1
-	print_freq = 10
+	max_iter = 10
+	print_freq = 1
 print('==> Training the full network...')
 t_start = time.time()
-for epoch in range(max_epochs):
+for num_iter in range(max_iter):
 	if step_counter > max_counter:
 		print('==> Step counter exceeds maximum value. Stop training at epoch {}, iter {}.'.format(epoch + 1, num_iter + 1))
 		break
-	for i in range(0, num_train, batch_size):
-		batch_end_point = min(i + batch_size, num_train)
-		train_batch_data = X_train[i : batch_end_point]
-		train_batch_label = y_train[i : batch_end_point]
-		[train_batch_data, train_batch_label] = getMiniBatch(X_train, y_train, batch_size, num_frames, \
-			makeNoisy=True, reverbMatrix=reverbSamples)
-		train_step.run(feed_dict={x: train_batch_data, y_: train_batch_label, keep_prob: 0.5})
-		if (num_iter + 1) % print_freq == 0:
-			# evaluate metrics
-			train_err = cross_entropy.eval(feed_dict={x: train_batch_data, y_: train_batch_label, keep_prob: 1.0})
-			train_err_list.append(train_err)
-			val_err = batch_eval(X_val, y_val, cross_entropy)
-			val_err_list.append(val_err)
-			val_mrr = MRR_batch(X_val, y_val)
-			val_mrr_list.append(val_mrr)
-			print("-- epoch %d, iter %d, training error %g, validation error %g"%(epoch + 1, num_iter + 1, train_err, val_err))
-			# save screenshot of the model
-			if val_err < opt_val_err:
-				step_counter = 0	
-				saver.save(sess, save_path)
-				print('==> New optimal validation error found. Model saved.')
-				opt_val_err, opt_epoch, opt_iter = val_err, epoch + 1, num_iter + 1
-		if step_counter > max_counter:
-			print('==> Step counter exceeds maximum value. Stop training at epoch {}, iter {}.'.format(epoch + 1, num_iter + 1))
-			break
-		step_counter += 1
-		num_iter += 1
+	[train_batch_data, train_batch_label] = getMiniBatch(X_train, y_train, batch_size, num_frames, \
+		makeNoisy=True, reverbMatrix=reverbSamples)
+	train_step.run(feed_dict={x: train_batch_data, y_: train_batch_label, keep_prob: 0.5})
+	if (num_iter + 1) % print_freq == 0:
+		# evaluate metrics
+		train_err = cross_entropy.eval(feed_dict={x: train_batch_data, y_: train_batch_label, keep_prob: 1.0})
+		train_err_list.append(train_err)
+		val_err = batch_eval(X_val, y_val, cross_entropy)
+		val_err_list.append(val_err)
+		val_mrr = MRR_batch(X_val, y_val)
+		val_mrr_list.append(val_mrr)
+		print("-- iter %d, training error %g, validation error %g"%(num_iter + 1, train_err, val_err))
+		# save screenshot of the model
+		if val_err < opt_val_err:
+			step_counter = 0	
+			saver.save(sess, save_path)
+			print('==> New optimal validation error found. Model saved.')
+			opt_val_err, opt_iter = val_err, num_iter + 1
+	step_counter += 1
 
 t_end = time.time()
 print('--Time elapsed for training: {t:.2f} \
@@ -337,10 +322,10 @@ print('--Time elapsed for training: {t:.2f} \
 # Restore model & Evaluations
 # ==============================================
 saver.restore(sess, save_path)
-print('==> Model restored to epoch {}, iter {}'.format(opt_epoch, opt_iter))
+print('==> Model restored to iter {}'.format(opt_iter))
 
-model_path = './out/11a_{}'.format(artist)
-W1, W2 = sess.run([W_conv1, W_conv2], feed_dict={x: X_train, y_: y_train, keep_prob: 1.0})
+model_path = './out/11b_{}'.format(artist)
+W1, W2 = sess.run([W_conv1, W_conv2])
 savemat(model_path, {'W1': W1, 'W2': W2})
 print('==> CNN filters saved to {}.mat'.format(model_path))
 
@@ -360,9 +345,8 @@ train_err_plot = plt.plot(x_list, train_err_list, 'b', label='training')
 val_err_plot = plt.plot(x_list, val_err_list , color='orange', label='validation')
 plt.xlabel('Number of Iterations')
 plt.ylabel('Cross-Entropy Error')
-plt.title('Error vs Number of Epochs for {}'.format(artist))
+plt.title('Error vs Number of Iterations for {}'.format(artist))
 plt.legend(loc='best')
-plt.savefig('./out/exp11a_{}.png'.format(artist), format='png')
+plt.savefig('./out/exp11b_{}.png'.format(artist), format='png')
 plt.close()
-
 print('==> Finished!')
