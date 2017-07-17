@@ -32,7 +32,7 @@ def preprocessQ(Q, downsamplingRate):
 	numCols = np.shape(Q)[1]
 	# keep only 1 out of every downRate cols
 	Q = Q[:,range(0, numCols, downsamplingRate)]
-	return
+	return Q
 
 def loadData(filepath, datapath, downsamplingRate):
 	'''
@@ -69,9 +69,7 @@ def loadData(filepath, datapath, downsamplingRate):
 		data = sp.loadmat(datapath + trainFileList[i])
 		rawQ = data['Q']['c'][0][0]
 		X_train.append(preprocessQ(rawQ, downsamplingRate)) # not sure why so nested
-
 	X_val = []
-
 	for i in range(len(valFileList)):
 		print('Loading validation data: file %d from %s'%(i, datapath + valFileList[i]))
 		data = sp.loadmat(datapath + valFileList[i])
