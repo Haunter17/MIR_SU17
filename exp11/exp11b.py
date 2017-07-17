@@ -266,7 +266,7 @@ sess.run(tf.global_variables_initializer())
 y_train = sess.run(y_train_OHEnc)[:, 0, :]
 y_val = sess.run(y_val_OHEnc)[:, 0, :]
 
-[X_val, y_val] = getMiniBatch(X_val, y_val, 5000, num_frames)
+[X_val, y_val] = getMiniBatch(X_val, y_val, 1000, num_frames)
 
 # evaluation metrics
 train_err_list = []
@@ -280,10 +280,10 @@ save_path = './out/11bmodel_{}.ckpt'.format(artist)
 opt_val_err = np.inf
 opt_iter = -1
 step_counter = 0
-max_counter = 2000
+max_counter = 200
 batch_size = 256
-max_iter = 200000
-print_freq = 50
+max_iter = 10000
+print_freq = 2
 
 if FAST_FLAG:
 	max_iter = 10
@@ -292,7 +292,7 @@ print('==> Training the full network...')
 t_start = time.time()
 for num_iter in range(max_iter):
 	if step_counter > max_counter:
-		print('==> Step counter exceeds maximum value. Stop training at epoch {}, iter {}.'.format(epoch + 1, num_iter + 1))
+		print('==> Step counter exceeds maximum value. Stop training at iter {}.'.format(num_iter + 1))
 		break
 	[train_batch_data, train_batch_label] = getMiniBatch(X_train, y_train, batch_size, num_frames, \
 		makeNoisy=True, reverbMatrix=reverbSamples)
