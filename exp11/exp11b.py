@@ -65,7 +65,7 @@ def loadData(filepath, datapath, downsamplingRate):
 	# loop through each of the training and validation files and pull the CQT out
 	X_train = []
 	for i in range(len(trainFileList)):
-		print('Loading training data: file %d from %s'%(i, datapath + trainFileList[i]))
+		print('Loading training data: file %d from %s'%(i + 1, datapath + trainFileList[i]))
 		data = loadmat(datapath + trainFileList[i])
 		rawQ = data['Q']['c'][0][0]
 		X_train.append(preprocessQ(rawQ, downsamplingRate)) # not sure why so nested
@@ -73,7 +73,7 @@ def loadData(filepath, datapath, downsamplingRate):
 	X_val = []
 
 	for i in range(len(valFileList)):
-		print('Loading validation data: file %d from %s'%(i, datapath + valFileList[i]))
+		print('Loading validation data: file %d from %s'%(i + 1, datapath + valFileList[i]))
 		data = loadmat(datapath + valFileList[i])
 		rawQ = data['Q']['c'][0][0]
 		X_val.append(preprocessQ(rawQ, downsamplingRate))
@@ -100,7 +100,7 @@ def getMiniBatch(cqtList, labelMatrix, batchNum, batchWidth, makeNoisy=False, re
 	# pick batchNum random songs to sample one sample from (allow repeats)
 	songNums = np.random.randint(len(cqtList), size=batchNum)
 	labels = (np.array(labelMatrix))[songNums, :] # grab the labels for each random song
-	batch = np.zeros(batchNum, batchWidth * cqtList[0].shape[0])
+	batch = np.zeros((batchNum, batchWidth * cqtList[0].shape[0]))
 	# for each song, pull out a single sample
 	for i in range(batchNum):
 		songNum = songNums[i]
@@ -182,13 +182,15 @@ def MRR(pred, label):
 
 print('==> Experiment 11b: CNN on Full Window with Delta Reverb...')
 datapath = '/pylon2/ci560sp/cstrong/exp11/new_data/' + artist + '_out/'
-filepath = dataPath + 'FilesAndLabels.mat'
-reverbpath = dataPath + 'reverbSamples.mat'
+filepath = datapath + 'FilesAndLabels.mat'
+reverbpath = datapath + 'reverbSamples.mat'
 
 # ==============================================
 # 				reading data
 # ==============================================
 # benchmark
+downsamplingRate = 12
+sixSecFull = 1449
 t_start = time.time()
 print("==> Loading Training and Validation Data")
 [X_train, y_train, X_val, y_val] = loadData(filepath, datapath, downsamplingRate)
@@ -201,9 +203,7 @@ print('--Time elapsed for loading data: {t:.2f} \
 # ==============================================
 # Neural-network model set-up
 # ==============================================
-downsamplingRate = 12
-sixSecFull = 1449
-num_frames = np.floor(sixSecFull / downsamplingRate)
+num_frames = sixSecFull / downsamplingRate
 num_freq = X_train[0].shape[0]
 total_features = num_frames * num_freq
 num_classes = int(max(y_train.max(), y_val.max()) + 1)
@@ -266,7 +266,7 @@ sess.run(tf.global_variables_initializer())
 y_train = sess.run(y_train_OHEnc)[:, 0, :]
 y_val = sess.run(y_val_OHEnc)[:, 0, :]
 
-[X_val, y_val] = getMiniBatch(X_val, y_val, 1000, num_frames)
+[X_val, y_val] = getMiniBatch(X_val, y_val, 5000, num_frames)
 
 # evaluation metrics
 train_err_list = []
@@ -280,10 +280,10 @@ save_path = './out/11bmodel_{}.ckpt'.format(artist)
 opt_val_err = np.inf
 opt_iter = -1
 step_counter = 0
-max_counter = 5000
+max_counter = 2000
 batch_size = 256
-print_freq = 200
 max_iter = 200000
+print_freq = 50
 
 if FAST_FLAG:
 	max_iter = 10
