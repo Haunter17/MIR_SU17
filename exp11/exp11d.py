@@ -8,7 +8,7 @@ import sys
 from scipy.io import loadmat
 from scipy.io import savemat
 
-# usage: python exp11b.py deathcabforcutie 0 2 [5, 5] [5, 5] [32, 64] 5by5
+# usage: python exp11d.py deathcabforcutie 0 2 [5, 5] [5, 5] [32, 64] 5by5
 
 # ================ Sys arg ==========================
 artist = ''
@@ -200,7 +200,7 @@ def MRR(pred, label):
 # ==============================================
 # ==============================================
 
-print('==> Experiment 11b: CNN on Full Window with Delta Reverb...')
+print('==> Experiment 11d: CNN on Full Window with Delta Reverb...')
 datapath = '/pylon2/ci560sp/cstrong/exp11/new_data/' + artist + '_out/'
 filepath = datapath + 'FilesAndLabels.mat'
 reverbpath = datapath + 'reverbSamples.mat'
@@ -300,7 +300,7 @@ val_mrr_list = []
 # saver setup
 varsave_list = [W_conv1, b_conv1, W_conv2, b_conv2, W_fc1, b_fc1, W_sm, b_sm]
 saver = tf.train.Saver(varsave_list)
-save_path = './out/11bmodel_{}_{}.ckpt'.format(artist, stamp)
+save_path = './out/11dmodel_{}_{}.ckpt'.format(artist, stamp)
 opt_val_err = np.inf
 opt_iter = -1
 step_counter = 0
@@ -348,7 +348,7 @@ print('--Time elapsed for training: {t:.2f} \
 saver.restore(sess, save_path)
 print('==> Model restored to iter {}'.format(opt_iter))
 
-model_path = './out/11b_{}_{}'.format(artist, stamp)
+model_path = './out/11d_{}_{}'.format(artist, stamp)
 W1, W2 = sess.run([W_conv1, W_conv2])
 savemat(model_path, {'W1': W1, 'W2': W2})
 print('==> CNN filters saved to {}.mat'.format(model_path))
@@ -371,6 +371,6 @@ plt.xlabel('Number of Iterations')
 plt.ylabel('Cross-Entropy Error')
 plt.title('Error vs Number of Iterations for {}'.format(artist))
 plt.legend(loc='best')
-plt.savefig('./out/exp11b_{}_{}.png'.format(artist, stamp), format='png')
+plt.savefig('./out/exp11d_{}_{}.png'.format(artist, stamp), format='png')
 plt.close()
 print('==> Finished!')
