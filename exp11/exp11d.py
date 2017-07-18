@@ -8,7 +8,7 @@ import sys
 from scipy.io import loadmat
 from scipy.io import savemat
 
-# usage: python exp11d.py deathcabforcutie 0 2 [5, 5] [5, 5] [32, 64] 5by5
+# usage: python exp11d.py deathcabforcutie 0 2 [5,5] [5,5] [32,64] 5by5
 
 # ================ Sys arg ==========================
 artist = ''
@@ -159,9 +159,9 @@ def batch_nm(x, eps=1e-5):
 	mu, var = tf.nn.moments(x, [0])
 	return tf.nn.batch_normalization(x, mu, var, None, None, eps)
 
-def max_pool(x, p):
-  return tf.nn.max_pool(x, ksize=[1, p, p, 1],
-                        strides=[1, p, p, 1], padding='VALID')
+def max_pool(x, p1=2, p2=2):
+  return tf.nn.max_pool(x, ksize=[1, p1, p2, 1],
+                        strides=[1, p1, p2, 1], padding='VALID')
 
 def batch_eval(data, label, metric, batch_size=256):
 	value = 0.
@@ -248,12 +248,15 @@ h_col_list = [num_frames]
 for layer_num in range(NUM_CONV_LAYER):
 	r, c= HEIGHT_LIST[layer_num], WIDTH_LIST[layer_num]
 	k_in, k_out = FILNUM_LIST[layer_num], FILNUM_LIST[layer_num + 1]
-	W_conv = init_weight_variable([r, c, k_in, k_out]])
+	W_conv = init_weight_variable([r, c, k_in, k_out])
 	b_conv = init_bias_variable([k_out])
 	h_conv = tf.nn.relu(conv2d(h_list[-1], W_conv) + b_conv)
-	h_pool = max_pool(h_conv, 2)
-	hr = (h_row_list[layer_num] - r + 1) / 2
-	hc = (h_col_list[layer_num] - c + 1) / 2
+	hr = (h_row_list[layer_num] - r + 1)
+	hc = (h_col_list[layer_num] - c + 1)
+	p = min([2, hr, hc])
+	hr /= p
+	hc /= p
+	h_pool = max_pool(h_conv, p1=p, p2=p)
 	W_conv_list.append(W_conv)
 	b_conv_list.append(b_conv)
 	h_list.append(h_pool)
@@ -298,7 +301,7 @@ val_err_list = []
 val_mrr_list = []
 
 # saver setup
-varsave_list = [W_conv1, b_conv1, W_conv2, b_conv2, W_fc1, b_fc1, W_sm, b_sm]
+varsave_list = W_conv_list + b_conv_list + [W_fc1, b_fc1, W_sm, b_sm]
 saver = tf.train.Saver(varsave_list)
 save_path = './out/11dmodel_{}_{}.ckpt'.format(artist, stamp)
 opt_val_err = np.inf
@@ -349,8 +352,8 @@ saver.restore(sess, save_path)
 print('==> Model restored to iter {}'.format(opt_iter))
 
 model_path = './out/11d_{}_{}'.format(artist, stamp)
-W1, W2 = sess.run([W_conv1, W_conv2])
-savemat(model_path, {'W1': W1, 'W2': W2})
+W_data = sess.run(W_conv_list)
+savemat(model_path, {'W_list': W_data})
 print('==> CNN filters saved to {}.mat'.format(model_path))
 
 print('-- Final Validation error: {:.4E}'.format(batch_eval(X_val, y_val, cross_entropy)))
