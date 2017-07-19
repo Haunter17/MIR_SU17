@@ -253,7 +253,7 @@ for layer_num in range(NUM_CONV_LAYER):
 	h_conv = tf.nn.relu(conv2d(h_list[-1], W_conv) + b_conv)
 	hr = (h_row_list[layer_num] - r + 1)
 	hc = (h_col_list[layer_num] - c + 1)
-	p = min([2, hr, hc])
+	p = min([1, hr, hc])
 	hr /= p
 	hc /= p
 	h_pool = max_pool(h_conv, p1=p, p2=p)
@@ -307,7 +307,7 @@ save_path = './out/11dmodel_{}_{}.ckpt'.format(artist, stamp)
 opt_val_err = np.inf
 opt_iter = -1
 step_counter = 0
-max_counter = 200
+max_counter = 1000
 batch_size = 256
 max_iter = 10000
 print_freq = 2
@@ -322,7 +322,7 @@ for num_iter in range(max_iter):
 		print('==> Step counter exceeds maximum value. Stop training at iter {}.'.format(num_iter + 1))
 		break
 	[train_batch_data, train_batch_label] = getMiniBatch(X_train, y_train, batch_size, num_frames, \
-		makeNoisy=True, reverbMatrix=reverbSamples)
+		makeNoisy=False, reverbMatrix=reverbSamples)
 	train_step.run(feed_dict={x: train_batch_data, y_: train_batch_label, keep_prob: 0.5})
 	if (num_iter + 1) % print_freq == 0:
 		# evaluate metrics
@@ -366,15 +366,19 @@ print([float('{:.4E}'.format(e)) for e in val_err_list])
 print('-- Validaiton MRR --')
 print([float('{:.3f}'.format(e)) for e in val_mrr_list])
 
-print('==> Generating error plot...')
+print('==> Generating plots...')
 x_list = range(0, print_freq * len(train_err_list), print_freq)
-train_err_plot = plt.plot(x_list, train_err_list, 'b', label='training')
 val_err_plot = plt.plot(x_list, val_err_list , label='validation error')
 train_err_plot = plt.plot(x_list, train_err_list, label='training error')
-mrr_plot = plt.plot(x_list, val_mrr_list, label='validation MRR')
 plt.xlabel('Number of Iterations')
-plt.title('Statistics with Number of Iterations for {}'.format(artist))
+plt.title('Cross-entropy Error vs Number of Iterations for {}'.format(artist))
 plt.legend(loc='best')
 plt.savefig('./out/exp11d_{}_{}.png'.format(artist, stamp), format='png')
+plt.close()
+mrr_plot = plt.plot(x_list, val_mrr_list, label='validation MRR')
+plt.xlabel('Number of Iterations')
+plt.title('MRR with Number of Iterations for {}'.format(artist))
+plt.legend(loc='best')
+plt.savefig('./out/exp11d-MRR-{}-{}.png'.format(artist, stamp), format='png')
 plt.close()
 print('==> Finished!')
