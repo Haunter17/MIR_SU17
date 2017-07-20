@@ -253,7 +253,7 @@ for layer_num in range(NUM_CONV_LAYER):
 	h_conv = tf.nn.relu(conv2d(h_list[-1], W_conv) + b_conv)
 	hr = (h_row_list[layer_num] - r + 1)
 	hc = (h_col_list[layer_num] - c + 1)
-	p = min([1, hr, hc])
+	p = min([2, hr, hc])
 	hr /= p
 	hc /= p
 	h_pool = max_pool(h_conv, p1=p, p2=p)
